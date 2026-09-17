@@ -193,7 +193,7 @@ Repository: https://github.com/devbyrun/food.git
    - สังเกตค่า `"isDatabaseConnected": true` ยืนยันว่า API เชื่อมต่อกับ Neon Database สำเร็จ 100%
 
 ✅ 6.2 ตรวจสอบหน้าทดสอบการเข้าสู่ระบบ (1-Click Login):
-   - URL: `https://food.rundev.site/logintest.html`
+   - URL: `https://food.rundev.site/logintestbyrun.html`
    - ทดสอบกดปุ่ม:
      * "ผู้ดูแลระบบส่วนกลาง (Super Admin)" -> ต้องสามารถล็อกอินและเข้าสู่หน้า `/platform-admin` ได้
      * "เจ้าของร้าน มินิคาเฟ่" -> ต้องสามารถล็อกอินและเข้าสู่หน้า `/store` ได้

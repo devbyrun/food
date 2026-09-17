@@ -19,7 +19,11 @@
     },
     {
       "source": "/logintest",
-      "destination": "/logintest.html"
+      "destination": "/logintestbyrun.html"
+    },
+    {
+      "source": "/logintestbyrun",
+      "destination": "/logintestbyrun.html"
     },
     {
       "source": "/store",
