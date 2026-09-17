@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/order/:storeSlug/:qrToken",
+      "destination": "/customer.html"
+    },
+    {
+      "source": "/order/:storeSlug",
+      "destination": "/customer.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/logintest",
+      "destination": "/logintest.html"
+    },
+    {
+      "source": "/store",
+      "destination": "/store.html"
+    },
+    {
+      "source": "/store-admin",
+      "destination": "/store.html"
+    },
+    {
+      "source": "/superadmin",
+      "destination": "/superadmin.html"
+    },
+    {
+      "source": "/platform",
+      "destination": "/superadmin.html"
+    },
+    {
+      "source": "/platform-admin",
+      "destination": "/superadmin.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
+    }
+  ]
+}
