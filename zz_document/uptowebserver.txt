@@ -1,0 +1,133 @@
+ขอวิธี deploy โปรเจคนี้ขึ้น web server หน่อย
+
+
+การ Deploy โปรเจกต์นี้ขึ้น Web Server (VPS หรือ Cloud) สำหรับ Production
+เพื่อให้ระบบสั่งอาหารทำงานบนเว็บเซิร์ฟเวอร์ได้จริง (แทนการรันบนคอมพิวเตอร์ส่วนตัว) และรองรับผู้ใช้หลายคนพร้อมกัน ผมได้เตรียมขั้นตอนและไฟล์คำสั่งที่จำเป็นมาให้แล้วครับ
+
+สิ่งที่ต้องมีบน Web Server
+Node.js (แนะนำเวอร์ชัน 20.x ขึ้นไป)
+PostgreSQL (หรือใช้บริการ Database ที่มีให้ เช่น Neon ซึ่งคุณกำลังใช้)
+Nginx (Reverse Proxy) หรือ Caddy (แนะนำตัวนี้ เพราะตั้งค่า HTTPS ง่ายมาก)
+Redis (ถ้าต้องการความเสถียรของ Session และ Telegram Webhooks)
+ขั้นตอนที่ 1: เตรียม Server และติดตั้ง Dependencies
+ssh เข้าสู่ Web Server ของคุณ:
+bash
+ssh root@your-server-ip
+ติดตั้ง Node.js และ PM2:
+bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash - # ติดตั้ง Node 20
+apt-get install -y nodejs
+apt-get install -y nginx # ติดตั้ง Nginx
+# ติดตั้ง PM2 (ตัวจัดการ Process ให้รันตลอดเวลา)
+npm install -g pm2
+คัดลอกไฟล์โปรเจกต์มาที่เซิร์ฟเวอร์
+วิธีที่ 1: ใช้ Git Clone (แนะนำที่สุด)
+ถ้าคุณ Push โค้ดขึ้น GitHub แล้ว:
+bash
+git clone https://github.com/yourusername/food-ordering-system.git
+cd food-ordering-system
+วิธีที่ 2: Zip & Upload
+บีบอัดไฟล์บนเครื่องคุณ:
+bash
+zip -r food-ordering-system.zip .
+แล้วใช้ FTP/SFTP อัปโหลด food-ordering-system.zip ไปยังเซิร์ฟเวอร์
+แตกไฟล์:
+bash
+unzip food-ordering-system.zip
+ขั้นตอนที่ 2: ตั้งค่า Environment Variables
+สร้างไฟล์ .env บนเซิร์ฟเวอร์:
+bash
+cd /root/food-ordering-system
+nano .env
+* ข้อควรระวังเรื่อง Database สำหรับ Production:
+คุณใช้ Neon (PostgreSQL) อยู่แล้ว ซึ่งดีมากครับ เพราะไม่ต้องยุ่งยากติดตั้งฐานข้อมูลเอง
+ให้ใช้ URL เดิมจาก Neon (อย่าลืมใส่ sslmode=require ถ้า Neon กำหนด)
+คำอธิบายตัวแปร .env สำหรับ Production:
+Key	ความหมาย	ตัวอย่างสำหรับ Server
+PORT	พอร์ตที่จะให้แอปทำงานบน Linux	3000
+DATABASE_URL	การเชื่อมต่อ PostgreSQL	postgresql://... (ของคุณจาก Neon)
+JWT_SECRET	รหัสผ่านลับ (ต้องยาวและซับซ้อน)	สร้างใหม่แบบยาวๆ
+NODE_ENV	โหมดทำงาน	production
+NODE_MAX_LISTENERS	ป้องกัน RAM เต็ม	1024
+ขั้นตอนที่ 3: ติดตั้ง Dependencies และ Build (ถ้ามี)
+ตรวจสอบไฟล์ package.json ว่ามี build script หรือไม่ (ถ้ามีให้ทำตามขั้นตอนนี้)
+bash
+npm install
+# หากโปรเจกต์ใช้ Next.js หรือมี build ขั้นตอน
+npm run build
+ขั้นตอนที่ 4: ตั้งค่าฐานข้อมูล (Database Migration)
+ต้องสร้างตารางและข้อมูลเริ่มต้นบน Neon Database ของคุณ:
+bash
+# รันคำสั่งนี้บนเซิร์ฟเวอร์
+npx prisma migrate deploy
+(หรือถ้าใช้ seed ฉบับเต็ม)
+node src/db/seed.js
+ขั้นตอนที่ 5: ตั้งค่า PM2 ให้รันแอปตลอดเวลา
+รันครั้งแรก:
+bash
+npm start
+(ถ้าใช้ npm start ไม่ได้ ให้รัน node src/server.js)
+จากนั้นบันทึก PM2 process ให้จำค่าไว้:
+bash
+pm2 save
+ตั้งค่าให้รันอัตโนมัติเมื่อเปิดเครื่อง (Auto-Start):
+bash
+pm2 startup
+คัดลอกคำสั่งที่มันแสดงขึ้นมาแล้วกด Enter เพื่อวาง (เพื่อผูกกับ systemd/init)
+ขั้นตอนที่ 6: ตั้งค่า Nginx (Reverse Proxy)
+เราจะให้ Nginx รับพอร์ต 80/443 แล้วส่งต่อข้อมูลไปให้ Node.js ที่พอร์ต 3000
+สร้างไฟล์คอนฟิก Nginx:
+bash
+nano /etc/nginx/sites-available/food-ordering
+วางเนื้อหานี้ (แก้ไขชื่อโดเมนเป็นของคุณ):
+nginx
+server {
+    listen 80;
+    server_name food.rundev.site;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        client_max_body_size 50M; # รองรับรูปภาพอัปโหลด
+    }
+}
+เปิดใช้งาน Config:
+bash
+symlink -s /etc/nginx/sites-available/food-ordering /etc/nginx/sites-enabled/
+ทดสอบและรีสตาร์ท Nginx:
+bash
+nginx -t
+systemctl restart nginx
+ตัวเลือกเสริม: ใช้ Caddy (แนะนำสำหรับมือใหม่)
+ถ้าคุณมีโดเมน (เช่น somtum-zaab.com) Caddy จะตั้งค่า HTTPS ให้อัตโนมัติ:
+ติดตั้ง Caddy (ตามวิธีของเว็บ Caddy)
+สร้างไฟล์ caddyfile:
+caddy
+somtum-zaab.com {
+    reverse_proxy localhost:3000
+    tls your-email@example.com
+}
+แล้วสั่งรัน:
+bash
+caddy run
+(Caddy จะจัดการเรื่องใบรับรอง SSL ให้เองทั้งหมด)
+ขั้นตอนที่ 7: ตั้งค่า Telegram Bot ให้ถูกต้อง (Production)
+การตั้งค่า Webhook (เมื่อแอปออนไลน์แล้ว)
+เมื่อแอปออนไลน์บนเว็บเซิร์ฟเวอร์แล้ว ให้ไปที่หน้า Admin -> ตั้งค่า Telegram Bot
+ในช่อง Webhook URL ให้ใส่:
+https://your-domain.com/api/webhook/telegram
+(อย่าลืมใช้ https:// นะครับ ถ้าใช้ Caddy หรือ Nginx ตั้งค่า SSL ไว้แล้ว)
+ระบบจะส่งคำขอไปหา Bot และตั้งค่า Webhook ให้เองทันที
+สรุปขั้นตอนสำหรับคุณ (Quick Reference)
+เตรียม Server: ติดตั้ง Node.js + PM2
+Code: git clone / zip & upload
+Setup: npm install -> migrate DB (ที่ Neon) -> npm start
+Run: pm2 save -> pm2 startup
+Network: ตั้งค่า Nginx/Caddy ให้ชี้มาที่ Node Port 3000
+Telegram: เข้าเว็บ -> ไปหน้าตั้งค่า -> กรอก Webhook URL (https://your-domain...)
+ต้องการให้ผมช่วยเขียนไฟล์คำสั่งทั้งหมด (รวม Nginx/Caddy Config) ให้ครบจบในก้อนเดียวเลยไหมครับ?
+
+ถ้าต้องการ ให้ผมสร้างไฟล์ชื่อ deploy_full.sh ที่คุณสามารถดาวน์โหลดไปเปิดบนเซิร์ฟเวอร์ได้เลยไหมครับ? ผมจะรวมคำสั่งทั้งหมดที่จำเป็นไว้ในนั้นให้แล้ว

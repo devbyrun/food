@@ -1,0 +1,136 @@
+================================================================================
+🚀 คู่มือการ Deploy โปรเจกต์ TableQR Food POS ขึ้น Vercel อย่างละเอียด
+================================================================================
+
+ระบบนี้ได้รับการปรับแต่งไฟล์ให้รองรับ Vercel Serverless Architecture เรียบร้อยแล้ว:
+  ✅ มีไฟล์ `vercel.json` (จัดการ Route Rewrites ของ Frontend และ API)
+  ✅ มีไฟล์ `api/index.js` (Serverless Function เชื่อมต่อ Express Backend)
+  ✅ มีไฟล์ `.gitignore` (ป้องกันการอัปโหลดไฟล์ขยะและ .env)
+  ✅ ระบบฐานข้อมูล PostgreSQL ใน `src/db/index.js` รองรับ Cloud Database (Neon / Supabase) และเปิด SSL อัตโนมัติ
+
+--------------------------------------------------------------------------------
+📌 สิ่งที่ต้องเตรียมก่อนเริ่ม Deploy:
+--------------------------------------------------------------------------------
+1. บัญชี Vercel (สมัครฟรีที่ https://vercel.com)
+2. ฐานข้อมูล PostgreSQL บน Cloud (แนะนำ Neon.tech หรือ Supabase ที่สร้างไว้แล้ว)
+   ตัวอย่าง Connection String:
+   `postgresql://neondb_owner:npg_c1OH8iYrBsJT@ep-plain-meadow-ay8ei7zc-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require`
+
+================================================================================
+วิธีที่ 1: Deploy ผ่าน GitHub + Vercel Dashboard (⭐ แนะนำที่สุด - สะดวกและเร็ว)
+================================================================================
+
+ขั้นตอนที่ 1.1: อัปโหลดโค้ดขึ้น GitHub Repository
+  1. เปิด Terminal ในโฟลเดอร์โปรเจกต์
+  2. พิมพ์คำสั่ง:
+     $ git add .
+     $ git commit -m "Ready for Vercel deployment with serverless api and vercel.json"
+     $ git push origin main
+     (หากยังไม่ได้สร้าง Repo ให้สร้างบน github.com แล้วสั่ง git remote add origin ...)
+
+ขั้นตอนที่ 1.2: นำเข้าโปรเจกต์บน Vercel
+  1. เข้าสู่ระบบที่ https://vercel.com/dashboard
+  2. กดปุ่ม [Add New...] ที่มุมขวาบน -> เลือก [Project]
+  3. ในส่วน "Import Git Repository" ให้ค้นหา Repository ของคุณแล้วกดปุ่ม [Import]
+
+ขั้นตอนที่ 1.3: ตั้งค่าตัวแปรสภาพแวดล้อม (Environment Variables)
+  ในหน้า "Configure Project":
+  1. Project Name: ตั้งชื่อตามต้องการ (เช่น qr-food-pos)
+  2. Framework Preset: เลือก "Other" หรือปล่อยเป็นค่าเริ่มต้น
+  3. Root Directory: ปล่อยเป็น `./`
+  4. เปิดแท็บ [Environment Variables] แล้วเพิ่มค่าดังต่อไปนี้:
+     -----------------------------------------------------------------------
+     | Key Name      | Value (ค่าที่ใส่)                                    |
+     |---------------|-----------------------------------------------------|
+     | DATABASE_URL  | postgresql://neondb_owner:...@...neon.tech/neondb...|
+     | JWT_SECRET    | super_secret_food_ordering_jwt_key_2026             |
+     | NODE_ENV      | production                                          |
+     -----------------------------------------------------------------------
+     *(ตัวเลือกเสริม หากใช้ Cloud Storage / Cloudflare R2 / AWS S3 สำหรับเก็บรูป)*
+     - AWS_ACCESS_KEY_ID
+     - AWS_SECRET_ACCESS_KEY
+     - AWS_REGION
+     - AWS_S3_BUCKET
+     - AWS_ENDPOINT_URL_S3
+
+ขั้นตอนที่ 1.4: กดปุ่ม [Deploy]
+  - รอ Vercel Build และ Deploy ประมาณ 30 - 60 วินาที
+  - เมื่อเสร็จสิ้น จะแสดงหน้าจอพลุ 🎉 พร้อมมอบ Domain เช่น `https://qr-food-pos.vercel.app`
+
+================================================================================
+วิธีที่ 2: Deploy ผ่าน Command Line (Vercel CLI)
+================================================================================
+
+ขั้นตอนที่ 2.1: เข้าสู่ระบบ Vercel ผ่าน CLI
+  1. เปิด PowerShell หรือ Terminal ในโฟลเดอร์โปรเจกต์
+  2. พิมพ์คำสั่ง:
+     $ npx vercel login
+  3. เลือกวิธีล็อกอิน (เช่น Continue with GitHub หรือ Email) แล้วกด Enter เพื่อเปิดเบราว์เซอร์กดยืนยันการล็อกอิน
+
+ขั้นตอนที่ 2.2: สั่ง Deploy ขึ้นระบบ
+  1. พิมพ์คำสั่ง:
+     $ npx vercel
+  2. ระบบจะถามคำถาม ให้ตอบตามนี้:
+     - Set up and deploy “d:\Github\run-backup-web\food”? [Y/n]  --> ตอบ y (กด Enter)
+     - Which scope do you want to deploy to?                   --> เลือกบัญชีของคุณ (กด Enter)
+     - Link to existing project? [y/N]                         --> ตอบ n (กด Enter)
+     - What’s your project’s name?                             --> กด Enter เพื่อใช้ชื่อเดิม หรือพิมพ์ชื่อใหม่
+     - In which directory is your code located?                --> กด Enter (ใช้ `./`)
+     - Want to modify these settings? [y/N]                    --> ตอบ n (กด Enter)
+  3. ระบบจะทำการอัปโหลดและสร้าง Preview URL ให้
+
+ขั้นตอนที่ 2.3: เพิ่ม Environment Variables ผ่าน Vercel CLI (หรือใส่ในเว็บ Vercel)
+  พิมพ์คำสั่ง:
+     $ npx vercel env add DATABASE_URL production
+     (แล้ววาง URL ฐานข้อมูล Neon ลงไป)
+
+     $ npx vercel env add JWT_SECRET production
+     (แล้วพิมพ์ key เช่น super_secret_food_ordering_jwt_key_2026)
+
+ขั้นตอนที่ 2.4: สั่ง Deploy ขึ้น Production จริง
+  พิมพ์คำสั่ง:
+     $ npx vercel --prod
+  ระบบจะสร้าง Production URL ให้ทันที เช่น `https://your-project.vercel.app`
+
+================================================================================
+📋 ตรวจสอบและทดสอบระบบหลัง Deploy:
+================================================================================
+
+1. หน้าหลัก (Landing Page):
+   https://your-project.vercel.app/
+
+2. หน้าเข้าสู่ระบบด่วน (1-Click Login):
+   https://your-project.vercel.app/logintest.html
+
+3. หน้าศูนย์ควบคุม Super Admin:
+   https://your-project.vercel.app/superadmin.html
+   (เข้าสู่ระบบด้วย: admin / admin123)
+
+4. หน้าระบบจัดการร้านค้า (Store Management):
+   https://your-project.vercel.app/store.html
+   - ร้าน Starter (มินิคาเฟ่): starter_mgr / password123
+   - ร้าน Professional (ส้มตำแซ่บ): manager / manager123 (พนักงาน: staff / staff123)
+   - ร้าน Enterprise (แกรนด์บุฟเฟต์): enterprise_mgr / password123
+
+5. หน้าลูกค้าสแกนสั่งอาหาร (Customer QR Demo):
+   https://your-project.vercel.app/order/mini-cafe/cafe-c01
+   https://your-project.vercel.app/order/somtum-zaab/zaab-t01
+   https://your-project.vercel.app/order/grand-buffet/buffet-b01
+
+================================================================================
+💡 ข้อแนะนำและคำถามที่พบบ่อย (FAQ & Troubleshooting):
+================================================================================
+
+Q: ถ้าฐานข้อมูลยังไม่มีข้อมูลร้านค้าหรือผู้ใช้เริ่มต้น ทำอย่างไร?
+A: คุณสามารถรันคำสั่ง Seed ข้อมูลจากเครื่องของคุณไปยังฐานข้อมูล Neon ได้ทันที:
+   $ npm run db:seed
+   ข้อมูลร้านค้า 3 แพ็กเกจและผู้ใช้งานจะถูกบันทึกไปยังฐานข้อมูล Cloud โดยตรง
+
+Q: อัปโหลดรูปภาพบน Vercel แล้วรูปจะหายไหม?
+A: บน Vercel Serverless File System ชั่วคราวจะรีเซ็ตเมื่อ Container ปิดตัวลง
+   หากต้องการเก็บรูปถาวร แนะนำให้กรอก Environment Variables ของ AWS S3 หรือ Cloudflare R2 ซึ่งระบบโค้ดใน `src/services/storage.js` ได้เขียนรองรับการอัปโหลดขึ้น S3 / R2 Bucket แบบอัตโนมัติไว้แล้ว 100%
+
+Q: ถ้าแก้โค้ดใหม่ จะอัปเดตขึ้น Vercel อย่างไร?
+A: - หากเชื่อมกับ GitHub: เพียงพิมพ์ `git push` ระบบ Vercel จะ Deploy เวอร์ชันใหม่ให้อัตโนมัติ
+   - หากใช้ CLI: เพียงพิมพ์ `npx vercel --prod`
+================================================================================

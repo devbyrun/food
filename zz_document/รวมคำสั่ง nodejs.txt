@@ -1,0 +1,82 @@
+================================================================================
+           คู่มือและรวมคำสั่ง Node.js สำหรับระบบสั่งอาหารตามโต๊ะผ่าน QR Code
+     (Table QR Code Food Ordering System with Multi-Store & Telegram Workflow)
+================================================================================
+
+1. การติดตั้งและการเริ่มต้นโปรเจกต์ (Installation & Setup)
+--------------------------------------------------------------------------------
+1. ติดตั้ง Dependencies ทั้งหมด:
+   $ npm install
+
+2. การตั้งค่า Environment Variables (.env):
+   PORT=3000
+   DATABASE_URL=postgresql://neondb_owner:npg_c1OH8iYrBsJT@ep-plain-meadow-ay8ei7zc-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require
+   JWT_SECRET=super_secret_food_ordering_jwt_key_2026
+   NODE_ENV=development
+
+3. การสร้างตารางฐานข้อมูลและใส่ข้อมูลเริ่มต้น (Seed Data):
+   $ npm run db:seed
+   (หรือรัน: node src/db/seed.js)
+
+
+--------------------------------------------------------------------------------
+2. คำสั่งสำหรับการรันระบบ (Run Application)
+--------------------------------------------------------------------------------
+1. รันระบบสำหรับ Production:
+   $ npm start
+
+2. รันระบบสำหรับ Development (Auto-reload):
+   $ npm run dev
+
+
+--------------------------------------------------------------------------------
+3. เส้นทางและหน้าเว็บหลักของระบบ (URLs & Portals)
+--------------------------------------------------------------------------------
+1. หน้าหลัก (Landing Page & Portal Switcher):
+   http://localhost:3000/
+
+2. หน้าสั่งอาหารผ่าน QR Code ของลูกค้า (Customer QR Ordering Demo):
+   http://localhost:3000/order/somtum-zaab/zaab-t01-abc1   (โต๊ะ T-01 โซนห้องแอร์)
+   http://localhost:3000/order/somtum-zaab/zaab-t05-abc5   (โต๊ะ T-05 โซนสวน)
+
+3. หน้าระบบจัดการร้านค้า (Store Management Portal):
+   http://localhost:3000/store.html  (หรือ http://localhost:3000/store)
+   - ผังโต๊ะสด & พิมพ์ QR Code (Live Table Map)
+   - หน้าจอรับออเดอร์ในครัว (KDS Kitchen Display)
+   - ระบบแคชเชียร์ & เช็คบิล (POS / PromptPay QR)
+   - จัดการเมนูอาหารและสต็อกของหมด
+   - รายงานสถิติยอดขาย
+   - ตั้งค่า Telegram Bot และระบบ Telegram Simulator
+
+4. หน้าผู้ดูแลระบบส่วนกลาง (Platform Super Admin):
+   http://localhost:3000/superadmin.html  (หรือ http://localhost:3000/superadmin)
+
+5. หน้าเข้าสู่ระบบ (Login Portal):
+   http://localhost:3000/login.html
+
+
+--------------------------------------------------------------------------------
+4. บัญชีผู้ใช้งานเริ่มต้นสำหรับทดสอบ (Default Accounts)
+--------------------------------------------------------------------------------
+1. ผู้ดูแลระบบสูงสุด (Super Admin):
+   - Username: admin
+   - Password:  admin123
+
+2. ผู้จัดการร้านค้า (Store Manager - ส้มตำแซ่บนัว):
+   - Username: manager
+   - Password:  manager123
+
+3. พนักงานร้านค้า & ครัว (Store Staff):
+   - Username: staff
+   - Password:  staff123
+
+
+--------------------------------------------------------------------------------
+5. การทำงานของ Telegram Bot Workflow
+--------------------------------------------------------------------------------
+1. เมื่อลูกค้ากดสั่งอาหาร -> ส่งแจ้งเตือนเข้า Telegram กลุ่มครัว พร้อมปุ่ม "ปรุงเสร็จแล้ว"
+2. เมื่อพ่อครัวกดปุ่ม "ปรุงเสร็จแล้ว" -> ส่งแจ้งเตือนเข้า Telegram กลุ่มเสิร์ฟ พร้อมปุ่ม "เสิร์ฟแล้ว"
+3. เมื่อพนักงานกด "เสิร์ฟแล้ว" -> สถานะอาหารบนหน้าจอลูกค้าเปลี่ยนเป็น "เสิร์ฟแล้ว" ทันที
+* หมายเหตุ: หากยังไม่ได้ผูก Telegram Bot Token ระบบมี "Telegram Live Simulator" 
+  ในหน้าตั้งค่า ให้สามารถทดลองกดปุ่ม Inline ได้อย่างสมจริงทันทีบนเว็บเบราว์เซอร์
+================================================================================

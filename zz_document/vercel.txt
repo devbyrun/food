@@ -1,0 +1,146 @@
+================================================================================
+🚀 คู่มือการ Deploy โปรเจกต์ขึ้น Vercel และเชื่อมต่อฐานข้อมูล Neon อย่างละเอียด (Step-by-Step)
+================================================================================
+
+โปรเจกต์นี้รองรับ Vercel Serverless Function 100% พร้อมเชื่อมต่อฐานข้อมูล Cloud Database (Neon PostgreSQL) 
+และระบบจัดเก็บรูปภาพแบบ Hybrid Cloud Storage
+
+--------------------------------------------------------------------------------
+📌 ข้อมูลการเชื่อมต่อที่อ่านจากไฟล์ .env ของคุณ (สำหรับนำไปตั้งค่าบน Vercel):
+--------------------------------------------------------------------------------
+
+| ชื่อตัวแปร (Key)         | ค่าที่ต้องใส่ (Value)                                                                                                              | การใช้งาน (Environments)            |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------|
+| `DATABASE_URL`           | `postgresql://neondb_owner:npg_c1OH8iYrBsJT@ep-plain-meadow-ay8ei7zc-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require` | [x] Production [x] Preview [x] Dev |
+| `JWT_SECRET`             | `super_secret_food_ordering_jwt_key_2026`                                                                                         | [x] Production [x] Preview [x] Dev |
+| `NODE_ENV`               | `production`                                                                                                                      | [x] Production [x] Preview         |
+| `AWS_ENDPOINT_URL_S3`    | `https://br-misty-frost-ayf4d7xo.storage.c-5.us-east-2.aws.neon.tech`                                                             | [x] Production [x] Preview [x] Dev |
+| `AWS_REGION`             | `us-east-2`                                                                                                                       | [x] Production [x] Preview [x] Dev |
+| `AWS_S3_BUCKET`          | `assets`                                                                                                                          | [x] Production [x] Preview [x] Dev |
+
+================================================================================
+🎯 ขั้นตอนที่ 1: การตั้งค่า Environment Variables บนหน้าเว็บ Vercel Dashboard
+================================================================================
+
+1.1 เปิดเบราว์เซอร์ไปที่:
+    https://vercel.com/dashboard
+
+1.2 คลิกเลือกโปรเจกต์ของคุณ (เช่น `food`)
+
+1.3 ไปที่หน้าตั้งค่าตัวแปร:
+    - คลิกแท็บ [Settings] ด้านบนของหน้าโปรเจกต์
+    - ที่เมนูด้านซ้าย เลือก [Environment Variables]
+    (หรือพิมพ์ URL ลัด: https://vercel.com/food-47c2/food/settings/environment-variables )
+
+1.4 เพิ่มตัวแปรทีละตัวตามตารางด้านบน:
+
+    [ตัวที่ 1: DATABASE_URL]
+    - Key: DATABASE_URL
+    - Value: postgresql://neondb_owner:npg_c1OH8iYrBsJT@ep-plain-meadow-ay8ei7zc-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
+
+    [ตัวที่ 2: JWT_SECRET]
+    - Key: JWT_SECRET
+    - Value: super_secret_food_ordering_jwt_key_2026
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
+
+    [ตัวที่ 3: NODE_ENV]
+    - Key: NODE_ENV
+    - Value: production
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview
+    - กดปุ่ม [Save]
+
+    [ตัวที่ 4: AWS_ENDPOINT_URL_S3]
+    - Key: AWS_ENDPOINT_URL_S3
+    - Value: https://br-misty-frost-ayf4d7xo.storage.c-5.us-east-2.aws.neon.tech
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
+
+    [ตัวที่ 5: AWS_REGION]
+    - Key: AWS_REGION
+    - Value: us-east-2
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
+
+    [ตัวที่ 6: AWS_S3_BUCKET]
+    - Key: AWS_S3_BUCKET
+    - Value: assets
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
+
+================================================================================
+🎯 ขั้นตอนที่ 2: ตรวจสอบ Deployment Protection (แก้ปัญหาเชื่อมต่อเซิร์ฟเวอร์ไม่ได้)
+================================================================================
+
+หากเปิดหน้าเว็บเช่น logintest.html แล้วขึ้นข้อความสีแดง "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" 
+เกิดจากระบบ Vercel Authentication บล็อกการทำงานของ API ให้ทำการตรวจสอบดังนี้:
+
+2.1 ไปที่เมนู [Settings] -> เมนูด้านซ้ายเลือก [Deployment Protection]
+    (URL: https://vercel.com/food-47c2/food/settings/deployment-protection )
+
+2.2 ดูที่หัวข้อ **Vercel Authentication**:
+    - หากเปิดเป็น "Standard Protection" ให้เปลี่ยนเป็น **"Disabled"** (หรือยกเว้นสำหรับ Public)
+    - กดปุ่ม [Save]
+
+================================================================================
+🎯 ขั้นตอนที่ 3: สั่ง Redeploy (เพื่อให้การตั้งค่าตัวแปรทั้งหมดมีผลทำงาน)
+================================================================================
+
+*** สำคัญมาก: หลังเพิ่มตัวแปรใน Environment Variables ทุกครั้ง ต้องสั่ง Redeploy เสมอ ***
+
+3.1 คลิกที่แท็บ **[Deployments]** ด้านบนของหน้าจอโปรเจกต์
+3.2 ดูที่รายการ Deployment บนสุด (ล่าสุด) แล้วคลิกที่ปุ่ม 3 จุด **[...]** ทางขวามือ
+3.3 เลือก **[Redeploy]**
+3.4 กล่องข้อความจะเด้งขึ้นมา:
+    - **ไม่ต้องติ๊ก** "Use existing Build Cache"
+    - กดปุ่ม **[Redeploy]** สีฟ้า
+3.5 รอระบบทำการ Build ประมาณ 30 - 45 วินาที จนกระทั่งสถานะขึ้นเป็นวงกลมสีเขียว (Ready)
+
+================================================================================
+🎯 ขั้นตอนที่ 4: ทดสอบการใช้งานจริงหลัง Redeploy
+================================================================================
+
+เมื่อ Deploy สำเร็จ ให้ทดสอบตามลำดับดังนี้:
+
+4.1 ทดสอบสถานะฐานข้อมูล (API Health & Storage Status):
+    เปิดเบราว์เซอร์ไปที่:
+    `https://<โดเมนของคุณ>.vercel.app/api/upload/status`
+    
+    ผลลัพธ์ที่ถูกต้องจะเป็น JSON:
+    ```json
+    {
+      "success": true,
+      "isS3": false,
+      "isDatabaseConnected": true,
+      "primaryStorage": "Neon PostgreSQL Cloud Media Storage",
+      "mediaCount": 3
+    }
+    ```
+    *สังเกตว่า `isDatabaseConnected: true` แสดงว่าระบบเชื่อมต่อฐานข้อมูล Neon สำเร็จ 100%*
+
+4.2 ทดสอบหน้าเข้าสู่ระบบ:
+    เปิดเบราว์เซอร์ไปที่:
+    `https://<โดเมนของคุณ>.vercel.app/logintest.html`
+    - คลิกเลือกปุ่ม 1-Click Login เช่น "ผู้ดูแลระบบส่วนกลาง (Super Admin)" หรือ "เจ้าของร้าน มินิคาเฟ่"
+    - ระบบจะล็อกอินและนำเข้าสู่หน้าจัดการร้านค้าทันที
+
+4.3 ทดสอบหน้าสั่งอาหารผ่านโต๊ะ (QR Ordering):
+    เปิดเบราว์เซอร์ไปที่:
+    `https://<โดเมนของคุณ>.vercel.app/order/mini-cafe/table-1`
+    - ลูกค้าสามารถดูเมนูอาหาร และกดสั่งอาหารได้ทันที
+
+================================================================================
+💡 เคล็ดลับเพิ่มเติม (Tips & FAQ):
+================================================================================
+
+Q: ถ้าแก้ไขโค้ดในโปรเจกต์แล้ว อยากอัพเดตขึ้น Vercel ต้องทำอย่างไร?
+A: - หากเชื่อม GitHub ไว้: ทำการ `git add .` -> `git commit -m "update"` -> `git push` Vercel จะอัพเดตให้อัตโนมัติทันที
+   - หรือสั่ง Deploy ด่วนผ่าน Vercel CLI: เปิด Terminal ในโฟลเดอร์ `food` แล้วพิมพ์ `npx vercel --prod`
+
+Q: รูปภาพเมนูอาหารและสลิปโอนเงินจะถูกเก็บไว้ที่ไหน?
+A: ระบบเป็นแบบ Hybrid Cloud:
+   1. รูปภาพจะถูกบันทึกอย่างปลอดภัยลงในตาราง `uploaded_media` ของ Cloud Database (Neon PostgreSQL) อัตโนมัติ
+   2. ทำให้รูปภาพไม่สูญหายแม้ Vercel Serverless Function จะรีสตาร์ทตัวเอง
+================================================================================

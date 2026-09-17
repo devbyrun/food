@@ -1,0 +1,350 @@
+================================================================================
+                      การออกแบบฐานข้อมูล (Database Schema Design)
+                   ระบบสั่งอาหารตามโต๊ะผ่าน QR Code (Multi-Store)
+================================================================================
+
+1. ภาพรวมระบบฐานข้อมูล (Database Overview)
+--------------------------------------------------------------------------------
+- รูปแบบฐานข้อมูล: Relational Database (แนะนำ PostgreSQL หรือ MySQL 8.0+)
+- รูปแบบสถาปัตยกรรม: Multi-Tenant แบบ Shared Database, Separated by `store_id`
+  (รองรับการใช้งานหลายร้านค้าในระบบเดียวกันอย่างปลอดภัยและเป็นสัดส่วน)
+- การเข้ารหัสตัวอักษร: `utf8mb4` / `utf8mb4_unicode_ci` (รองรับภาษาไทยและ Emoji เต็มรูปแบบ)
+- มาตรฐานเวลา: `TIMESTAMP WITH TIME ZONE` (UTC)
+
+
+2. รายการตารางทั้งหมด (Tables Summary)
+--------------------------------------------------------------------------------
+กลุ่มที่ 1: ระบบผู้ใช้และร้านค้า (Users & Stores)
+  1.1 users                  - ข้อมูลผู้ใช้งานระบบทั้งหมด (Admin, Manager, Staff)
+  1.2 stores                 - ข้อมูลร้านค้า
+  1.3 store_users            - ความสัมพันธ์และสิทธิ์ของผู้ใช้ในแต่ละร้าน
+
+กลุ่มที่ 2: ระบบจัดการโต๊ะ (Tables & QR Code)
+  2.1 table_zones            - โซนของโต๊ะอาหาร (เช่น โซนห้องแอร์, โซนสวน, ชั้น 2)
+  2.2 restaurant_tables      - ข้อมูลโต๊ะอาหารและ QR Code Token
+
+กลุ่มที่ 3: ระบบจัดการเมนูอาหาร (Menus & Categories)
+  3.1 categories             - หมวดหมู่อาหาร/เครื่องดื่ม
+  3.2 menus                  - รายการเมนูอาหาร
+  3.3 option_groups          - กลุ่มตัวเลือกเสริม (เช่น ระดับความเผ็ด, ขนาดแก้ว, ท็อปปิ้ง)
+  3.4 option_items           - รายการตัวเลือกย่อยในแต่ละกลุ่ม (เช่น เผ็ดน้อย, เพิ่มไข่ดาว +10)
+  3.5 menu_option_groups     - ตารางเชื่อมระหว่างเมนูกับกลุ่มตัวเลือก
+
+กลุ่มที่ 4: ระบบการสั่งอาหารและออเดอร์ (Orders & Order Items)
+  4.1 orders                 - บิลการสั่งอาหารหลักของแต่ละโต๊ะ
+  4.2 order_items            - รายการอาหารแต่ละจานในบิล
+  4.3 order_item_options     - ตัวเลือกเสริมที่ลูกค้าเลือกสำหรับอาหารจานนั้นๆ
+
+กลุ่มที่ 5: ระบบการเงินและการแจ้งเตือน (Payments & Service Calls)
+  5.1 payments               - บันทึกการชำระเงินและหลักฐานการจ่าย
+  5.2 service_calls          - การแจ้งเตือนเรียกพนักงานจากโต๊ะอาหาร
+
+
+================================================================================
+3. โครงสร้างตารางอย่างละเอียด (Detailed Table Schemas)
+================================================================================
+
+--------------------------------------------------------------------------------
+1.1 ตาราง `users` (ผู้ใช้งานระบบ)
+--------------------------------------------------------------------------------
+เก็บข้อมูลผู้ใช้งานระบบทุกระดับ (Super Admin, Store Manager, Store Staff)
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสประจำตัวผู้ใช้                        |
+| username        | VARCHAR(50)   | UNIQUE, NOT NULL             | ชื่อผู้ใช้สำหรับล็อกอิน                   |
+| email           | VARCHAR(100)  | UNIQUE, NOT NULL             | อีเมล                                     |
+| password_hash   | VARCHAR(255)  | NOT NULL                     | รหัสผ่านที่ผ่านการ Hash (Bcrypt/Argon2)   |
+| full_name       | VARCHAR(100)  | NOT NULL                     | ชื่อ-นามสกุล                              |
+| phone_number    | VARCHAR(20)   | NULL                         | เบอร์โทรศัพท์                             |
+| role            | ENUM / VARCHAR| NOT NULL ('admin','user')    | บทบาทหลักในระบบ (admin = ดูแลระบบกลาง)   |
+| is_active       | BOOLEAN       | DEFAULT TRUE                 | สถานะการเปิดใช้งาน (TRUE=ใช้งาน, FALSE=ระงับ)|
+| created_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่สร้าง                           |
+| updated_at      | TIMESTAMP     | ON UPDATE CURRENT_TIMESTAMP  | วันเวลาที่แก้ไขล่าสุด                     |
+
+
+--------------------------------------------------------------------------------
+1.2 ตาราง `stores` (ร้านค้า)
+--------------------------------------------------------------------------------
+เก็บข้อมูลของแต่ละร้านค้าที่อยู่ในระบบ
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสประจำร้านค้า                          |
+| store_code      | VARCHAR(30)   | UNIQUE, NOT NULL             | รหัสอ้างอิงร้านค้า (เช่น ST-001)           |
+| name            | VARCHAR(150)  | NOT NULL                     | ชื่อร้านค้า                               |
+| slug            | VARCHAR(100)  | UNIQUE, NOT NULL             | URL Slug สำหรับหน้าร้าน (เช่น /store/my-shop)|
+| logo_url        | VARCHAR(255)  | NULL                         | URL รูปโลโก้ร้าน                          |
+| banner_url      | VARCHAR(255)  | NULL                         | URL รูปแบนเนอร์ร้าน                       |
+| address         | TEXT          | NULL                         | ที่อยู่ร้านค้า                            |
+| phone_number    | VARCHAR(20)   | NULL                         | เบอร์โทรศัพท์ติดต่อร้าน                   |
+| promptpay_number| VARCHAR(20)   | NULL                         | เบอร์พร้อมเพย์/เลขบัญชีสำหรับรับเงิน      |
+| promptpay_name  | VARCHAR(100)  | NULL                         | ชื่อบัญชีพร้อมเพย์                        |
+| vat_rate        | DECIMAL(5,2)  | DEFAULT 0.00                 | อัตราภาษีมูลค่าเพิ่ม (%) เช่น 7.00         |
+| service_charge  | DECIMAL(5,2)  | DEFAULT 0.00                 | เซอร์วิสชาร์จ (%) เช่น 10.00              |
+| telegram_bot_token        | VARCHAR(150) | NULL                  | Token สำหรับ Telegram Bot ประจำร้านค้า     |
+| telegram_kitchen_chat_id  | VARCHAR(100) | NULL                  | Chat ID / Group ID กลุ่ม Telegram ทีมครัว |
+| telegram_service_chat_id  | VARCHAR(100) | NULL                  | Chat ID / Group ID กลุ่ม Telegram ทีมเสิร์ฟ|
+| is_open         | BOOLEAN       | DEFAULT TRUE                 | สถานะเปิด/ปิดรับออเดอร์ของร้าน            |
+| status          | ENUM / VARCHAR| DEFAULT 'active'             | สถานะร้าน ('active', 'suspended', 'closed')|
+| created_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่สร้างร้านค้า                    |
+| updated_at      | TIMESTAMP     | ON UPDATE CURRENT_TIMESTAMP  | วันเวลาที่แก้ไขล่าสุด                     |
+
+
+--------------------------------------------------------------------------------
+1.3 ตาราง `store_users` (ความสัมพันธ์ผู้ใช้กับร้านค้า)
+--------------------------------------------------------------------------------
+กำหนดว่าผู้ใช้คนใด สังกัดร้านค้าใด และมีบทบาทใดในร้านนั้น
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสรายการ                                |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า (CASCADE ON DELETE)           |
+| user_id         | BIGINT (FK)   | NOT NULL -> users(id)        | รหัสผู้ใช้งาน (CASCADE ON DELETE)         |
+| role            | ENUM / VARCHAR| NOT NULL ('manager','staff') | บทบาทในร้าน ('manager'=ผู้จัดการ, 'staff'=พนักงาน) |
+| is_active       | BOOLEAN       | DEFAULT TRUE                 | สถานะการปฏิบัติงาน                        |
+| created_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่เพิ่ม                           |
+| UNIQUE KEY      | (store_id, user_id)                          | 1 บัญชีผู้ใช้มี 1 บทบาทต่อ 1 ร้าน         |
+
+
+--------------------------------------------------------------------------------
+2.1 ตาราง `table_zones` (โซนที่นั่งของร้านค้า)
+--------------------------------------------------------------------------------
+ใช้แบ่งโซนโต๊ะอาหารภายในร้านค้า
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสโซน                                   |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| name            | VARCHAR(50)   | NOT NULL                     | ชื่อโซน (เช่น ในร้าน, ลานระเบียง, VIP)     |
+| sort_order      | INT           | DEFAULT 0                    | ลำดับการแสดงผล                            |
+
+
+--------------------------------------------------------------------------------
+2.2 ตาราง `restaurant_tables` (ข้อมูลโต๊ะอาหาร)
+--------------------------------------------------------------------------------
+เก็บข้อมูลโต๊ะ สถานะโต๊ะ และ Token สำหรับสร้าง QR Code ให้ลูกค้าสแกน
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสประจำโต๊ะ                             |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| zone_id         | BIGINT (FK)   | NULL -> table_zones(id)      | โซนที่นั่ง (SET NULL ON DELETE)           |
+| table_number    | VARCHAR(20)   | NOT NULL                     | หมายเลขหรือชื่อโต๊ะ (เช่น T-01, VIP-1)    |
+| seat_capacity   | INT           | DEFAULT 4                    | จำนวนที่นั่งรองรับ                        |
+| qr_token        | VARCHAR(100)  | UNIQUE, NOT NULL             | รหัส Token สุ่มเฉพาะโต๊ะสำหรับสร้าง QR Code |
+| status          | ENUM / VARCHAR| DEFAULT 'available'          | สถานะโต๊ะ:                                |
+|                 |               |                              | - 'available'   = ว่าง                    |
+|                 |               |                              | - 'occupied'    = มีลูกค้านั่ง/กำลังทาน   |
+|                 |               |                              | - 'reserved'    = จองแล้ว                  |
+|                 |               |                              | - 'cleaning'    = รอทำความสะอาด/เคลียร์โต๊ะ|
+| current_order_id| BIGINT (FK)   | NULL                         | รหัสออเดอร์ปัจจุบันที่กำลังเปิดใช้งานอยู่ |
+| is_active       | BOOLEAN       | DEFAULT TRUE                 | เปิดใช้งานโต๊ะนี้หรือไม่                  |
+| created_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่สร้าง                           |
+| updated_at      | TIMESTAMP     | ON UPDATE CURRENT_TIMESTAMP  | วันเวลาที่แก้ไขล่าสุด                     |
+| UNIQUE KEY      | (store_id, table_number)                     | หมายเลขโต๊ะต้องไม่ซ้ำกันในร้านเดียวกัน    |
+
+
+--------------------------------------------------------------------------------
+3.1 ตาราง `categories` (หมวดหมู่อาหาร)
+--------------------------------------------------------------------------------
+จัดกลุ่มเมนูอาหารของแต่ละร้านค้า
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสหมวดหมู่                              |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| name            | VARCHAR(100)  | NOT NULL                     | ชื่อหมวดหมู่ (เช่น อาหารจานด่วน, เครื่องดื่ม)|
+| icon_url        | VARCHAR(255)  | NULL                         | ไอคอนประจำหมวดหมู่                        |
+| sort_order      | INT           | DEFAULT 0                    | ลำดับการเรียงแสดงผล                       |
+| is_active       | BOOLEAN       | DEFAULT TRUE                 | เปิด/ปิดการแสดงหมวดหมู่                   |
+| created_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่สร้าง                           |
+
+
+--------------------------------------------------------------------------------
+3.2 ตาราง `menus` (รายการเมนูอาหาร)
+--------------------------------------------------------------------------------
+เก็บรายการอาหาร ราคา รายละเอียด และสถานะพร้อมขาย
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสเมนู                                  |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| category_id     | BIGINT (FK)   | NOT NULL -> categories(id)   | หมวดหมู่อาหาร                             |
+| name            | VARCHAR(150)  | NOT NULL                     | ชื่อเมนูอาหาร                             |
+| description     | TEXT          | NULL                         | คำอธิบาย/รายละเอียดเมนู                   |
+| price           | DECIMAL(10,2) | NOT NULL                     | ราคาปกติ                                  |
+| special_price   | DECIMAL(10,2) | NULL                         | ราคาพิเศษ/โปรโมชัน (ถ้ามี)                 |
+| image_url       | VARCHAR(255)  | NULL                         | URL รูปภาพอาหาร                           |
+| is_available    | BOOLEAN       | DEFAULT TRUE                 | สถานะพร้อมขาย (TRUE=พร้อมขาย, FALSE=ของหมด)|
+| is_recommend    | BOOLEAN       | DEFAULT FALSE                | เมนูแนะนำ (TRUE=แสดงในส่วนแนะนำ)          |
+| sort_order      | INT           | DEFAULT 0                    | ลำดับการแสดงผล                            |
+| created_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่สร้าง                           |
+| updated_at      | TIMESTAMP     | ON UPDATE CURRENT_TIMESTAMP  | วันเวลาที่แก้ไข                           |
+
+
+--------------------------------------------------------------------------------
+3.3 ตาราง `option_groups` (กลุ่มตัวเลือกเสริมของอาหาร)
+--------------------------------------------------------------------------------
+กำหนดประเภทตัวเลือกเสริม (เช่น ระดับความหวาน, ระดับความเผ็ด, ท็อปปิ้งเพิ่มเติม)
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสกลุ่มตัวเลือก                         |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| name            | VARCHAR(100)  | NOT NULL                     | ชื่อกลุ่ม (เช่น ระดับความเผ็ด, ท็อปปิ้ง)  |
+| is_required     | BOOLEAN       | DEFAULT FALSE                | บังคับเลือกหรือไม่ (TRUE=ต้องเลือก)       |
+| min_select      | INT           | DEFAULT 0                    | จำนวนต่ำสุดที่ต้องเลือก                   |
+| max_select      | INT           | DEFAULT 1                    | จำนวนสูงสุดที่เลือกได้ (1=วิทยุ, >1=เช็กบ็อกซ์)|
+
+
+--------------------------------------------------------------------------------
+3.4 ตาราง `option_items` (รายการตัวเลือกย่อย)
+--------------------------------------------------------------------------------
+ตัวเลือกย่อยภายในกลุ่มตัวเลือก และราคาบวกเพิ่ม
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสตัวเลือกย่อย                          |
+| group_id        | BIGINT (FK)   | NOT NULL -> option_groups(id)| รหัสกลุ่มตัวเลือก                         |
+| name            | VARCHAR(100)  | NOT NULL                     | ชื่อตัวเลือก (เช่น เผ็ดมาก, เพิ่มชีส)     |
+| extra_price     | DECIMAL(10,2) | DEFAULT 0.00                 | ราคาบวกเพิ่ม                              |
+| is_available    | BOOLEAN       | DEFAULT TRUE                 | สถานะตัวเลือก (TRUE=มี, FALSE=หมด)        |
+| sort_order      | INT           | DEFAULT 0                    | ลำดับการแสดงผล                            |
+
+
+--------------------------------------------------------------------------------
+3.5 ตาราง `menu_option_groups` (ตารางเชื่อม เมนูกับกลุ่มตัวเลือก)
+--------------------------------------------------------------------------------
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| menu_id         | BIGINT (FK)   | NOT NULL -> menus(id)        | รหัสเมนูอาหาร                             |
+| group_id        | BIGINT (FK)   | NOT NULL -> option_groups(id)| รหัสกลุ่มตัวเลือก                         |
+| PRIMARY KEY     | (menu_id, group_id)                          | คีย์หลักร่วม                              |
+
+
+--------------------------------------------------------------------------------
+4.1 ตาราง `orders` (คำสั่งซื้อหลัก / บิลประจำโต๊ะ)
+--------------------------------------------------------------------------------
+เก็บข้อมูลคำสั่งซื้อหลักของโต๊ะในรอบการนั่งนั้นๆ
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสออเดอร์                               |
+| order_number    | VARCHAR(30)   | UNIQUE, NOT NULL             | หมายเลขคำสั่งซื้อ (เช่น ORD-20260909-001) |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| table_id        | BIGINT (FK)   | NOT NULL -> restaurant_tables | รหัสโต๊ะที่สั่ง                           |
+| customer_name   | VARCHAR(100)  | NULL                         | ชื่อลูกค้า (ระบุหรือไม่ก็ได้)             |
+| customer_count  | INT           | DEFAULT 1                    | จำนวนลูกค้าที่โต๊ะ                        |
+| status          | ENUM / VARCHAR| DEFAULT 'active'             | สถานะของบิล:                              |
+|                 |               |                              | - 'active'    = กำลังเปิดโต๊ะ/สั่งอาหารได้ |
+|                 |               |                              | - 'completed' = เช็คบิลและชำระเงินเรียบร้อย |
+|                 |               |                              | - 'cancelled' = ยกเลิกบิล                 |
+| subtotal_amount | DECIMAL(10,2) | DEFAULT 0.00                 | ยอดรวมค่าอาหารทั้งหมดก่อนหัก/บวก          |
+| discount_amount | DECIMAL(10,2) | DEFAULT 0.00                 | ส่วนลด                                    |
+| service_amount  | DECIMAL(10,2) | DEFAULT 0.00                 | ค่าบริการ (Service Charge)                |
+| vat_amount      | DECIMAL(10,2) | DEFAULT 0.00                 | ยอดภาษีมูลค่าเพิ่ม (VAT)                  |
+| net_amount      | DECIMAL(10,2) | DEFAULT 0.00                 | ยอดรวมสุทธิที่ต้องชำระ                    |
+| payment_status  | ENUM / VARCHAR| DEFAULT 'unpaid'             | สถานะการจ่าย ('unpaid','paid','refunded') |
+| opened_at       | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | เวลาที่เปิดโต๊ะ/สั่งรายการแรก             |
+| closed_at       | TIMESTAMP     | NULL                         | เวลาที่เช็คบิล/ปิดโต๊ะ                    |
+| created_by      | VARCHAR(50)   | DEFAULT 'customer_qr'        | ผู้สร้างออเดอร์ (customer_qr / staff_id)  |
+
+
+--------------------------------------------------------------------------------
+4.2 ตาราง `order_items` (รายการอาหารในบิล)
+--------------------------------------------------------------------------------
+เก็บรายการอาหารแต่ละจาน และสถานะการปรุงอาหารในครัว
+
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสรายการอาหารในออเดอร์                  |
+| order_id        | BIGINT (FK)   | NOT NULL -> orders(id)       | รหัสออเดอร์หลัก                           |
+| menu_id         | BIGINT (FK)   | NOT NULL -> menus(id)        | รหัสเมนูอาหาร                             |
+| menu_name       | VARCHAR(150)  | NOT NULL                     | ชื่อเมนู (Snapshot ตอนสั่ง)               |
+| unit_price      | DECIMAL(10,2) | NOT NULL                     | ราคาต่อหน่วย (Snapshot ตอนสั่ง)           |
+| quantity        | INT           | NOT NULL DEFAULT 1           | จำนวนจาน                                  |
+| options_price   | DECIMAL(10,2) | DEFAULT 0.00                 | ราคารวมของตัวเลือกเสริมต่อจาน             |
+| total_price     | DECIMAL(10,2) | NOT NULL                     | ราคารวมรายการนี้ (unit_price+opt)*qty     |
+| special_notes   | VARCHAR(255)  | NULL                         | หมายเหตุพิเศษ (เช่น ไม่ใส่ผักชี, หวานน้อย) |
+| status          | ENUM / VARCHAR| DEFAULT 'pending'            | สถานะในครัว:                              |
+|                 |               |                              | - 'pending'   = ลูกค้าสั่งเข้ามา (รอครัวรับ)|
+|                 |               |                              | - 'cooking'   = กำลังปรุงอาหาร            |
+|                 |               |                              | - 'ready'     = ปรุงเสร็จ/รอเสิร์ฟ         |
+|                 |               |                              | - 'served'    = เสิร์ฟแล้ว                |
+|                 |               |                              | - 'cancelled' = ยกเลิกจานนี้              |
+| telegram_msg_id | VARCHAR(50)   | NULL                         | Message ID ใน Telegram สำหรับอัปเดตสถานะ  |
+| ordered_at      | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่กดสั่ง                          |
+| updated_at      | TIMESTAMP     | ON UPDATE CURRENT_TIMESTAMP  | วันเวลาที่อัปเดตสถานะ                     |
+
+
+--------------------------------------------------------------------------------
+4.3 ตาราง `order_item_options` (ตัวเลือกเสริมที่ลูกค้าเลือก)
+--------------------------------------------------------------------------------
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสรายการ                                |
+| order_item_id   | BIGINT (FK)   | NOT NULL -> order_items(id)  | รหัสรายการอาหารในออเดอร์                  |
+| option_name     | VARCHAR(100)  | NOT NULL                     | ชื่อตัวเลือก (Snapshot)                   |
+| extra_price     | DECIMAL(10,2) | DEFAULT 0.00                 | ราคาบวกเพิ่ม (Snapshot)                   |
+
+
+--------------------------------------------------------------------------------
+5.1 ตาราง `payments` (ประวัติการชำระเงินและบิล)
+--------------------------------------------------------------------------------
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสการชำระเงิน                           |
+| order_id        | BIGINT (FK)   | NOT NULL -> orders(id)       | รหัสออเดอร์                               |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| payment_method  | ENUM / VARCHAR| NOT NULL                     | วิธีชำระ: 'cash', 'promptpay', 'credit_card'|
+| amount_received | DECIMAL(10,2) | NOT NULL                     | จำนวนเงินที่รับ                           |
+| change_amount   | DECIMAL(10,2) | DEFAULT 0.00                 | เงินทอน (กรณีเงินสด)                      |
+| slip_image_url  | VARCHAR(255)  | NULL                         | URL รูปสลิปการโอน (ถ้ามี)                 |
+| received_by     | BIGINT (FK)   | NULL -> users(id)            | พนักงาน/ผู้จัดการที่รับชำระ               |
+| paid_at         | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่ชำระเงิน                        |
+
+
+--------------------------------------------------------------------------------
+5.2 ตาราง `service_calls` (การแจ้งเตือนเรียกพนักงาน)
+--------------------------------------------------------------------------------
+| Column Name     | Data Type     | Constraints / Default        | Description                               |
+|-----------------|---------------|------------------------------|-------------------------------------------|
+| id              | BIGINT (PK)   | AUTO_INCREMENT / SERIAL      | รหัสการเรียก                              |
+| store_id        | BIGINT (FK)   | NOT NULL -> stores(id)       | รหัสร้านค้า                               |
+| table_id        | BIGINT (FK)   | NOT NULL -> restaurant_tables | รหัสโต๊ะ                                  |
+| call_type       | ENUM / VARCHAR| DEFAULT 'call_staff'         | ประเภท: 'call_staff', 'check_bill', 'water'|
+| note            | VARCHAR(255)  | NULL                         | ข้อความเพิ่มเติม                          |
+| status          | ENUM / VARCHAR| DEFAULT 'pending'            | สถานะ: 'pending' (รอ), 'acknowledged' (รับเรื่อง), 'done' (เสร็จสิ้น) |
+| called_at       | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | วันเวลาที่กดเรียก                         |
+| resolved_at     | TIMESTAMP     | NULL                         | วันเวลาที่พนักงานให้บริการเสร็จสิ้น       |
+
+
+================================================================================
+4. ความสัมพันธ์ระหว่างตาราง (Entity Relationship Summary)
+================================================================================
+- stores (1)  ----< (N) store_users >---- (1) users
+- stores (1)  ----< (N) table_zones
+- stores (1)  ----< (N) restaurant_tables
+- stores (1)  ----< (N) categories
+- stores (1)  ----< (N) menus
+- stores (1)  ----< (N) option_groups ----< (N) option_items
+- menus (N)   ----< (N) option_groups (ผ่าน menu_option_groups)
+- restaurant_tables (1) ----< (N) orders
+- orders (1)  ----< (N) order_items ----< (N) order_item_options
+- orders (1)  ----< (N) payments
+- restaurant_tables (1) ----< (N) service_calls
+
+
+================================================================================
+5. ดัชนีการค้นหาเพื่อประสิทธิภาพ (Recommended Database Indexes)
+================================================================================
+1. `CREATE INDEX idx_tables_store_token ON restaurant_tables(store_id, qr_token);`
+   - เพื่อให้ค้นหาโต๊ะจาก QR Code ได้รวดเร็วที่สุดระดับเสี้ยววินาที
+2. `CREATE INDEX idx_menus_store_category ON menus(store_id, category_id, is_available);`
+   - เพื่อให้การโหลดเมนูหน้าร้านของลูกค้าลื่นไหล
+3. `CREATE INDEX idx_orders_store_status ON orders(store_id, status, created_at);`
+   - เพื่อให้ Dashboard และหน้าแสดงผลของร้านค้าดึงข้อมูลได้อย่างรวดเร็ว
+4. `CREATE INDEX idx_order_items_order_status ON order_items(order_id, status);`
+   - เพื่อให้ระบบหน้าจอครัว (KDS) ดึงรายการอาหารที่กำลังทำได้ทันที
+================================================================================
