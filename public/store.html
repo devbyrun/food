@@ -1805,18 +1805,28 @@
              /\.(jpg|jpeg|png|webp|svg|gif|avif)(\?.*)?$/i.test(val);
     }
 
+    function cleanLeadingEmoji(text) {
+      if (!text || typeof text !== 'string') return '';
+      return text.replace(/^[\p{Extended_Pictographic}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\s]+/u, '').trim() || text;
+    }
+
     function updatePageFavicon(logoUrl) {
       let link = document.getElementById('page-favicon') || document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
         link.id = 'page-favicon';
         link.rel = 'icon';
-        link.type = 'image/png';
         document.head.appendChild(link);
       }
       if (logoUrl && isImageAvatar(logoUrl)) {
+        link.type = 'image/png';
         link.href = logoUrl;
+      } else if (logoUrl && typeof logoUrl === 'string' && logoUrl.trim() !== '' && logoUrl !== '🍲' && !logoUrl.startsWith('/assets/img/')) {
+        const emoji = logoUrl.trim();
+        link.type = 'image/svg+xml';
+        link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(emoji)}</text></svg>`;
       } else {
+        link.type = 'image/png';
         link.href = '/assets/img/logo.png';
       }
     }
@@ -1824,25 +1834,28 @@
     function updateHeaderBrand(store) {
       if (!store) return;
       
+      const rawStoreName = store.name || (typeof currentStoreData !== 'undefined' && currentStoreData && currentStoreData.name) || '';
+      const logo = (store.logo_url !== undefined) ? store.logo_url : (typeof currentStoreData !== 'undefined' && currentStoreData ? currentStoreData.logo_url : '');
+      const cleanName = cleanLeadingEmoji(rawStoreName);
+
       // 1. Store Name & Browser Tab Title
-      const storeName = store.name || (typeof currentStoreData !== 'undefined' && currentStoreData && currentStoreData.name) || '';
       const nameEl = document.getElementById('store-header-name');
-      if (nameEl && storeName) {
-        nameEl.innerText = storeName;
+      if (nameEl && rawStoreName) {
+        nameEl.innerText = cleanName || rawStoreName;
       }
-      if (storeName) {
-        document.title = `${storeName} - ระบบจัดการร้านค้า`;
+
+      if (rawStoreName) {
+        document.title = `${cleanName || rawStoreName} - ระบบจัดการร้านค้า`;
       } else {
-        document.title = 'ระบบจัดการร้านค้า - Table QR Food Ordering System';
+        document.title = 'ระบบจัดการร้านค้า - QR Food POS';
       }
 
       // 2. Store Logo & Browser Tab Favicon
-      const logo = (store.logo_url !== undefined) ? store.logo_url : (typeof currentStoreData !== 'undefined' && currentStoreData ? currentStoreData.logo_url : '');
       const iconEl = document.getElementById('store-header-brand-icon');
       if (iconEl) {
         if (logo && isImageAvatar(logo)) {
           iconEl.innerHTML = `<img src="${logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;" onerror="this.src='/assets/img/logo.png'">`;
-        } else if (logo && logo !== '🍲') {
+        } else if (logo && typeof logo === 'string' && logo.trim() !== '' && logo !== '🍲' && !logo.startsWith('/assets/img/')) {
           iconEl.innerHTML = `<span style="font-size:1.4rem; line-height:1;">${logo}</span>`;
         } else {
           iconEl.innerHTML = `<img src="/assets/img/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;">`;
@@ -1862,23 +1875,15 @@
         updateStoreOpenUI(store.is_open);
       }
       const profileStoreDisplay = document.getElementById('profile-store-display');
-      if (profileStoreDisplay && storeName) {
-        profileStoreDisplay.innerText = storeName;
+      if (profileStoreDisplay && rawStoreName) {
+        profileStoreDisplay.innerText = cleanName || rawStoreName;
       }
     }
 
     function handleStoreNameInput(val) {
       const trimmed = val.trim();
-      const nameToDisplay = trimmed || 'ร้านอาหาร';
-      const nameEl = document.getElementById('store-header-name');
-      if (nameEl) nameEl.innerText = nameToDisplay;
-      if (trimmed) {
-        document.title = `${trimmed} - ระบบจัดการร้านค้า`;
-      } else {
-        document.title = 'ระบบจัดการร้านค้า - Table QR Food Ordering System';
-      }
-      const profileStoreDisplay = document.getElementById('profile-store-display');
-      if (profileStoreDisplay) profileStoreDisplay.innerText = nameToDisplay;
+      const currentLogo = document.getElementById('set-store-logo-url') ? document.getElementById('set-store-logo-url').value.trim() : '';
+      updateHeaderBrand({ name: trimmed || 'ร้านอาหาร', logo_url: currentLogo });
     }
 
     function updateHeaderUserAvatar(avatarVal) {
@@ -3975,14 +3980,12 @@
     function renderStoreLogoPreview(logo) {
       const previewBox = document.getElementById('set-store-logo-preview');
       if (!previewBox) return;
-      if (!logo || logo === '🍲' || logo === '') {
-        previewBox.innerHTML = `<img src="/assets/img/logo.png" alt="Default Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;">`;
-        return;
-      }
-      if (isImageAvatar(logo)) {
+      if (logo && isImageAvatar(logo)) {
         previewBox.innerHTML = `<img src="${logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;" onerror="this.src='/assets/img/logo.png'">`;
-      } else {
+      } else if (logo && typeof logo === 'string' && logo.trim() !== '' && logo !== '🍲' && !logo.startsWith('/assets/img/')) {
         previewBox.innerHTML = `<span style="font-size:2.5rem; line-height:1;">${logo}</span>`;
+      } else {
+        previewBox.innerHTML = `<img src="/assets/img/logo.png" alt="Default Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;">`;
       }
     }
 
@@ -4020,9 +4023,12 @@
           
           // 3. Update top-left header brand icon immediately
           const brandIconEl = document.getElementById('store-header-brand-icon');
-          if (brandIconEl) {
-            brandIconEl.innerHTML = `<img src="${data.url}" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;">`;
-          }
+          // 1. Update preview in store settings
+          renderStoreLogoPreview(data.url);
+          
+          // 2. Update page favicon, brand icon & browser title immediately
+          const currentName = document.getElementById('set-store-name') ? document.getElementById('set-store-name').value : (currentStoreData ? currentStoreData.name : '');
+          updateHeaderBrand({ name: currentName, logo_url: data.url });
 
           App.toast(`อัปโหลดโลโก้ร้านสำเร็จ ✨ (WebP • ${data.isS3 ? 'S3 Storage' : 'Cloud'}) กดบันทึกเพื่อใช้งาน`, 'success');
         } else {
@@ -4039,11 +4045,10 @@
         document.getElementById('set-store-logo-url').value = emoji;
       }
       renderStoreLogoPreview(emoji);
-      updatePageFavicon(emoji);
-      const brandIconEl = document.getElementById('store-header-brand-icon');
-      if (brandIconEl) {
-        brandIconEl.innerHTML = `<span style="font-size:1.4rem; line-height:1;">${emoji}</span>`;
-      }
+      
+      const currentName = document.getElementById('set-store-name') ? document.getElementById('set-store-name').value : (currentStoreData ? currentStoreData.name : '');
+      updateHeaderBrand({ name: currentName, logo_url: emoji });
+      
       App.toast(`เลือกไอคอน ${emoji} แล้ว (กดบันทึกเพื่อใช้งาน)`, 'info');
     }
 
@@ -4054,12 +4059,9 @@
       if (document.getElementById('set-store-logo-file')) {
         document.getElementById('set-store-logo-file').value = '';
       }
-      renderStoreLogoPreview('/assets/img/logo.png');
-      updatePageFavicon('/assets/img/logo.png');
-      const brandIconEl = document.getElementById('store-header-brand-icon');
-      if (brandIconEl) {
-        brandIconEl.innerHTML = `<img src="/assets/img/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;">`;
-      }
+      renderStoreLogoPreview('');
+      const currentName = document.getElementById('set-store-name') ? document.getElementById('set-store-name').value : (currentStoreData ? currentStoreData.name : '');
+      updateHeaderBrand({ name: currentName, logo_url: '' });
       App.toast('คืนค่าโลโก้เป็นค่าเริ่มต้นแล้ว (assets/img/logo.png) กดบันทึกเพื่อยืนยัน', 'info');
     }
 
@@ -4189,7 +4191,7 @@
           if (document.getElementById('set-service-charge')) document.getElementById('set-service-charge').value = data.store.service_charge || 0;
 
           // Store Logo
-          const logoVal = data.store.logo_url || '🍲';
+          const logoVal = data.store.logo_url || '';
           if (document.getElementById('set-store-logo-url')) {
             document.getElementById('set-store-logo-url').value = data.store.logo_url || '';
           }

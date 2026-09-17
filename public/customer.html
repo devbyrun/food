@@ -141,6 +141,19 @@
 
   </main>
 
+  <!-- Customer Footer -->
+  <footer style="margin-top: 3rem; padding: 2rem 1rem 6rem; text-align: center; border-top: 1px solid var(--border-glass); color: var(--text-dim); font-size: 0.88rem;">
+    <div style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); padding: 8px 18px; border-radius: 9999px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+      <span>✨ สนใจโปรแกรมสั่งอาหาร</span>
+      <a href="https://food.rundev.site" target="_blank" rel="noopener noreferrer" style="color: #fb923c; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.textDecoration='underline'; this.style.color='#fdba74';" onmouseout="this.style.textDecoration='none'; this.style.color='#fb923c';">
+        <span>food.rundev.site</span> <span>↗</span>
+      </a>
+    </div>
+    <div style="margin-top: 8px; font-size: 0.76rem; color: var(--text-muted);">
+      QR Food POS • ระบบสั่งอาหารตามโต๊ะอัจฉริยะ
+    </div>
+  </footer>
+
   <!-- Floating Cart Drawer -->
   <div id="floating-cart" class="floating-cart" style="display: none;" onclick="openCartModal()">
     <div style="display: flex; align-items: center; gap: 12px;">
@@ -262,24 +275,47 @@
         App.currentStoreId = currentStore.id;
 
         // Populate Header & Tab Title
-        document.getElementById('store-name').innerText = currentStore.name;
-        if (currentStore.name) {
-          document.title = `${currentStore.name} - สั่งอาหารตามโต๊ะผ่าน QR Code`;
+        const cleanStoreName = currentStore.name ? currentStore.name.replace(/^[\p{Extended_Pictographic}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\s]+/u, '').trim() || currentStore.name : '';
+        document.getElementById('store-name').innerText = cleanStoreName || currentStore.name;
+        if (cleanStoreName || currentStore.name) {
+          document.title = `${cleanStoreName || currentStore.name} - สั่งอาหารตามโต๊ะผ่าน QR Code`;
         }
         const isTakeaway = Boolean(currentTable.is_takeaway || currentTable.table_number === 'กลับบ้าน' || currentTable.table_number === 'สั่งกลับบ้าน');
         document.getElementById('table-badge').innerText = isTakeaway ? '🛍️ สั่งกลับบ้าน (Takeaway)' : `โต๊ะ ${currentTable.table_number}`;
         document.getElementById('zone-badge').innerText = isTakeaway ? 'รับกลับบ้าน' : (currentTable.zone_name || 'ทั่วไป');
 
-        if (currentStore.logo_url) {
-          if (currentStore.logo_url.startsWith('data:image') || currentStore.logo_url.startsWith('http://') || currentStore.logo_url.startsWith('https://') || currentStore.logo_url.startsWith('/')) {
-            document.getElementById('store-logo').innerHTML = `<img src="${currentStore.logo_url}" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" onerror="this.src='/assets/img/logo.png'">`;
-            const favEl = document.getElementById('page-favicon');
-            if (favEl) favEl.href = currentStore.logo_url;
-          } else {
-            document.getElementById('store-logo').innerText = currentStore.logo_url;
+        const isImgLogo = currentStore.logo_url && (
+          currentStore.logo_url.startsWith('data:image') || 
+          currentStore.logo_url.startsWith('http://') || 
+          currentStore.logo_url.startsWith('https://') || 
+          currentStore.logo_url.startsWith('/uploads/') ||
+          currentStore.logo_url.startsWith('uploads/') ||
+          currentStore.logo_url.startsWith('/') ||
+          /\.(jpg|jpeg|png|webp|svg|gif|avif)(\?.*)?$/i.test(currentStore.logo_url.trim())
+        );
+
+        if (isImgLogo) {
+          document.getElementById('store-logo').innerHTML = `<img src="${currentStore.logo_url}" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" onerror="this.src='/assets/img/logo.png'">`;
+          const favEl = document.getElementById('page-favicon');
+          if (favEl) {
+            favEl.type = 'image/png';
+            favEl.href = currentStore.logo_url;
+          }
+        } else if (currentStore.logo_url && typeof currentStore.logo_url === 'string' && currentStore.logo_url.trim() !== '' && currentStore.logo_url !== '🍲' && !currentStore.logo_url.startsWith('/assets/img/')) {
+          const emoji = currentStore.logo_url.trim();
+          document.getElementById('store-logo').innerHTML = `<span style="font-size:1.6rem; line-height:1;">${emoji}</span>`;
+          const favEl = document.getElementById('page-favicon');
+          if (favEl) {
+            favEl.type = 'image/svg+xml';
+            favEl.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(emoji)}</text></svg>`;
           }
         } else {
           document.getElementById('store-logo').innerHTML = `<img src="/assets/img/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;">`;
+          const favEl = document.getElementById('page-favicon');
+          if (favEl) {
+            favEl.type = 'image/png';
+            favEl.href = '/assets/img/logo.png';
+          }
         }
         if (currentStore.banner_url) {
           document.getElementById('banner-container').style.display = 'block';
