@@ -1,0 +1,261 @@
+================================================================================
+📘 คู่มือฉบับสมบูรณ์: การ Deploy เว็บขึ้น Vercel ผ่าน GitHub
+   เชื่อมต่อฐานข้อมูล Neon PostgreSQL และผูก Custom Domain "food.rundev.site" ผ่าน Cloudflare
+================================================================================
+
+โปรเจกต์: Table QR Code Food Ordering System (devbyrun/food)
+Repository: https://github.com/devbyrun/food.git
+โดเมนเป้าหมาย: food.rundev.site
+ฐานข้อมูล: Neon Serverless PostgreSQL (AWS us-east-2)
+
+--------------------------------------------------------------------------------
+📑 สารบัญเนื้อหา (Table of Contents)
+--------------------------------------------------------------------------------
+1. ส่วนที่ 1: การเตรียม Source Code และ Push ขึ้น GitHub
+2. ส่วนที่ 2: การ Import โปรเจกต์และเชื่อมต่อ Vercel กับ GitHub (Auto Deploy)
+3. ส่วนที่ 3: การตั้งค่า Environment Variables และเชื่อมต่อฐานข้อมูล Neon
+4. ส่วนที่ 4: การตั้งค่า Deployment Protection บน Vercel
+5. ส่วนที่ 5: การผูก Custom Domain "food.rundev.site" ผ่าน Cloudflare (Step-by-Step)
+6. ส่วนที่ 6: การตรวจสอบและทดสอบระบบหลัง Deploy (Verification Checklist)
+7. ส่วนที่ 7: แนวทางการอัปเดตโค้ดในอนาคต (CI/CD Workflow)
+8. ส่วนที่ 8: การแก้ไขปัญหาที่พบบ่อย (Troubleshooting & FAQs)
+
+================================================================================
+🚀 ส่วนที่ 1: การเตรียม Source Code และ Push ขึ้น GitHub
+================================================================================
+
+ก่อนที่จะเชื่อม Vercel เข้ากับ GitHub ให้ตรวจสอบว่าโค้ดล่าสุดของคุณอยู่ใน Git Repository เรียบร้อยแล้ว
+
+1.1 ตรวจสอบไฟล์ `.gitignore`:
+    โปรเจกต์ต้องมีไฟล์ `.gitignore` เพื่อป้องกันการอัปโหลดไฟล์ที่ไม่จำเป็นหรือไฟล์ความลับ เช่น:
+    - `node_modules/`
+    - `.env`
+    - `.env.local`
+    - `.vercel`
+
+1.2 คำสั่งตรวจสอบและ Push โค้ดขึ้น GitHub:
+    เปิด PowerShell หรือ Terminal ในโฟลเดอร์โปรเจกต์ `d:\Github\food` แล้วรันคำสั่ง:
+
+    ```bash
+    # 1. ตรวจสอบสถานะของไฟล์
+    git status
+
+    # 2. เพิ่มไฟล์ทั้งหมดเข้า Git Stage
+    git add .
+
+    # 3. บันทึก Commit
+    git commit -m "feat: prepare project for Vercel deployment with cloud database and custom domain"
+
+    # 4. Push โค้ดขึ้น Branch main บน GitHub
+    git push -u origin main
+    ```
+
+1.3 ตรวจสอบบนหน้าเว็บ GitHub:
+    เข้าไปที่ `https://github.com/devbyrun/food` เพื่อตรวจสอบว่าโค้ดล่าสุดถูก Push ขึ้นไปเรียบร้อยแล้ว
+
+================================================================================
+🚀 ส่วนที่ 2: การ Import โปรเจกต์และเชื่อมต่อ Vercel กับ GitHub
+================================================================================
+
+2.1 เข้าสู่ระบบ Vercel Dashboard:
+    - ไปที่เว็บไซต์: https://vercel.com
+    - ล็อกอินด้วยบัญชี GitHub ของคุณ (แนะนำเพื่อให้สิทธิ์ในการเข้าถึง Repo อัตโนมัติ)
+
+2.2 การสร้างโปรเจกต์ใหม่ (Import Git Repository):
+    1. ที่หน้า Dashboard กดปุ่ม **[Add New...]** มุมขวาบน -> เลือก **[Project]**
+    2. ในส่วน **Import Git Repository**:
+       - ค้นหา repository ชื่อ `food` หรือ `devbyrun/food`
+       - คลิกปุ่ม **[Import]** ข้างชื่อ Repository
+
+2.3 การตั้งค่าโปรเจกต์ (Configure Project):
+    - **Project Name**: ตั้งชื่อโปรเจกต์ เช่น `food` หรือ `food-app`
+    - **Framework Preset**: เลือกเป็น **Other** (เนื่องจากโปรเจกต์เป็น Node.js / Express + Static Frontend)
+    - **Root Directory**: ปล่อยเป็น `./` (ค่าเริ่มต้น)
+    - **Build and Output Settings**: ปล่อยเป็นค่าเริ่มต้น (Vercel จะอ่านการตั้งค่าจาก `vercel.json` โดยอัตโนมัติ)
+
+    ⚠️ **อย่าเพิ่งกด Deploy ทันที!** ให้เปิดส่วน **Environment Variables** ในขั้นตอนนี้ หรือทำตาม ส่วนที่ 3 ด้านล่าง
+
+================================================================================
+🚀 ส่วนที่ 3: การตั้งค่า Environment Variables และเชื่อมต่อฐานข้อมูล
+================================================================================
+
+เพื่อให้ระบบสามารถเชื่อมต่อกับฐานข้อมูล Neon PostgreSQL และระบบ Cloud Media Storage ได้อย่างสมบูรณ์ ต้องกำหนดค่า Environment Variables ดังนี้:
+
+3.1 ตาราง Environment Variables ที่ต้องระบุใน Vercel:
+
+| ชื่อตัวแปร (Key)         | ค่าที่ต้องใส่ (Value)                                                                                                              | สภาพแวดล้อม (Environments)         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------|
+| `DATABASE_URL`           | `postgresql://neondb_owner:npg_c1OH8iYrBsJT@ep-plain-meadow-ay8ei7zc-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require` | [x] Production [x] Preview [x] Dev |
+| `JWT_SECRET`             | `super_secret_food_ordering_jwt_key_2026`                                                                                         | [x] Production [x] Preview [x] Dev |
+| `NODE_ENV`               | `production`                                                                                                                      | [x] Production [x] Preview         |
+| `AWS_ENDPOINT_URL_S3`    | `https://br-misty-frost-ayf4d7xo.storage.c-5.us-east-2.aws.neon.tech`                                                             | [x] Production [x] Preview [x] Dev |
+| `AWS_REGION`             | `us-east-2`                                                                                                                       | [x] Production [x] Preview [x] Dev |
+| `AWS_S3_BUCKET`          | `assets`                                                                                                                          | [x] Production [x] Preview [x] Dev |
+
+3.2 วิธีการกรอกค่าลงบน Vercel Dashboard:
+    - หากอยู่ในหน้า Import: เลื่อนลงมาที่หัวข้อ **Environment Variables**
+    - หรือหากโปรเจกต์สร้างไว้แล้ว: ไปที่เมนู **[Settings]** -> **[Environment Variables]**
+    - กรอก **Key** และ **Value** ทีละรายการ แล้วกดปุ่ม **[Add]** หรือ **[Save]**
+    - ตรวจสอบให้แน่ใจว่าติ๊กเลือกครอบคลุมทั้ง **Production**, **Preview**, และ **Development**
+
+3.3 กดปุ่ม **[Deploy]**:
+    - รอระบบ Build และ Deploy ประมาณ 30 - 60 วินาที
+    - เมื่อสำเร็จ จะปรากฏหน้า Congratulation พร้อมภาพพรีวิวหน้าเว็บ
+
+================================================================================
+🚀 ส่วนที่ 4: การตั้งค่า Deployment Protection บน Vercel
+================================================================================
+
+*** สำคัญมากสำหรับระบบที่มี API และรองรับลูกค้าทั่วไป ***
+หากไม่ปิดการตั้งค่านี้ ผู้ใช้ภายนอกหรือการเรียก API อาจติดหน้า Login บังคับของ Vercel และขึ้นข้อความ "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์"
+
+4.1 ไปที่เมนู **[Settings]** ด้านบนของโปรเจกต์
+4.2 ที่แถบเมนูด้านซ้าย เลือก **[Deployment Protection]**
+4.3 เลื่อนไปที่หัวข้อ **Vercel Authentication**:
+    - ปรับสถานะเป็น **Disabled** (ปิดการล็อกอินครอบของ Vercel)
+    - กดปุ่ม **[Save]**
+
+================================================================================
+🚀 ส่วนที่ 5: การผูก Custom Domain "food.rundev.site" ผ่าน Cloudflare
+================================================================================
+
+ขั้นตอนนี้จะแบ่งเป็น 2 ฝั่ง คือ **ฝั่ง Vercel** และ **ฝั่ง Cloudflare**
+
+--------------------------------------------------------------------------------
+📍 ขั้นตอนที่ 5.1: เพิ่มโดเมนใน Vercel Dashboard
+--------------------------------------------------------------------------------
+1. ไปที่หน้าโปรเจกต์ของคุณบน Vercel (https://vercel.com/dashboard)
+2. คลิกแท็บ **[Settings]** ด้านบน
+3. ที่เมนูด้านซ้าย เลือก **[Domains]**
+4. ในช่องกรอกโดเมน ให้พิมพ์:
+   `food.rundev.site`
+5. กดปุ่ม **[Add]**
+6. Vercel จะแสดงหน้าต่างแจ้งข้อมูล DNS Record ที่ต้องการ:
+   - **Type**: `CNAME`
+   - **Name**: `food` (หรือ `food.rundev.site`)
+   - **Value / Target**: `cname.vercel-dns.com`
+   - สถานะจะขึ้นเป็นสีส้ม/เหลือง (Invalid Configuration) เนื่องจากเรายังไม่ได้ชี้ DNS จาก Cloudflare
+
+--------------------------------------------------------------------------------
+📍 ขั้นตอนที่ 5.2: ตั้งค่า DNS Record บน Cloudflare Dashboard
+--------------------------------------------------------------------------------
+1. เปิดแท็บใหม่ เข้าสู่ระบบ Cloudflare: https://dash.cloudflare.com
+2. คลิกเลือกโดเมนหลักของคุณ: **`rundev.site`**
+3. ที่เมนูด้านซ้าย ไปที่ **[DNS]** -> **[Records]**
+4. คลิกปุ่ม **[Add record]** (ปุ่มสีฟ้า)
+5. กรอกรายละเอียดดังนี้:
+   - **Type**: เลือก `CNAME`
+   - **Name (required)**: พิมพ์ `food` (ระบบจะต่อท้ายเป็น `food.rundev.site` ให้อัตโนมัติ)
+   - **Target (required)**: พิมพ์ `cname.vercel-dns.com`
+   - **Proxy status**: 
+     ⭐ *คำแนะนำสำคัญ*: 
+     - **รอบแรกตอนผูกโดเมน**: แนะนำให้คลิกปิด Cloudflare Proxy ให้เป็น **"DNS only" (ไอคอนเมฆสีเทา)** ก่อนชั่วคราว เพื่อให้ระบบตรวจจับ DNS และออก SSL Certificate ฝั่ง Vercel ได้อย่างรวดเร็ว (ภายใน 1 นาที)
+     - **หลังจาก Vercel Verify ผ่านและขึ้นสีเขียวแล้ว**: สามารถกลับมากดเปิด Proxy เป็น **"Proxied" (ไอคอนเมฆสีส้ม)** ได้ตามต้องการ เพื่อรับประโยชน์จาก CDN Cache, DDoS Protection และ WAF ของ Cloudflare
+   - **TTL**: เลือกเป็น `Auto`
+6. คลิกปุ่ม **[Save]**
+
+--------------------------------------------------------------------------------
+📍 ขั้นตอนที่ 5.3: ตรวจสอบการตั้งค่า SSL/TLS บน Cloudflare (กรณีเปิด Proxy สีส้ม)
+--------------------------------------------------------------------------------
+หากคุณต้องการเปิดใช้งาน Proxy (เมฆสีส้ม) บน Cloudflare:
+1. ที่เมนูด้านซ้ายของ Cloudflare ไปที่ **[SSL/TLS]** -> **[Overview]**
+2. ตรวจสอบโหมดการเข้ารหัส (SSL/TLS encryption mode):
+   - ต้องตั้งค่าเป็น **"Full"** หรือ **"Full (strict)"** เท่านั้น!
+   ⚠️ *ห้ามตั้งเป็น "Flexible"* เพราะจะทำให้เกิดปัญหา Redirect Loop (Error: ERR_TOO_MANY_REDIRECTS)
+
+--------------------------------------------------------------------------------
+📍 ขั้นตอนที่ 5.4: ตรวจสอบสถานะการเชื่อมต่อบน Vercel
+--------------------------------------------------------------------------------
+1. กลับมาที่หน้า Vercel Dashboard -> **[Settings]** -> **[Domains]**
+2. ดูที่รายการโดเมน `food.rundev.site` แล้วกดปุ่ม **[Refresh]**
+3. เมื่อ DNS กระจายตัวสำเร็จ (ปกติใช้เวลา 1 - 5 นาที):
+   - สถานะจะเปลี่ยนเป็น **เครื่องหมายถูกสีเขียว (Valid Configuration)**
+   - จะมีข้อความแสดงว่า SSL Certificate ถูกสร้างและพร้อมใช้งานแล้ว
+
+================================================================================
+🚀 ส่วนที่ 6: การตรวจสอบและทดสอบระบบหลัง Deploy (Verification Checklist)
+================================================================================
+
+เมื่อทุกขั้นตอนเสร็จสิ้น ให้เปิดเบราว์เซอร์เพื่อทดสอบการทำงานของระบบผ่านโดเมนจริง `https://food.rundev.site`:
+
+✅ 6.1 ตรวจสอบสถานะการเชื่อมต่อฐานข้อมูล (Database & Cloud Storage Health Check):
+   - URL: `https://food.rundev.site/api/upload/status`
+   - ผลลัพธ์ที่ถูกต้องต้องเป็น JSON:
+     ```json
+     {
+       "success": true,
+       "isS3": false,
+       "isDatabaseConnected": true,
+       "primaryStorage": "Neon PostgreSQL Cloud Media Storage",
+       "mediaCount": 3
+     }
+     ```
+   - สังเกตค่า `"isDatabaseConnected": true` ยืนยันว่า API เชื่อมต่อกับ Neon Database สำเร็จ 100%
+
+✅ 6.2 ตรวจสอบหน้าทดสอบการเข้าสู่ระบบ (1-Click Login):
+   - URL: `https://food.rundev.site/logintest.html`
+   - ทดสอบกดปุ่ม:
+     * "ผู้ดูแลระบบส่วนกลาง (Super Admin)" -> ต้องสามารถล็อกอินและเข้าสู่หน้า `/platform-admin` ได้
+     * "เจ้าของร้าน มินิคาเฟ่" -> ต้องสามารถล็อกอินและเข้าสู่หน้า `/store` ได้
+     * "พนักงานในครัว (KDS)" -> ต้องสามารถดูคิวออเดอร์ในครัวได้
+
+✅ 6.3 ตรวจสอบหน้าระบบสั่งอาหารผ่านโต๊ะ (Customer QR Ordering):
+   - URL: `https://food.rundev.site/order/mini-cafe/table-1`
+   - ตรวจสอบว่ารูปภาพ รายการอาหาร หมวดหมู่ และปุ่มเพิ่มลงตะกร้าทำงานได้ถูกต้อง
+
+✅ 6.4 ตรวจสอบหน้าเข้าสู่ระบบหลัก:
+   - URL: `https://food.rundev.site/login`
+
+================================================================================
+🚀 ส่วนที่ 7: แนวทางการอัปเดตโค้ดในอนาคต (CI/CD Workflow)
+================================================================================
+
+เนื่องจากเราได้เชื่อมต่อ Vercel กับ GitHub ไว้แล้ว กระบวนการ Continuous Integration & Continuous Deployment (CI/CD) จะทำงานอัตโนมัติ 100%:
+
+1. เมื่อคุณแก้ไขโค้ด พัฒนาฟีเจอร์ใหม่ หรือปรับแต่งดีไซน์ในเครื่องคอมพิวเตอร์ของคุณ
+2. เพียงรันคำสั่ง:
+   ```bash
+   git add .
+   git commit -m "อธิบายสิ่งที่แก้ไขหรือเพิ่มเข้ามา"
+   git push origin main
+   ```
+3. GitHub จะส่ง Webhook แจ้ง Vercel ทันที
+4. Vercel จะเริ่มดึงโค้ดใหม่ -> Build -> Deploy ขึ้น Production บนโดเมน `food.rundev.site` ให้อัตโนมัติภายใน 30 วินาที โดยที่คุณไม่ต้องเข้าไปกดอะไรบนหน้าเว็บ Vercel อีก
+
+--------------------------------------------------------------------------------
+💡 การดู Logs เมื่อเกิดข้อผิดพลาด:
+--------------------------------------------------------------------------------
+- ไปที่ Vercel Dashboard -> เลือกโปรเจกต์ `food` -> แท็บ **[Logs]** (หรือ [Deployments] -> คลิกที่ Deployment ล่าสุด -> แท็บ [Functions])
+- คุณจะเห็น Console Logs แบบ Realtime ของ Serverless API ทุก Request
+
+================================================================================
+🚀 ส่วนที่ 8: การแก้ไขปัญหาที่พบบ่อย (Troubleshooting & FAQs)
+================================================================================
+
+❓ ปัญหา 1: เข้าเว็บแล้วขึ้น Cloudflare Error 526 (Invalid SSL Certificate)
+👉 สาเหตุ: Vercel ยังออกใบรับรอง SSL ไม่เสร็จ หรือ Cloudflare ตั้งค่า SSL/TLS เป็น Full (strict) ก่อนที่ Vercel จะ Verify โดเมนเสร็จ
+👉 วิธีแก้ไข: 
+   1. ใน Cloudflare DNS ให้เปลี่ยนสถานะ CNAME ของ `food` เป็น "DNS only" (เมฆสีเทา) ชั่วคราว
+   2. ไปที่ Vercel Domains แล้วกด Refresh ให้ขึ้นสีเขียว
+   3. จากนั้นกลับมาเปิดเมฆสีส้ม (Proxied) บน Cloudflare ตามเดิม
+
+❓ ปัญหา 2: หน้าเว็บเกิด Redirect Loop (ERR_TOO_MANY_REDIRECTS)
+👉 สาเหตุ: Cloudflare SSL/TLS Encryption Mode ถูกตั้งเป็น "Flexible" ทำให้ Cloudflare ส่ง HTTP ไปหา Vercel ที่บังคับ HTTPS จึงเกิดการวนลูป
+👉 วิธีแก้ไข: ไปที่ Cloudflare Dashboard -> [SSL/TLS] -> เปลี่ยนโหมดเป็น **Full** หรือ **Full (strict)**
+
+❓ ปัญหา 3: หน้าเว็บแจ้งเตือน "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" ตอนล็อกอิน
+👉 สาเหตุ: ยังไม่ได้ปิด Vercel Authentication Protection
+👉 วิธีแก้ไข: ไปที่ Vercel Dashboard -> [Settings] -> [Deployment Protection] -> ปรับ **Vercel Authentication** เป็น **Disabled** -> กด [Save] -> ไปที่แท็บ [Deployments] แล้วสั่ง **[Redeploy]**
+
+❓ ปัญหา 4: ข้อมูลในฐานข้อมูลหาย หรือรูปภาพที่อัปโหลดไม่แสดง
+👉 สาเหตุ: ตัวแปร `DATABASE_URL` ใน Environment Variables ใส่ไม่ครบหรือลืมใส่ parameter `?sslmode=require`
+👉 วิธีแก้ไข: ตรวจสอบ `DATABASE_URL` ใน Vercel Settings ให้ตรงตามตารางใน ส่วนที่ 3 และสั่ง Redeploy ทุกครั้งหลังแก้ไขตัวแปร
+
+================================================================================
+สรุปผลการตั้งค่า:
+- Codebase: GitHub Repository (devbyrun/food) -> Branch: main
+- Hosting & Serverless API: Vercel Platform
+- Database & Media: Neon PostgreSQL Cloud Database
+- DNS, CDN & Security: Cloudflare
+- Live Production URL: https://food.rundev.site
+================================================================================
