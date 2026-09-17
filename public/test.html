@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ทดสอบระบบสด 5 หน้าจอมือถือ (รวม Telegram ครัว & เด็กเสิร์ฟ) - Table QR Food POS Demo</title>
+  <meta name="description"
+    content="ศูนย์จำลองการทำงานระบบสั่งอาหารตามโต๊ะผ่าน QR Code, Telegram ครัว, Telegram เด็กเสิร์ฟ, ผังโต๊ะ และแคชเชียร์ POS แบบ 5 จอมือถือเรียลไทม์">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+  <link rel="stylesheet" href="/css/test.css">
+</head>
+
+<body>
+
+  <!-- Top Header (Clean - No Login Button) -->
+  <header class="test-header">
+    <a href="/" class="brand-logo" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+      <div class="brand-icon">🍲</div>
+      <div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: white; white-space: nowrap;">QR Food POS</div>
+        <div class="test-header-subtitle" style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">5-Mobiles Real-Time Interactive Simulator</div>
+      </div>
+    </a>
+
+    <div class="test-header-actions" style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn btn-secondary btn-sm test-reset-btn" onclick="resetDemoData()"
+        title="รีเซ็ตข้อมูลทดสอบทั้งหมดเป็นค่าเริ่มต้น">
+        <span>🔄</span> <span class="test-btn-text-full">รีเซ็ตข้อมูลทดสอบ (Reset Demo)</span><span class="test-btn-text-mobile">รีเซ็ต</span>
+      </button>
+      <a href="/" class="btn btn-primary btn-sm test-home-btn">
+        <span>🏠</span> <span class="test-btn-text-full">กลับสู่หน้าหลัก</span><span class="test-btn-text-mobile">หน้าหลัก</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="test-main-container">
+
+    <!-- Quick Guide Banner -->
+    <div class="sandbox-guide-bar">
+      <div class="guide-content-wrapper">
+        <div class="guide-title-row">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.2rem;">⚡</span>
+            <span style="font-weight: 700; color: #f1f5f9;">การจำลอง 5 จอมือถือแบบเรียลไทม์:</span>
+          </div>
+          <span class="badge badge-success guide-mode-badge" style="font-size: 0.72rem;">🟢 โหมดจำลองสด 100%</span>
+        </div>
+
+        <div class="guide-steps-list">
+          <div class="guide-step-item">
+            <span class="step-num">1</span>
+            <span><b>จอ 1 (ลูกค้า)</b> : สั่งอาหารผ่าน QR Code</span>
+          </div>
+          <div class="guide-step-arrow">&rarr;</div>
+          <div class="guide-step-item">
+            <span class="step-num">2</span>
+            <span><b>จอ 2 (Telegram ครัว)</b> : แจ้งเตือนเข้าครัว & เชฟกดปรุงเสร็จ</span>
+          </div>
+          <div class="guide-step-arrow">&rarr;</div>
+          <div class="guide-step-item">
+            <span class="step-num">3</span>
+            <span><b>จอ 3 (Telegram เด็กเสิร์ฟ)</b> : แจ้งเตือนเด็กเสิร์ฟไปยกอาหาร</span>
+          </div>
+          <div class="guide-step-arrow">&rarr;</div>
+          <div class="guide-step-item">
+            <span class="step-num">4</span>
+            <span><b>จอ 4 (ผังโต๊ะสด)</b> : อัปเดตสถานะโต๊ะตามเวลาจริง</span>
+          </div>
+          <div class="guide-step-arrow">&rarr;</div>
+          <div class="guide-step-item">
+            <span class="step-num">5</span>
+            <span><b>จอ 5 (แคชเชียร์ POS)</b> : คิดเงิน & เช็คบิล (เงินสด/พร้อมเพย์)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Carousel Controller -->
+    <div class="phone-carousel-bar">
+      <button class="carousel-nav-btn btn-dark" id="carouselPrevBtn" onclick="prevPhone()" title="ย้อนกลับ (จอก่อนหน้า)"
+        aria-label="Previous screen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="carousel-indicators" id="carouselIndicators">
+        <div class="carousel-dot active" onclick="goToPhone(0)" title="จอ 1: ลูกค้า โต๊ะ 1"></div>
+        <div class="carousel-dot" onclick="goToPhone(1)" title="จอ 2: Telegram ครัว"></div>
+        <div class="carousel-dot" onclick="goToPhone(2)" title="จอ 3: Telegram เด็กเสิร์ฟ"></div>
+        <div class="carousel-dot" onclick="goToPhone(3)" title="จอ 4: ผังโต๊ะ & จัดการร้าน"></div>
+        <div class="carousel-dot" onclick="goToPhone(4)" title="จอ 5: แคชเชียร์ POS"></div>
+      </div>
+
+      <button class="carousel-nav-btn btn-orange" id="carouselNextBtn" onclick="nextPhone()" title="ถัดไป (จอถัดไป)"
+        aria-label="Next screen">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 5 Phones Horizontal Layout -->
+    <div class="phones-wrapper" id="phonesWrapper">
+
+      <!-- ==================================================== -->
+      <!-- PHONE 1: Customer Order (Table 1) -->
+      <!-- ==================================================== -->
+      <div class="phone-mockup" id="phone-p1">
+        <div class="phone-top-title-tag tag-p1">
+          <span>📱 จอที่ 1: ลูกค้า (โต๊ะ 1)</span>
+          <span style="font-size: 0.7rem; opacity: 0.85;">Dine-in</span>
+        </div>
+        <div class="phone-status-bar">
+          <span>09:41</span>
+          <div class="phone-notch"></div>
+          <span>📶 5G 🔋</span>
+        </div>
+
+        <div class="phone-screen" id="p1-screen">
+          <div class="app-header">
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: white;">🍲 ส้มตำแซ่บนัว</div>
+              <div style="font-size: 0.68rem; color: #fb923c; font-weight: 600;">🪑 โต๊ะ 1 (ห้องแอร์ VIP)</div>
+            </div>
+            <span class="badge badge-primary" style="font-size: 0.65rem; padding: 2px 6px;">🟢 ร้านเปิด</span>
+          </div>
+
+          <!-- Quick Service Call Buttons -->
+          <div
+            style="display: flex; gap: 6px; padding: 8px 10px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <button class="btn-action-mini btn-secondary" style="flex: 1; font-size: 0.7rem;"
+              onclick="callServiceFromCustomer(1, 'ขอเติมน้ำซุป / เมนูเพิ่ม')">
+              🔔 เรียกพนักงาน
+            </button>
+            <button class="btn-action-mini btn-secondary"
+              style="flex: 1; font-size: 0.7rem; color: #c084fc; border-color: rgba(168,85,247,0.3);"
+              onclick="requestBillFromCustomer(1)">
+              🧾 ขอเช็คบิล
+            </button>
+          </div>
+
+          <!-- Menu List -->
+          <div style="padding: 10px; display: flex; flex-direction: column; gap: 8px; flex: 1;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 2px;">📋 รายการอาหารแนะนำ:
+            </div>
+
+            <div class="menu-mini-card">
+              <div>
+                <div style="font-weight: 700; font-size: 0.8rem; color: white;">🥗 ส้มตำไทยไข่เค็ม</div>
+                <div style="font-size: 0.72rem; color: #fb923c; font-weight: 700;">฿85</div>
+              </div>
+              <button class="btn-action-mini btn-primary" onclick="addToCart('ส้มตำไทยไข่เค็ม', 85, 'เผ็ดน้อย')">+
+                เลือก</button>
+            </div>
+
+            <div class="menu-mini-card">
+              <div>
+                <div style="font-weight: 700; font-size: 0.8rem; color: white;">🍗 ไก่ย่างหนังกรอบ</div>
+                <div style="font-size: 0.72rem; color: #fb923c; font-weight: 700;">฿120</div>
+              </div>
+              <button class="btn-action-mini btn-primary" onclick="addToCart('ไก่ย่างหนังกรอบ', 120, '')">+
+                เลือก</button>
+            </div>
+
+            <div class="menu-mini-card">
+              <div>
+                <div style="font-weight: 700; font-size: 0.8rem; color: white;">🥣 ต้มแซ่บกระดูกอ่อน</div>
+                <div style="font-size: 0.72rem; color: #fb923c; font-weight: 700;">฿150</div>
+              </div>
+              <button class="btn-action-mini btn-primary" onclick="addToCart('ต้มแซ่บกระดูกอ่อน', 150, 'เปรี้ยวนำ')">+
+                เลือก</button>
+            </div>
+
+            <div class="menu-mini-card">
+              <div>
+                <div style="font-weight: 700; font-size: 0.8rem; color: white;">🍚 ข้าวเหนียวนุ่ม</div>
+                <div style="font-size: 0.72rem; color: #fb923c; font-weight: 700;">฿15</div>
+              </div>
+              <button class="btn-action-mini btn-primary" onclick="addToCart('ข้าวเหนียวนุ่ม', 15, '')">+ เลือก</button>
+            </div>
+          </div>
+
+          <!-- Bottom Cart & Order Button -->
+          <div style="background: rgba(15, 23, 42, 0.95); padding: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 6px;">
+              <span style="color: #94a3b8;">ตะกร้า (<span id="p1-cart-count">0</span> รายการ):</span>
+              <span style="font-weight: 700; color: #fb923c;" id="p1-cart-total">฿0.00</span>
+            </div>
+            <button class="btn-action-mini btn-primary" style="width: 100%; padding: 8px; font-size: 0.82rem;"
+              onclick="submitOrderFromPhone(1, 'โต๊ะ 1')">
+              🚀 ส่งออเดอร์เข้าครัว
+            </button>
+          </div>
+        </div>
+
+        <div class="phone-bottom-bar">
+          <div class="phone-home-indicator"></div>
+        </div>
+      </div>
+
+      <!-- ==================================================== -->
+      <!-- PHONE 2: Telegram ครัว (Kitchen Telegram Bot) -->
+      <!-- ==================================================== -->
+      <div class="phone-mockup" id="phone-p2">
+        <div class="phone-top-title-tag tag-tg-kitchen">
+          <span>🤖 จอที่ 2: Telegram ครัว</span>
+          <span style="font-size: 0.7rem; opacity: 0.85;">Telegram Bot</span>
+        </div>
+        <div class="phone-status-bar">
+          <span>09:41</span>
+          <div class="phone-notch"></div>
+          <span>📶 5G 🔋</span>
+        </div>
+
+        <div class="phone-screen tg-screen-bg" id="p2-tg-kitchen-screen">
+          <!-- Telegram Group Header -->
+          <div class="tg-nav-header">
+            <div class="tg-avatar tg-avatar-kitchen">🍳</div>
+            <div style="flex: 1; min-width: 0;">
+              <div
+                style="font-size: 0.82rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                👨‍🍳 ครัว: ส้มตำแซ่บนัว
+              </div>
+              <div style="font-size: 0.66rem; color: #6ab2f2;">bot • 6 สมาชิก • เรียลไทม์</div>
+            </div>
+            <span style="font-size: 0.9rem;">✈️</span>
+          </div>
+
+          <!-- Telegram Kitchen Messages Area -->
+          <div class="tg-message-list" id="p2-tg-kitchen-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="phone-bottom-bar">
+          <div class="phone-home-indicator"></div>
+        </div>
+      </div>
+
+      <!-- ==================================================== -->
+      <!-- PHONE 3: Telegram เด็กเสิร์ฟ / พนักงาน (Service Bot) -->
+      <!-- ==================================================== -->
+      <div class="phone-mockup" id="phone-p3">
+        <div class="phone-top-title-tag tag-tg-waiter">
+          <span>🔔 จอที่ 3: Telegram เด็กเสิร์ฟ</span>
+          <span style="font-size: 0.7rem; opacity: 0.85;">Service Bot</span>
+        </div>
+        <div class="phone-status-bar">
+          <span>09:41</span>
+          <div class="phone-notch"></div>
+          <span>📶 5G 🔋</span>
+        </div>
+
+        <div class="phone-screen tg-screen-bg" id="p3-tg-waiter-screen">
+          <!-- Telegram Waiter Header -->
+          <div class="tg-nav-header">
+            <div class="tg-avatar tg-avatar-waiter">🛎️</div>
+            <div style="flex: 1; min-width: 0;">
+              <div
+                style="font-size: 0.82rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                🛎️ แผนกบริการ / เด็กเสิร์ฟ
+              </div>
+              <div style="font-size: 0.66rem; color: #c084fc;">bot • 8 สมาชิก • เรียลไทม์</div>
+            </div>
+            <span style="font-size: 0.9rem;">✈️</span>
+          </div>
+
+          <!-- Telegram Waiter Messages Area -->
+          <div class="tg-message-list" id="p3-tg-waiter-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="phone-bottom-bar">
+          <div class="phone-home-indicator"></div>
+        </div>
+      </div>
+
+      <!-- ==================================================== -->
+      <!-- PHONE 4: Table Map & Management -->
+      <!-- ==================================================== -->
+      <div class="phone-mockup" id="phone-p4">
+        <div class="phone-top-title-tag tag-p4">
+          <span>🪑 จอที่ 4: ผังโต๊ะ & สถานะสด</span>
+          <span style="font-size: 0.7rem; opacity: 0.85;">Tables</span>
+        </div>
+        <div class="phone-status-bar">
+          <span>09:41</span>
+          <div class="phone-notch"></div>
+          <span>📶 5G 🔋</span>
+        </div>
+
+        <div class="phone-screen" id="p4-screen">
+          <div class="app-header">
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: white;">🗺️ ผังโต๊ะทั้งหมด</div>
+              <div style="font-size: 0.68rem; color: #facc15;">คลิกเพื่อดูบิลในจอ 5</div>
+            </div>
+            <span class="badge badge-warning" style="font-size: 0.65rem; padding: 2px 6px;">4 โต๊ะ</span>
+          </div>
+
+          <!-- Table Cards Grid -->
+          <div id="p4-table-grid"
+            style="padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="phone-bottom-bar">
+          <div class="phone-home-indicator"></div>
+        </div>
+      </div>
+
+      <!-- ==================================================== -->
+      <!-- PHONE 5: POS & PromptPay Cashier -->
+      <!-- ==================================================== -->
+      <div class="phone-mockup" id="phone-p5">
+        <div class="phone-top-title-tag tag-p5">
+          <span>💳 จอที่ 5: แคชเชียร์ POS คิดเงิน</span>
+          <span style="font-size: 0.7rem; opacity: 0.85;">Checkout</span>
+        </div>
+        <div class="phone-status-bar">
+          <span>09:41</span>
+          <div class="phone-notch"></div>
+          <span>📶 5G 🔋</span>
+        </div>
+
+        <div class="phone-screen" id="p5-screen">
+          <div class="app-header">
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: white;">💵 แคชเชียร์เช็คบิล</div>
+              <div style="font-size: 0.68rem; color: #34d399;" id="p5-target-table">โต๊ะ 1</div>
+            </div>
+            <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">POS System</span>
+          </div>
+
+          <div id="p5-checkout-body" style="padding: 10px; display: flex; flex-direction: column; gap: 8px; flex: 1;">
+            <!-- Bill details rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="phone-bottom-bar">
+          <div class="phone-home-indicator"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // ============================================================
+    // Local In-Memory Demo State (No Database Saving)
+    // ============================================================
+    let p1Cart = [];
+    let activePosTableId = 1;
+    let posPaymentMethod = 'promptpay'; // 'cash' or 'promptpay'
+    let posCashGiven = null;
+
+    let demoKitchenOrders = [
+      {
+        id: 101,
+        orderNumber: "ORD-0801",
+        table: "โต๊ะ 1",
+        tableId: 1,
+        status: "cooking", // 'pending', 'cooking', 'ready', 'served'
+        time: "2 นาทีที่แล้ว",
+        timestamp: "09:39",
+        items: [
+          { name: "ส้มตำไทยไข่เค็ม", qty: 1, price: 85, note: "เผ็ดน้อย" },
+          { name: "ไก่ย่างหนังกรอบ", qty: 1, price: 120, note: "" },
+          { name: "ข้าวเหนียวนุ่ม", qty: 2, price: 30, note: "" }
+        ],
+        total: 235
+      }
+    ];
+
+    let demoTgKitchenMessages = [
+      {
+        id: 1001,
+        orderId: 101,
+        type: "order",
+        title: "🔔 ออเดอร์ใหม่เข้าครัว!",
+        table: "โต๊ะ 1 (ห้องแอร์ VIP)",
+        orderNumber: "ORD-0801",
+        time: "09:39",
+        items: [
+          { name: "ส้มตำไทยไข่เค็ม", qty: 1, note: "เผ็ดน้อย" },
+          { name: "ไก่ย่างหนังกรอบ", qty: 1, note: "" },
+          { name: "ข้าวเหนียวนุ่ม", qty: 2, note: "" }
+        ],
+        total: 235,
+        status: "cooking" // 'pending', 'cooking', 'ready', 'served'
+      }
+    ];
+
+    let demoTgWaiterMessages = [
+      {
+        id: 2001,
+        type: "service",
+        title: "🔔 ลูกค้าเรียกพนักงาน!",
+        table: "โต๊ะ 1 (ห้องแอร์ VIP)",
+        detail: "ลูกค้าขอเติมน้ำจิ้มแจ่วเพิ่ม",
+        time: "09:40",
+        actionDone: false
+      }
+    ];
+
+    let demoTables = [
+      { id: 1, number: "1", zone: "ห้องแอร์ VIP", seats: 4, status: "occupied", billAmount: 235 },
+      { id: 2, number: "2", zone: "ห้องแอร์ VIP", seats: 4, status: "available", billAmount: 0 },
+      { id: 3, number: "3", zone: "ลานสวน", seats: 6, status: "available", billAmount: 0 },
+      { id: 4, number: "4", zone: "ลานสวน", seats: 4, status: "bill_requested", billAmount: 380 }
+    ];
+
+    function scrollToPhone(phoneId) {
+      const el = document.getElementById(phoneId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+
+    function playChimeEffect() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch (e) { }
+    }
+
+    // Add to Cart
+    function addToCart(name, price, note) {
+      const existing = p1Cart.find(i => i.name === name);
+      if (existing) existing.qty += 1;
+      else p1Cart.push({ name, price, note, qty: 1 });
+      updateP1CartUI();
+      App.toast(`เพิ่ม "${name}" ลงโต๊ะ 1 แล้ว`, 'success');
+      playChimeEffect();
+    }
+
+    function updateP1CartUI() {
+      const count = p1Cart.reduce((s, i) => s + i.qty, 0);
+      const total = p1Cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      document.getElementById('p1-cart-count').innerText = count;
+      document.getElementById('p1-cart-total').innerText = '฿' + total.toFixed(2);
+    }
+
+    // Submit Order
+    function submitOrderFromPhone(tableId, tableLabel) {
+      if (p1Cart.length === 0) {
+        App.toast('กรุณาเลือกรายการอาหารก่อนส่งออเดอร์', 'warning');
+        return;
+      }
+
+      const total = p1Cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      const orderNum = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+      const orderId = Date.now();
+      const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+      // Create new kitchen order
+      demoKitchenOrders.unshift({
+        id: orderId,
+        orderNumber: orderNum,
+        table: tableLabel,
+        tableId: tableId,
+        status: 'pending',
+        time: 'เพิ่งสั่งเมื่อสักครู่',
+        timestamp: nowStr,
+        items: [...p1Cart],
+        total: total
+      });
+
+      // Push message into Telegram Kitchen Bot (Screen 2)
+      demoTgKitchenMessages.unshift({
+        id: Date.now() + 1,
+        orderId: orderId,
+        type: "order",
+        title: "🔔 ออเดอร์ใหม่เข้าครัว!",
+        table: `${tableLabel} (ห้องแอร์ VIP)`,
+        orderNumber: orderNum,
+        time: nowStr,
+        items: [...p1Cart],
+        total: total,
+        status: "pending"
+      });
+
+      // Update table status
+      const targetTable = demoTables.find(t => t.id === tableId);
+      if (targetTable) {
+        targetTable.status = 'occupied';
+        targetTable.billAmount = (targetTable.billAmount || 0) + total;
+      }
+
+      // Clear phone cart
+      p1Cart = [];
+      updateP1CartUI();
+
+      // Refresh screens
+      renderTgKitchenScreen();
+      renderTgWaiterScreen();
+      renderTableScreen();
+      renderPosScreen();
+
+      playChimeEffect();
+      App.toast(`🔔 ส่งออเดอร์ ${tableLabel} (${orderNum}) เข้า Telegram ครัวแล้ว!`, 'success');
+    }
+
+    // Call service from Customer phone
+    function callServiceFromCustomer(tableNum, note) {
+      const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+      demoTgWaiterMessages.unshift({
+        id: Date.now(),
+        type: "service",
+        title: "🔔 ลูกค้าเรียกพนักงาน!",
+        table: `โต๊ะ ${tableNum} (ห้องแอร์ VIP)`,
+        detail: note || "ลูกค้ากดปุ่มเรียกพนักงานจากหน้าจอ",
+        time: nowStr,
+        actionDone: false
+      });
+      renderTgWaiterScreen();
+      playChimeEffect();
+      App.toast(`🔔 แจ้งเตือนพนักงานบริการผ่าน Telegram เรียบร้อยแล้ว`, 'info');
+    }
+
+    // Request bill from Customer phone
+    function requestBillFromCustomer(tableId) {
+      const table = demoTables.find(t => t.id === tableId);
+      if (table) {
+        table.status = 'bill_requested';
+        const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        demoTgWaiterMessages.unshift({
+          id: Date.now(),
+          type: "bill",
+          title: "🧾 ลูกค้าขอเช็คบิล!",
+          table: `โต๊ะ ${table.number} (${table.zone})`,
+          detail: `ยอดรวมค่าอาหาร ฿${table.billAmount.toFixed(2)}`,
+          time: nowStr,
+          actionDone: false,
+          tableId: tableId
+        });
+        renderTableScreen();
+        renderTgWaiterScreen();
+        renderPosScreen();
+        playChimeEffect();
+        App.toast(`🧾 ส่งคำขอเช็คบิล โต๊ะ ${table.number} ไปยัง Telegram เด็กเสิร์ฟแล้ว!`, 'success');
+      }
+    }
+
+    // Kitchen Actions from Telegram Kitchen
+    function updateKitchenStatus(orderId, newStatus) {
+      const order = demoKitchenOrders.find(o => o.id === orderId);
+      if (order) {
+        order.status = newStatus;
+
+        // Update corresponding Telegram Kitchen message
+        const tgMsg = demoTgKitchenMessages.find(m => m.orderId === orderId);
+        if (tgMsg) tgMsg.status = newStatus;
+
+        // If cooked / ready -> send alert to Telegram Waiter
+        if (newStatus === 'ready') {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+          demoTgWaiterMessages.unshift({
+            id: Date.now(),
+            orderId: order.id,
+            type: "ready_to_serve",
+            title: "🍽️ อาหารปรุงเสร็จแล้ว! พร้อมเสิร์ฟ",
+            table: order.table,
+            orderNumber: order.orderNumber,
+            items: [...order.items],
+            time: nowStr,
+            actionDone: false,
+            tableId: order.tableId
+          });
+
+          const t = demoTables.find(tbl => tbl.id === order.tableId);
+          if (t && t.status !== 'bill_requested') t.status = 'bill_requested';
+        }
+
+        renderTgKitchenScreen();
+        renderTgWaiterScreen();
+        renderTableScreen();
+        renderPosScreen();
+        playChimeEffect();
+        App.toast(`อัปเดตสถานะออเดอร์ #${order.orderNumber} เป็น ${newStatus === 'cooking' ? 'กำลังปรุง 👨‍🍳' : (newStatus === 'ready' ? 'พร้อมเสิร์ฟ 🍽️' : 'เสิร์ฟแล้ว ✅')}`, 'info');
+      }
+    }
+
+    // Render Telegram Kitchen (Phone 2)
+    function renderTgKitchenScreen() {
+      const listEl = document.getElementById('p2-tg-kitchen-list');
+      if (demoTgKitchenMessages.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:3rem 0; color:#708499; font-size:0.75rem;">📭 ยังไม่มีข้อความแจ้งเตือนครัว</div>`;
+        return;
+      }
+
+      listEl.innerHTML = demoTgKitchenMessages.map(msg => {
+        let buttons = '';
+        if (msg.status === 'pending') {
+          buttons = `
+            <div class="tg-inline-btn-group">
+              <button class="tg-inline-btn" onclick="updateKitchenStatus(${msg.orderId}, 'cooking')">
+                👨‍🍳 เริ่มปรุงอาหาร
+              </button>
+            </div>
+          `;
+        } else if (msg.status === 'cooking') {
+          buttons = `
+            <div class="tg-inline-btn-group">
+              <button class="tg-inline-btn" style="background:#10b981;" onclick="updateKitchenStatus(${msg.orderId}, 'ready')">
+                ✅ ปรุงเสร็จพร้อมเสิร์ฟ
+              </button>
+            </div>
+          `;
+        } else if (msg.status === 'ready') {
+          buttons = `
+            <div class="tg-inline-btn-group">
+              <button class="tg-inline-btn disabled">
+                ✨ พร้อมเสิร์ฟ (แจ้งเด็กเสิร์ฟแล้ว)
+              </button>
+            </div>
+          `;
+        } else {
+          buttons = `
+            <div class="tg-inline-btn-group">
+              <button class="tg-inline-btn disabled">
+                🍽️ เสิร์ฟที่โต๊ะเรียบร้อย
+              </button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="tg-bubble">
+            <div class="tg-bot-title">
+              <span>🤖 PosKitchenBot</span>
+              <span style="color:#708499; font-size:0.65rem; font-weight:normal;">#${msg.orderNumber}</span>
+            </div>
+            <div style="font-size:0.78rem; font-weight:700; color:#ffffff; margin-bottom:4px;">
+              ${msg.title}
+            </div>
+            <div style="font-size:0.72rem; color:#38bdf8; font-weight:600; margin-bottom:4px;">
+              📍 ${msg.table}
+            </div>
+            <div style="font-size:0.72rem; color:#e2e8f0; line-height:1.4; background:rgba(0,0,0,0.2); padding:5px 7px; border-radius:6px; margin-bottom:4px;">
+              ${msg.items.map(it => `<div>• <b>${it.name}</b> x${it.qty} ${it.note ? `<span style="color:#f59e0b;">(${it.note})</span>` : ''}</div>`).join('')}
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#94a3b8;">
+              <span>ยอดรวม: <b style="color:#fb923c;">฿${msg.total}</b></span>
+              <span style="color:${msg.status === 'pending' ? '#f59e0b' : (msg.status === 'cooking' ? '#38bdf8' : '#10b981')}; font-weight:700;">
+                ${msg.status === 'pending' ? '🕒 รอปรุง' : (msg.status === 'cooking' ? '👨‍🍳 กำลังปรุง' : (msg.status === 'ready' ? '✨ ปรุงเสร็จ' : '🍽️ เสิร์ฟแล้ว'))}
+              </span>
+            </div>
+            ${buttons}
+            <div class="tg-bubble-time">${msg.time} ✓✓</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Telegram Waiter (Phone 3)
+    function renderTgWaiterScreen() {
+      const listEl = document.getElementById('p3-tg-waiter-list');
+      if (demoTgWaiterMessages.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:3rem 0; color:#708499; font-size:0.75rem;">📭 ยังไม่มีข้อความเรียกบริการ</div>`;
+        return;
+      }
+
+      listEl.innerHTML = demoTgWaiterMessages.map(msg => {
+        let actionBtn = '';
+        if (msg.type === 'ready_to_serve') {
+          if (!msg.actionDone) {
+            actionBtn = `
+              <div class="tg-inline-btn-group">
+                <button class="tg-inline-btn" style="background:#9333ea;" onclick="markOrderServedFromTelegram(${msg.orderId}, ${msg.id})">
+                  🍽️ นำไปเสิร์ฟที่โต๊ะแล้ว
+                </button>
+              </div>
+            `;
+          } else {
+            actionBtn = `
+              <div class="tg-inline-btn-group">
+                <button class="tg-inline-btn disabled">
+                  ✅ เสิร์ฟที่โต๊ะเรียบร้อยแล้ว
+                </button>
+              </div>
+            `;
+          }
+        } else if (msg.type === 'service') {
+          if (!msg.actionDone) {
+            actionBtn = `
+              <div class="tg-inline-btn-group">
+                <button class="tg-inline-btn" style="background:#2563eb;" onclick="acknowledgeWaiterMessage(${msg.id})">
+                  🏃 รับทราบ / กำลังไปบริการ
+                </button>
+              </div>
+            `;
+          } else {
+            actionBtn = `
+              <div class="tg-inline-btn-group">
+                <button class="tg-inline-btn disabled">
+                  ✅ เข้าบริการเรียบร้อยแล้ว
+                </button>
+              </div>
+            `;
+          }
+        } else if (msg.type === 'bill') {
+          if (!msg.actionDone) {
+            actionBtn = `
+              <div class="tg-inline-btn-group">
+                <button class="tg-inline-btn" style="background:#059669;" onclick="selectPosTable(${msg.tableId || 1}); acknowledgeWaiterMessage(${msg.id}); scrollToPhone('phone-p5');">
+                  💳 เปิดจอแคชเชียร์คิดเงิน (จอ 5)
+                </button>
+              </div>
+            `;
+          } else {
+            actionBtn = `
+              <div class="tg-inline-btn-group">
+                <button class="tg-inline-btn disabled">
+                  💵 เช็คบิลเรียบร้อย
+                </button>
+              </div>
+            `;
+          }
+        }
+
+        return `
+          <div class="tg-bubble" style="${msg.type === 'ready_to_serve' ? 'border-left: 3px solid #a855f7;' : (msg.type === 'bill' ? 'border-left: 3px solid #10b981;' : 'border-left: 3px solid #f59e0b;')}">
+            <div class="tg-bot-title">
+              <span>🤖 ServiceBot</span>
+              <span style="color:#708499; font-size:0.65rem; font-weight:normal;">${msg.type === 'ready_to_serve' ? 'ห้องครัว' : 'หน้าร้าน'}</span>
+            </div>
+            <div style="font-size:0.78rem; font-weight:700; color:#ffffff; margin-bottom:3px;">
+              ${msg.title}
+            </div>
+            <div style="font-size:0.72rem; color:#c084fc; font-weight:600; margin-bottom:4px;">
+              📍 ${msg.table}
+            </div>
+            ${msg.items ? `
+              <div style="font-size:0.72rem; color:#e2e8f0; line-height:1.4; background:rgba(0,0,0,0.2); padding:5px 7px; border-radius:6px; margin-bottom:4px;">
+                ${msg.items.map(it => `<div>• <b>${it.name}</b> x${it.qty}</div>`).join('')}
+              </div>
+            ` : ''}
+            ${msg.detail ? `
+              <div style="font-size:0.72rem; color:#cbd5e1; background:rgba(0,0,0,0.2); padding:5px 7px; border-radius:6px; margin-bottom:4px;">
+                💬 ${msg.detail}
+              </div>
+            ` : ''}
+            ${actionBtn}
+            <div class="tg-bubble-time">${msg.time} ✓✓</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function acknowledgeWaiterMessage(msgId) {
+      const msg = demoTgWaiterMessages.find(m => m.id === msgId);
+      if (msg) {
+        msg.actionDone = true;
+        renderTgWaiterScreen();
+        playChimeEffect();
+        App.toast('พนักงานรับทราบงานบริการเรียบร้อย', 'info');
+      }
+    }
+
+    function markOrderServedFromTelegram(orderId, msgId) {
+      const msg = demoTgWaiterMessages.find(m => m.id === msgId);
+      if (msg) msg.actionDone = true;
+      updateKitchenStatus(orderId, 'served');
+    }
+
+    // Table Screen (Phone 4)
+    function renderTableScreen() {
+      const gridEl = document.getElementById('p4-table-grid');
+      gridEl.innerHTML = demoTables.map(t => {
+        let statusBadge = '<span class="badge badge-success" style="font-size:0.62rem;">ว่าง</span>';
+        if (t.status === 'occupied') statusBadge = '<span class="badge badge-warning" style="font-size:0.62rem;">มีลูกค้า</span>';
+        if (t.status === 'bill_requested') statusBadge = '<span class="badge badge-purple" style="font-size:0.62rem;">รอคิดเงิน</span>';
+
+        const isSelected = activePosTableId === t.id;
+
+        return `
+          <div class="table-mini-card ${isSelected ? 'active-pos' : ''}" onclick="selectPosTable(${t.id})">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:700; color:white; font-size:0.85rem;">โต๊ะ ${t.number}</span>
+              ${statusBadge}
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-dim);">${t.zone}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+              <span style="font-size:0.68rem; color:#94a3b8;">${t.seats} ที่นั่ง</span>
+              <span style="font-size:0.8rem; font-weight:700; color:#fb923c;">${t.billAmount > 0 ? '฿' + t.billAmount : '-'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectPosTable(tableId) {
+      activePosTableId = tableId;
+      renderTableScreen();
+      renderPosScreen();
+    }
+
+    // State for POS Cashier Payment Method
+    function setPosPaymentMethod(method) {
+      posPaymentMethod = method;
+      posCashGiven = null;
+      renderPosScreen();
+    }
+
+    function setPosCashAmount(amount) {
+      posCashGiven = amount;
+      renderPosScreen();
+    }
+
+    // POS Screen (Phone 5)
+    function renderPosScreen() {
+      const bodyEl = document.getElementById('p5-checkout-body');
+      const targetLabel = document.getElementById('p5-target-table');
+      const table = demoTables.find(t => t.id === activePosTableId) || demoTables[0];
+
+      targetLabel.innerText = `บิลโต๊ะ ${table.number}`;
+
+      if (!table.billAmount || table.billAmount === 0) {
+        bodyEl.innerHTML = `
+          <div style="text-align:center; padding:3rem 1rem; color:var(--text-dim); font-size:0.8rem; flex:1; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:2rem; margin-bottom:8px;">🟢</div>
+            <div>โต๊ะ ${table.number} สถานะว่าง</div>
+            <div style="font-size:0.7rem; color:#64748b; margin-top:4px;">(ไม่มีบิลค้างชำระ)</div>
+          </div>
+        `;
+        return;
+      }
+
+      const vat = table.billAmount * 0.07;
+      const net = table.billAmount;
+
+      // Calculate cash amounts
+      const cashReceived = posCashGiven !== null ? posCashGiven : net;
+      const changeAmount = Math.max(0, cashReceived - net);
+
+      // Suggestions for quick cash buttons
+      const round100 = Math.ceil(net / 100) * 100 || 100;
+      const next500 = net <= 500 ? 500 : 1000;
+
+      let paymentContent = '';
+      if (posPaymentMethod === 'promptpay') {
+        paymentContent = `
+          <!-- PromptPay QR Code Mock -->
+          <div style="background:white; border-radius:12px; padding:8px; text-align:center; margin:2px auto; max-width:130px; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+            <div style="font-size:0.62rem; color:#1e293b; font-weight:700; margin-bottom:2px;">PromptPay QR</div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=promptpay://somtumzaab/${net}" style="width:90px; height:90px; display:block; margin:0 auto;" alt="QR">
+            <div style="font-size:0.65rem; color:#0f172a; font-weight:800; margin-top:2px;">สแกน ฿${net.toFixed(2)}</div>
+          </div>
+
+          <button class="btn-action-mini btn-primary" style="width:100%; padding:9px; font-size:0.8rem; margin-top:auto; background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="payBill(${table.id}, 'promptpay')">
+            📱 รับชำระพร้อมเพย์ ฿${net.toFixed(2)}
+          </button>
+        `;
+      } else {
+        paymentContent = `
+          <!-- Cash Payment Section -->
+          <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:8px; font-size:0.75rem; border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:6px;">
+            <div style="font-size:0.7rem; color:#94a3b8; font-weight:600;">💵 เลือกจำนวนเงินสดที่รับมา:</div>
+            
+            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              <button class="btn-action-mini ${cashReceived === net ? 'btn-primary' : 'btn-secondary'}" style="flex:1; padding:4px 6px; font-size:0.68rem;" onclick="setPosCashAmount(${net})">
+                พอดี (฿${net})
+              </button>
+              ${round100 !== net ? `
+                <button class="btn-action-mini ${cashReceived === round100 ? 'btn-primary' : 'btn-secondary'}" style="flex:1; padding:4px 6px; font-size:0.68rem;" onclick="setPosCashAmount(${round100})">
+                  ฿${round100}
+                </button>
+              ` : ''}
+              ${next500 > net ? `
+                <button class="btn-action-mini ${cashReceived === next500 ? 'btn-primary' : 'btn-secondary'}" style="flex:1; padding:4px 6px; font-size:0.68rem;" onclick="setPosCashAmount(${next500})">
+                  ฿${next500}
+                </button>
+              ` : ''}
+              <button class="btn-action-mini ${cashReceived === 1000 && next500 !== 1000 ? 'btn-primary' : 'btn-secondary'}" style="flex:1; padding:4px 6px; font-size:0.68rem;" onclick="setPosCashAmount(1000)">
+                ฿1,000
+              </button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:6px 8px; border-radius:6px; margin-top:2px;">
+              <span style="color:#94a3b8; font-size:0.72rem;">รับเงินสดมา:</span>
+              <span style="font-weight:700; color:#38bdf8; font-size:0.85rem;">฿${cashReceived.toFixed(2)}</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:6px 8px; border-radius:6px;">
+              <span style="color:#34d399; font-weight:700; font-size:0.72rem;">💰 เงินทอน:</span>
+              <span style="font-weight:800; color:#10b981; font-size:0.9rem;">฿${changeAmount.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <button class="btn-action-mini btn-success" style="width:100%; padding:9px; font-size:0.8rem; margin-top:auto;" onclick="payBill(${table.id}, 'cash', ${cashReceived}, ${changeAmount})">
+            💵 รับเงินสดเรียบร้อย (ทอน ฿${changeAmount.toFixed(2)})
+          </button>
+        `;
+      }
+
+      bodyEl.innerHTML = `
+        <!-- Bill Breakdown -->
+        <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:8px 10px; font-size:0.72rem; border:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; color:#94a3b8; margin-bottom:3px;">
+            <span>ยอดรวมค่าอาหาร:</span>
+            <span style="color:white; font-weight:600;">฿${(table.billAmount - vat).toFixed(2)}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:#94a3b8; margin-bottom:3px;">
+            <span>ภาษี VAT (7% รวมในราคา):</span>
+            <span style="color:white; font-weight:600;">฿${vat.toFixed(2)}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.92rem; font-weight:700; color:#fb923c; border-top:1px dashed rgba(255,255,255,0.1); padding-top:4px; margin-top:4px;">
+            <span>ยอดสุทธิที่ต้องจ่าย:</span>
+            <span>฿${net.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <!-- Payment Method Tabs -->
+        <div style="display:flex; gap:6px; background:rgba(255,255,255,0.04); padding:3px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+          <button class="btn-action-mini ${posPaymentMethod === 'cash' ? 'btn-primary' : 'btn-secondary'}" style="flex:1; padding:6px 8px; font-size:0.75rem; border-radius:6px;" onclick="setPosPaymentMethod('cash')">
+            💵 เงินสด
+          </button>
+          <button class="btn-action-mini ${posPaymentMethod === 'promptpay' ? 'btn-primary' : 'btn-secondary'}" style="flex:1; padding:6px 8px; font-size:0.75rem; border-radius:6px;" onclick="setPosPaymentMethod('promptpay')">
+            📱 พร้อมเพย์
+          </button>
+        </div>
+
+        ${paymentContent}
+      `;
+    }
+
+    function payBill(tableId, method = 'promptpay', cashReceived = 0, changeAmount = 0) {
+      const table = demoTables.find(t => t.id === tableId);
+      if (table) {
+        const paidAmount = table.billAmount;
+        table.billAmount = 0;
+        table.status = 'available';
+
+        // mark related kitchen orders as served
+        demoKitchenOrders.forEach(o => {
+          if (o.tableId === tableId) o.status = 'served';
+        });
+
+        // mark related telegram messages
+        demoTgKitchenMessages.forEach(m => {
+          if (m.orderId && demoKitchenOrders.find(o => o.id === m.orderId && o.tableId === tableId)) {
+            m.status = 'served';
+          }
+        });
+
+        demoTgWaiterMessages.forEach(m => {
+          if (m.tableId === tableId || (m.orderId && demoKitchenOrders.find(o => o.id === m.orderId && o.tableId === tableId))) {
+            m.actionDone = true;
+          }
+        });
+
+        renderTgKitchenScreen();
+        renderTgWaiterScreen();
+        renderTableScreen();
+        renderPosScreen();
+        playChimeEffect();
+
+        if (method === 'cash') {
+          App.toast(`💵 รับชำระเงินสด โต๊ะ ${table.number} ฿${paidAmount.toFixed(2)} (รับ ฿${cashReceived.toFixed(2)} ทอน ฿${changeAmount.toFixed(2)}) สำเร็จ!`, 'success');
+        } else {
+          App.toast(`📱 รับชำระพร้อมเพย์ โต๊ะ ${table.number} ฿${paidAmount.toFixed(2)} สำเร็จแล้ว!`, 'success');
+        }
+      }
+    }
+
+    function resetDemoData() {
+      p1Cart = [];
+      activePosTableId = 1;
+      posPaymentMethod = 'promptpay';
+      posCashGiven = null;
+
+      demoKitchenOrders = [
+        {
+          id: 101,
+          orderNumber: "ORD-0801",
+          table: "โต๊ะ 1",
+          tableId: 1,
+          status: "cooking",
+          time: "2 นาทีที่แล้ว",
+          timestamp: "09:39",
+          items: [
+            { name: "ส้มตำไทยไข่เค็ม", qty: 1, price: 85, note: "เผ็ดน้อย" },
+            { name: "ไก่ย่างหนังกรอบ", qty: 1, price: 120, note: "" },
+            { name: "ข้าวเหนียวนุ่ม", qty: 2, price: 30, note: "" }
+          ],
+          total: 235
+        }
+      ];
+
+      demoTgKitchenMessages = [
+        {
+          id: 1001,
+          orderId: 101,
+          type: "order",
+          title: "🔔 ออเดอร์ใหม่เข้าครัว!",
+          table: "โต๊ะ 1 (ห้องแอร์ VIP)",
+          orderNumber: "ORD-0801",
+          time: "09:39",
+          items: [
+            { name: "ส้มตำไทยไข่เค็ม", qty: 1, note: "เผ็ดน้อย" },
+            { name: "ไก่ย่างหนังกรอบ", qty: 1, note: "" },
+            { name: "ข้าวเหนียวนุ่ม", qty: 2, note: "" }
+          ],
+          total: 235,
+          status: "cooking"
+        }
+      ];
+
+      demoTgWaiterMessages = [
+        {
+          id: 2001,
+          type: "service",
+          title: "🔔 ลูกค้าเรียกพนักงาน!",
+          table: "โต๊ะ 1 (ห้องแอร์ VIP)",
+          detail: "ลูกค้าขอเติมน้ำจิ้มแจ่วเพิ่ม",
+          time: "09:40",
+          actionDone: false
+        }
+      ];
+
+      demoTables = [
+        { id: 1, number: "1", zone: "ห้องแอร์ VIP", seats: 4, status: "occupied", billAmount: 235 },
+        { id: 2, number: "2", zone: "ห้องแอร์ VIP", seats: 4, status: "available", billAmount: 0 },
+        { id: 3, number: "3", zone: "ลานสวน", seats: 6, status: "available", billAmount: 0 },
+        { id: 4, number: "4", zone: "ลานสวน", seats: 4, status: "bill_requested", billAmount: 380 }
+      ];
+
+      updateP1CartUI();
+      renderTgKitchenScreen();
+      renderTgWaiterScreen();
+      renderTableScreen();
+      renderPosScreen();
+
+      App.toast('รีเซ็ตข้อมูลจำลองการทดสอบเรียบร้อยแล้ว ✨', 'info');
+    }
+
+    // ============================================================
+    // Phone Navigation Carousel Logic
+    // ============================================================
+    const phoneIds = ['phone-p1', 'phone-p2', 'phone-p3', 'phone-p4', 'phone-p5'];
+    let currentPhoneIndex = 0;
+    let isProgrammaticScroll = false;
+
+    function updateCarouselUI(index) {
+      currentPhoneIndex = index;
+      const dots = document.querySelectorAll('.carousel-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === index);
+      });
+
+      const prevBtn = document.getElementById('carouselPrevBtn');
+      const nextBtn = document.getElementById('carouselNextBtn');
+
+      if (prevBtn && nextBtn) {
+        if (index === 0) {
+          prevBtn.className = 'carousel-nav-btn btn-dark';
+          nextBtn.className = 'carousel-nav-btn btn-orange';
+        } else if (index === phoneIds.length - 1) {
+          prevBtn.className = 'carousel-nav-btn btn-orange';
+          nextBtn.className = 'carousel-nav-btn btn-dark';
+        } else {
+          prevBtn.className = 'carousel-nav-btn btn-orange';
+          nextBtn.className = 'carousel-nav-btn btn-orange';
+        }
+      }
+    }
+
+    function scrollToPhone(phoneId) {
+      const el = document.getElementById(phoneId);
+      const wrapper = document.getElementById('phonesWrapper');
+      if (el && wrapper) {
+        isProgrammaticScroll = true;
+        const targetIndex = phoneIds.indexOf(phoneId);
+        if (targetIndex !== -1) {
+          updateCarouselUI(targetIndex);
+        }
+
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        const scrollLeft = wrapper.scrollLeft + (elRect.left - wrapperRect.left) - (wrapperRect.width / 2 - elRect.width / 2);
+
+        wrapper.scrollTo({
+          left: Math.max(0, scrollLeft),
+          behavior: 'smooth'
+        });
+
+        setTimeout(() => {
+          isProgrammaticScroll = false;
+        }, 600);
+      }
+    }
+
+    function goToPhone(index) {
+      if (index >= 0 && index < phoneIds.length) {
+        scrollToPhone(phoneIds[index]);
+      }
+    }
+
+    function prevPhone() {
+      if (currentPhoneIndex > 0) {
+        goToPhone(currentPhoneIndex - 1);
+      } else {
+        goToPhone(phoneIds.length - 1);
+      }
+    }
+
+    function nextPhone() {
+      if (currentPhoneIndex < phoneIds.length - 1) {
+        goToPhone(currentPhoneIndex + 1);
+      } else {
+        goToPhone(0);
+      }
+    }
+
+    function initScrollSync() {
+      const wrapper = document.getElementById('phonesWrapper');
+      if (!wrapper) return;
+
+      let scrollTimeout;
+      wrapper.addEventListener('scroll', () => {
+        if (isProgrammaticScroll) return;
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const wrapperRect = wrapper.getBoundingClientRect();
+          const wrapperCenter = wrapperRect.left + wrapperRect.width / 2;
+
+          let closestIndex = 0;
+          let minDistance = Infinity;
+
+          phoneIds.forEach((id, idx) => {
+            const el = document.getElementById(id);
+            if (el) {
+              const elRect = el.getBoundingClientRect();
+              const elCenter = elRect.left + elRect.width / 2;
+              const dist = Math.abs(wrapperCenter - elCenter);
+              if (dist < minDistance) {
+                minDistance = dist;
+                closestIndex = idx;
+              }
+            }
+          });
+
+          updateCarouselUI(closestIndex);
+        }, 60);
+      }, { passive: true });
+    }
+
+    // Initial Render
+    document.addEventListener('DOMContentLoaded', () => {
+      updateP1CartUI();
+      renderTgKitchenScreen();
+      renderTgWaiterScreen();
+      renderTableScreen();
+      renderPosScreen();
+      initScrollSync();
+      updateCarouselUI(0);
+    });
+  </script>
+</body>
+
+</html>

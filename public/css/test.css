@@ -1,0 +1,569 @@
+body {
+  background-color: #070b14;
+  color: #f8fafc;
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+}
+
+/* Top Bar */
+.test-header {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.test-btn-text-mobile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .test-header {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .test-header-subtitle {
+    display: none !important;
+  }
+
+  .test-btn-text-full {
+    display: none !important;
+  }
+
+  .test-btn-text-mobile {
+    display: inline !important;
+  }
+
+  .test-reset-btn,
+  .test-home-btn {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+}
+
+.test-main-container {
+  flex: 1;
+  padding: 16px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Instruction Subheader */
+.sandbox-guide-bar {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(56, 189, 248, 0.08));
+  border: 1px solid rgba(234, 88, 12, 0.25);
+  border-radius: 14px;
+  padding: 12px 18px;
+}
+
+.guide-content-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.guide-steps-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #f1f5f9;
+}
+
+.guide-step-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guide-step-arrow {
+  color: #fb923c;
+  font-weight: bold;
+  opacity: 0.8;
+}
+
+.step-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(234, 88, 12, 0.25);
+  color: #fb923c;
+  font-weight: 700;
+  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sandbox-guide-bar {
+    padding: 10px 14px;
+  }
+
+  .guide-title-row {
+    margin-bottom: 4px;
+  }
+
+  .guide-steps-list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .guide-step-arrow {
+    display: none;
+  }
+
+  .guide-step-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Carousel Pagination Navigation Control */
+.phone-carousel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 4px 0 6px;
+  user-select: none;
+}
+
+.carousel-nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.carousel-nav-btn.btn-dark {
+  background: #0f1624;
+  border: 1.5px solid rgba(255, 255, 255, 0.09);
+  color: #64748b;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.carousel-nav-btn.btn-dark:hover {
+  background: #1a2336;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  transform: scale(1.06);
+}
+.carousel-nav-btn.btn-dark:active {
+  transform: scale(0.94);
+}
+
+.carousel-nav-btn.btn-orange {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.carousel-nav-btn.btn-orange:hover {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  box-shadow: 0 0 28px rgba(249, 115, 22, 0.7), 0 6px 18px rgba(0, 0, 0, 0.5);
+  transform: scale(1.08);
+}
+.carousel-nav-btn.btn-orange:active {
+  transform: scale(0.94);
+}
+
+.carousel-indicators {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carousel-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #475569;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+.carousel-dot:hover {
+  background: #64748b;
+  transform: scale(1.2);
+}
+
+.carousel-dot.active {
+  width: 38px;
+  height: 15px;
+  border-radius: 9999px;
+  background: #f97316;
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.85), 0 0 4px #ea580c;
+}
+
+/* 5 Phones Grid Layout */
+.phones-wrapper {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 10px 4px 28px;
+  scroll-snap-type: x mandatory;
+  justify-content: flex-start;
+}
+
+@media (min-width: 1720px) {
+  .phones-wrapper {
+    justify-content: center;
+  }
+}
+
+/* Phone Mockup Frame */
+.phone-mockup {
+  width: 320px;
+  min-width: 320px;
+  height: 650px;
+  background: #0f172a;
+  border-radius: 38px;
+  border: 4px solid #334155;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 88, 12, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.phone-mockup:hover {
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7), 0 0 35px rgba(234, 88, 12, 0.2);
+}
+
+/* Phone Header Label Tag */
+.phone-top-title-tag {
+  padding: 7px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
+}
+
+.tag-p1 { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+.tag-tg-kitchen { background: rgba(0, 136, 204, 0.25); color: #38bdf8; }
+.tag-tg-waiter { background: rgba(168, 85, 247, 0.25); color: #c084fc; }
+.tag-p4 { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+.tag-p5 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+/* Phone Notch / Status Bar */
+.phone-status-bar {
+  height: 22px;
+  background: #090d16;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  user-select: none;
+}
+
+.phone-notch {
+  width: 75px;
+  height: 12px;
+  background: #020617;
+  border-radius: 0 0 10px 10px;
+}
+
+/* Phone Screen Content */
+.phone-screen {
+  flex: 1;
+  background: #090d16;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Custom scrollbar for screens */
+.phone-screen::-webkit-scrollbar {
+  width: 4px;
+}
+.phone-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* Phone Bottom Bar Indicator */
+.phone-bottom-bar {
+  height: 16px;
+  background: #090d16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.phone-home-indicator {
+  width: 70px;
+  height: 3.5px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+}
+
+/* Screen UI Components */
+.app-header {
+  background: rgba(15, 23, 42, 0.95);
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.menu-mini-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.menu-mini-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.table-mini-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.table-mini-card:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  background: rgba(249, 115, 22, 0.05);
+}
+.table-mini-card.active-pos {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.25);
+}
+
+.btn-action-mini {
+  border: none;
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-action-mini:active {
+  transform: scale(0.96);
+}
+
+/* ==================================================== */
+/* Telegram Custom UI Styles */
+/* ==================================================== */
+.tg-screen-bg {
+  background-color: #0e1621;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+.tg-nav-header {
+  background: #17212b;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #101921;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tg-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.tg-avatar-kitchen { background: linear-gradient(135deg, #0088cc, #005f8f); }
+.tg-avatar-waiter { background: linear-gradient(135deg, #9333ea, #6b21a8); }
+
+.tg-message-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.tg-bubble {
+  background: #182533;
+  border: 1px solid #242f3d;
+  border-radius: 12px 12px 12px 3px;
+  padding: 10px 11px;
+  max-width: 95%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  position: relative;
+  animation: tgSlideIn 0.25s ease-out;
+}
+
+@keyframes tgSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tg-bot-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6ab2f2;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tg-inline-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.tg-inline-btn {
+  background: #2b5278;
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.15s ease, transform 0.1s;
+}
+.tg-inline-btn:hover {
+  background: #366596;
+}
+.tg-inline-btn:active {
+  transform: scale(0.97);
+}
+.tg-inline-btn.disabled {
+  background: #203142;
+  color: #708499;
+  cursor: default;
+}
+
+.tg-bubble-time {
+  font-size: 0.62rem;
+  color: #708499;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Light Theme Support */
+body.theme-light,
+[data-theme="light"] body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+body.theme-light .test-header,
+[data-theme="light"] .test-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.theme-light .test-header .brand-logo div div,
+[data-theme="light"] .test-header .brand-logo div div {
+  color: #0f172a !important;
+}
+
+body.theme-light .sandbox-guide-bar,
+[data-theme="light"] .sandbox-guide-bar {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.theme-light .guide-title-row span,
+[data-theme="light"] .guide-title-row span {
+  color: #0f172a !important;
+}
+
+body.theme-light .guide-step-item,
+[data-theme="light"] .guide-step-item {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+

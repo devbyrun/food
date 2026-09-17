@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TableQR Food POS - ระบบสั่งอาหารตามโต๊ะผ่าน QR Code & จอครัว KDS อัจฉริยะ</title>
+  <meta name="description"
+    content="ระบบสั่งอาหารตามโต๊ะผ่าน QR Code, จอครัว KDS และระบบคิดเงิน POS เชื่อมต่อ Telegram Bot ทดลองใช้งานฟรี 30 วัน ราคารายเดือนสุดคุ้ม">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+</head>
+
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+      <div class="brand-logo">
+        <a href="/" style="display: flex; align-items: center; text-decoration: none;">
+          <img src="assets/img/logo.png" alt="Logo" class="brand-logo-img"
+            style="height: 42px; width: 42px; object-fit: contain; border-radius: 8px;">
+        </a>
+        <div>
+          <a href="/" style="font-size: 1.15rem; font-weight: 700; color: white; line-height: 1.2; text-decoration: none; display: block;">QR Food POS</a>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">by <a href="https://rundev.site" target="_blank" rel="noopener noreferrer" style="color: #fb923c; text-decoration: none; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.color='#fdba74'; this.style.textDecoration='underline';" onmouseout="this.style.color='#fb923c'; this.style.textDecoration='none';">rundev</a></div>
+        </div>
+      </div>
+
+      <nav class="landing-nav-links">
+        <a href="#features"
+          style="color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s;">จุดเด่นระบบ</a>
+        <a href="/test.html"
+          style="color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s;">ทดลองใช้งานสด</a>
+        <a href="#pricing"
+          style="color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s;">ราคาแพ็กเกจ</a>
+        <a href="#faq"
+          style="color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s;">คำถามที่พบบ่อย</a>
+      </nav>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="/login.html" class="btn btn-secondary btn-sm">🔐 เข้าสู่ระบบร้านค้า</a>
+        <button onclick="openTrialModal('Professional')" class="btn btn-primary btn-sm nav-trial-btn hide-on-mobile">✨
+          ทดลองใช้ฟรี 30 วัน</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section style="padding: 4.5rem 0 3.5rem; text-align: center; position: relative;">
+    <div class="container" style="max-width: 920px;">
+
+      <!-- Free Trial Pill Badge -->
+      <div class="hero-trial-badge">
+        <div class="hero-badge-row1">
+          <span style="font-size: 1rem;">🎁</span>
+          <span>โปรโมชันพิเศษ: สมัครวันนี้</span>
+        </div>
+        <div class="hero-badge-row2">
+          <b>ทดลองใช้งานฟรี 30 วันเต็ม</b> ไม่ต้องผูกบัตรเครดิต
+        </div>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="hero-headline">
+        <span class="hero-headline-top">ยกระดับร้านอาหารของคุณด้วย</span>
+        <span class="hero-headline-gradient">
+          <span class="hero-gradient-line1">ระบบสั่งอาหารตามโต๊ะ</span>
+          <span class="hero-gradient-line2">ผ่าน QR Code & จอครัว KDS</span>
+        </span>
+      </h1>
+
+      <p
+        style="font-size: 1.2rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2.25rem; max-width: 780px; margin-left: auto; margin-right: auto;">
+        ลูกค้าสแกนสั่งเองผ่านมือถือ ไม่ต้องโหลดแอป • ส่งออเดอร์แจ้งเตือนเข้า <b>Telegram ทีมครัว & เสิร์ฟ</b> อัตโนมัติ
+        •
+        ลดปัญหาจดออเดอร์ผิด ลดต้นทุนพนักงาน 30% พร้อมระบบผังโต๊ะสดและแคชเชียร์ POS ครบวงจร
+      </p>
+
+      <!-- Primary Action Buttons -->
+      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem;">
+        <button onclick="openTrialModal('Professional')" class="btn btn-primary"
+          style="padding: 16px 36px; font-size: 1.1rem; box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4);">
+          🚀 เริ่มต้นใช้งานฟรี 30 วัน (Free Trial)
+        </button>
+        <a href="/test.html" class="btn btn-secondary" style="padding: 16px 28px; font-size: 1.1rem;">
+          📱 ทดสอบระบบสด (Live Demo)
+        </a>
+      </div>
+
+      <!-- Quick Trust Counters (2x2 on Mobile, 4 Cols on Desktop) -->
+      <div class="hero-trust-counters">
+        <div class="hero-trust-item">
+          <div class="hero-trust-num" style="color: white;">30 วัน</div>
+          <div class="hero-trust-label">ทดลองใช้ฟรีทุกฟังก์ชัน</div>
+        </div>
+        <div class="hero-trust-item">
+          <div class="hero-trust-num" style="color: #10b981;">0 บาท</div>
+          <div class="hero-trust-label">ไม่มีค่าติดตั้ง ไม่มีสัญญาผูกมัด</div>
+        </div>
+        <div class="hero-trust-item">
+          <div class="hero-trust-num" style="color: #38bdf8;">&lt; 5 นาที</div>
+          <div class="hero-trust-label">เปิดร้านและเริ่มพิมพ์ QR ได้ทันที</div>
+        </div>
+        <div class="hero-trust-item">
+          <div class="hero-trust-num" style="color: #a855f7;">100% Cloud</div>
+          <div class="hero-trust-label">ใช้ได้ทั้งมือถือ แท็บเล็ต และคอม</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+
+  <!-- Features Grid -->
+  <section id="features" style="padding: 4.5rem 0;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 3.5rem;">
+        <div class="badge badge-purple" style="margin-bottom: 0.75rem;">POWERFUL FEATURES</div>
+        <h2 class="features-section-title"
+          style="font-size: 2.2rem; font-weight: 700; color: white; margin-bottom: 0.75rem;">
+          <span class="features-title-line1">ฟังก์ชันครบ จบในที่เดียวเพื่อ</span>
+          <span class="features-title-line2">ร้านอาหารยุคดิจิทัล</span>
+        </h2>
+        <p class="features-section-subtitle" style="color: var(--text-muted); font-size: 1rem;">
+          <span class="features-sub-line1">ออกแบบโดยเน้นความลื่นไหล ประหยัดเวลา</span>
+          <span class="features-sub-line2">และเพิ่มประสิทธิภาพการบริการ</span>
+        </p>
+        <!-- Features Mobile Slide Navigation Controls -->
+        <div class="features-mobile-controls" id="features-mobile-controls">
+          <button type="button" class="features-nav-btn prev" id="features-prev-btn" aria-label="ก่อนหน้า"
+            onclick="slideFeaturesPrev()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="features-dots" id="features-dots">
+            <!-- Dynamic dots generated by initFeaturesSlider() -->
+          </div>
+          <button type="button" class="features-nav-btn next btn-orange-active" id="features-next-btn"
+            aria-label="ถัดไป" onclick="slideFeaturesNext()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Features Slider Container -->
+      <div class="features-slider-container">
+        <div id="features-cards-container" class="features-grid">
+
+          <div class="glass-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">📲</div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">QR Code ประจำโต๊ะ
+              ไม่ต้องโหลดแอป</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              สร้าง QR Code พร้อมดาวน์โหลดไฟล์เต็นท์การ์ดพิมพ์ตั้งโต๊ะได้ทันที
+              ลูกค้าใช้มือถือกล้องปกติสแกนเข้าสั่งได้ทันที รองรับทั้ง iPhone และ Android
+            </p>
+          </div>
+
+          <div class="glass-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🤖</div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">Telegram Bot ครัว &
+              เสิร์ฟ</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              เชื่อมต่อกับแอป Telegram แจ้งเตือนออเดอร์ใหม่เข้ากลุ่มครัว เชฟกดปุ่ม 'เสร็จแล้ว' บน Telegram
+              เพื่อแจ้งเตือนกลุ่มเด็กเสิร์ฟไปยกอาหารอัตโนมัติ
+            </p>
+          </div>
+
+          <div class="glass-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">⏱️</div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">จอแสดงผลห้องครัว
+              (Kitchen KDS)</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              หน้าจอ KDS แบบเรียลไทม์ พร้อมตัวจับเวลาตามระดับความเร่งด่วน จัดคิวทำอาหารเป็นสัดส่วน
+              พร้อมเสียงกระดิ่งแจ้งเตือนทุกครั้งที่มีรายการใหม่
+            </p>
+          </div>
+
+          <div class="glass-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">💳</div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">PromptPay QR &
+              คำนวณภาษี</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              สร้าง QR Code พร้อมเพย์ตามยอดบิลจริงอัตโนมัติ คำนวณ VAT 7% และ Service Charge 10% อย่างถูกต้อง เช็คบิลไว
+              ลูกค้าไม่ต้องรอนาน
+            </p>
+          </div>
+
+          <div class="glass-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">📊</div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: white; margin-bottom: 0.5rem;">รายงานยอดขาย
+              รายวัน/เดือน/ปี</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              สรุปยอดขายแบบเรียลไทม์ เมนูขายดี ยอดเฉลี่ยต่อโต๊ะ และการวิเคราะห์ช่วงเวลาที่ลูกค้าแน่น
+              เพื่อให้คุณวางแผนสต็อกและพนักงานได้อย่างแม่นยำ
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section (Monthly Subscription & 30-Day Free Trial) -->
+  <section id="pricing" style="padding: 4.5rem 0; background: rgba(0,0,0,0.35); position: relative;">
+    <div class="container">
+      <div style="text-align: center; max-width: 700px; margin: 0 auto 2rem;">
+        <div class="badge badge-primary" style="margin-bottom: 0.75rem;">PRICING PLANS</div>
+        <h2 class="pricing-section-title"
+          style="font-size: 2.4rem; font-weight: 800; color: white; margin-bottom: 0.75rem;">
+          แพ็กเกจสุดคุ้ม
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1.05rem;">
+          ทุกแพ็กเกจมาพร้อม <b>สิทธิ์ทดลองใช้งานฟรี 30 วันเต็ม</b> ไม่มีค่าใช้จ่ายแอบแฝง
+          สามารถยกเลิกหรือเปลี่ยนแพ็กเกจได้ตลอดเวลา
+        </p>
+
+        <!-- Billing Cycle Switcher Toggle -->
+        <div style="margin-top: 1.75rem;">
+          <div class="cycle-toggle-wrapper">
+            <button id="cycle-monthly-btn" class="cycle-btn active" onclick="setBillingCycle('monthly')">
+              ชำระรายเดือน
+            </button>
+            <button id="cycle-yearly-btn" class="cycle-btn" onclick="setBillingCycle('yearly')">
+              ชำระรายปี <span class="cycle-save-badge">ประหยัด 20% 🔥</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Slide Navigation Controls (Centered directly below billing switcher and above cards) -->
+        <div class="pricing-mobile-controls" id="pricing-mobile-controls">
+          <button type="button" class="pricing-nav-btn prev" id="pricing-prev-btn" aria-label="ก่อนหน้า"
+            onclick="slidePricingPrev()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="pricing-dots" id="pricing-dots">
+            <span class="pricing-dot active" onclick="goToPricingSlide(0)"></span>
+            <span class="pricing-dot" onclick="goToPricingSlide(1)"></span>
+            <span class="pricing-dot" onclick="goToPricingSlide(2)"></span>
+          </div>
+          <button type="button" class="pricing-nav-btn next btn-orange-active" id="pricing-next-btn" aria-label="ถัดไป"
+            onclick="slidePricingNext()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pricing Slider Container -->
+      <div class="pricing-slider-container">
+        <!-- Pricing Cards Grid / Slider Track -->
+        <div id="pricing-cards-container" class="pricing-grid">
+
+
+
+          <!-- Tier 1: Starter -->
+          <div class="pricing-card">
+            <div style="font-size: 1.25rem; font-weight: 700; color: white;">Starter</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">เหมาะสำหรับร้านขนาดเล็ก คาเฟ่
+              หรือร้านกาแฟ (1 บัญชีผู้ดูแล)</div>
+
+            <div class="pricing-price">
+              <span class="currency">฿</span>
+              <span id="price-starter" class="amount">290</span>
+              <span id="period-starter" class="period">/ เดือน</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #10b981; font-weight: 500;">✓ ทดลองใช้ฟรี 30 วัน</div>
+
+            <ul class="pricing-features">
+              <li><span class="feature-check">✓</span> รองรับสูงสุด <b>10 โต๊ะ</b></li>
+              <li><span class="feature-check">✓</span> สูงสุด 50 รายการเมนูอาหาร</li>
+              <li><span class="feature-check">✓</span> สแกน QR สั่งอาหารผ่านมือถือ</li>
+              <li><span class="feature-check">✓</span> แจ้งเตือนออเดอร์เข้า Telegram ครัว</li>
+              <li><span class="feature-check">✓</span> ระบบ QR พร้อมเพย์ชำระเงิน</li>
+              <li class="disabled"><span style="color:var(--text-dim); margin-right:8px;">✕</span>
+                ระบบจัดการพนักงานหลายคน</li>
+              <li class="disabled"><span style="color:var(--text-dim); margin-right:8px;">✕</span> จอครัว KDS
+                แบบเรียลไทม์</li>
+            </ul>
+
+            <button onclick="openTrialModal('Starter')" class="btn btn-secondary btn-block"
+              style="padding: 14px; font-weight: 600;">
+              ทดลองใช้ฟรี 30 วัน
+            </button>
+          </div>
+
+          <!-- Tier 2: Professional (Featured) -->
+          <div class="pricing-card featured">
+            <div class="pricing-badge-popular">🌟 ยอดนิยมที่สุด</div>
+            <div style="font-size: 1.35rem; font-weight: 700; color: white;">Professional</div>
+            <div style="font-size: 0.85rem; color: #fed7aa; margin-top: 4px;">สำหรับร้านอาหารทั่วไป ชาบู ปิ้งย่าง
+              หรือสวนอาหาร</div>
+
+            <div class="pricing-price">
+              <span class="currency" style="color: #fb923c;">฿</span>
+              <span id="price-pro" class="amount" style="color: white;">490</span>
+              <span id="period-pro" class="period">/ เดือน</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #4ade80; font-weight: 600;">✓ ทดลองใช้ฟรี 30 วันเต็ม (แนะนำ)</div>
+
+            <ul class="pricing-features">
+              <li><span class="feature-check">✓</span> รองรับสูงสุด <b>20 โต๊ะ</b></li>
+              <li><span class="feature-check">✓</span> <b>ไม่จำกัดรายการเมนู</b> และหมวดหมู่</li>
+              <li><span class="feature-check">✓</span> สแกน QR สั่งอาหาร + ปรับแต่ง Option</li>
+              <li><span class="feature-check">✓</span> <b>หน้าจอครัว KDS สด</b> พร้อมเสียงเตือน</li>
+              <li><span class="feature-check">✓</span> Telegram Bot ครัว, เสิร์ฟ, สลิปลูกค้า</li>
+              <li><span class="feature-check">✓</span> ระบบผังโต๊ะสด & คิดเงิน POS + VAT</li>
+              <li><span class="feature-check">✓</span> รายงานยอดขายรายวันและรายเดือน</li>
+              <li><span class="feature-check">✓</span> ทีมงานดูแลช่วยเหลือทาง Line/โทร</li>
+            </ul>
+
+            <button onclick="openTrialModal('Professional')" class="btn btn-primary btn-block"
+              style="padding: 14px; font-weight: 700; font-size: 1.05rem;">
+              🔥 เริ่มทดลองใช้ฟรี 30 วัน
+            </button>
+          </div>
+
+          <!-- Tier 3: Enterprise & Buffet -->
+          <div class="pricing-card">
+            <div style="font-size: 1.25rem; font-weight: 700; color: white;">Enterprise / Buffet</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">สำหรับร้านบุฟเฟต์ ภัตตาคาร
+              หรือร้านที่มีหลายสาขา</div>
+
+            <div class="pricing-price">
+              <span class="currency">฿</span>
+              <span id="price-enterprise" class="amount">999</span>
+              <span id="period-enterprise" class="period">/ เดือน</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #10b981; font-weight: 500;">✓ ทดลองใช้ฟรี 30 วัน</div>
+
+            <ul class="pricing-features">
+              <li><span class="feature-check">✓</span> ทุกฟังก์ชันในแพ็กเกจ Professional</li>
+              <li><span class="feature-check">✓</span> <b>รองรับระบบ Multi-Store หลายสาขา</b></li>
+              <li><span class="feature-check">✓</span> ระบบ Super Admin ควบคุมทุกสาขาจากที่เดียว</li>
+              <li><span class="feature-check">✓</span> วิเคราะห์ยอดขายขั้นสูง <b>รายวัน / รายเดือน / รายปี</b></li>
+              <li><span class="feature-check">✓</span> ปรับแต่งธีมและโลโก้แบรนด์เฉพาะตัว</li>
+              <li><span class="feature-check">✓</span> Export ข้อมูล Excel / CSV ครบครัน</li>
+              <li><span class="feature-check">✓</span> บริการให้คำปรึกษา & ซัพพอร์ต 24/7</li>
+            </ul>
+
+            <button onclick="openTrialModal('Enterprise')" class="btn btn-secondary btn-block"
+              style="padding: 14px; font-weight: 600;">
+              ทดลองใช้ฟรี 30 วัน
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Guarantee callout -->
+      <div class="pricing-guarantee-banner"
+        style="text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.95rem;">
+        <span class="guarantee-line1">🛡️ <b>การันตีความพึงพอใจ:</b> ใช้งานฟรี 30 วัน</span>
+        <span class="guarantee-line2">หากไม่ถูกใจไม่มีข้อผูกมัด ไม่ตัดเงินอัตโนมัติ</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" style="padding: 4.5rem 0;">
+    <div class="container" style="max-width: 840px;">
+      <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 class="faq-section-title" style="font-size: 2.2rem; font-weight: 700; color: white; margin-bottom: 0.5rem;">
+          คำถามที่พบบ่อย (FAQ)
+        </h2>
+        <p class="faq-section-subtitle" style="color: var(--text-muted);">
+          มีข้อสงสัยเกี่ยวกับการใช้งานและการเริ่มต้นทดลองใช้?
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: ทดลองใช้ฟรี 30 วัน
+            ต้องผูกบัตรเครดิตไหม?</h4>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+            <b>ไม่ต้องผูกบัตรเครดิตครับ!</b> คุณสามารถสมัครกรอกชื่อร้านแล้วเริ่มพิมพ์ QR Code ใช้งานได้ทันที ครบ 30
+            วันแล้วค่อยตัดสินใจชำระเงินต่ออายุการใช้งาน
+          </p>
+        </div>
+
+        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: ต้องซื้อเครื่อง POS หรือฮาร์ดแวร์แพงๆ
+            เพิ่มหรือไม่?</h4>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+            <b>ไม่จำเป็นเลยครับ!</b> ระบบทำงานบน Cloud 100% ครัวสามารถใช้แท็บเล็ต/มือถือธรรมดาเปิดดู KDS
+            หรือรับแจ้งเตือนผ่าน Telegram ได้เลย ส่วนแคชเชียร์ใช้โน้ตบุ๊ก มือถือ หรือแท็บเล็ตเครื่องไหนก็ได้
+          </p>
+        </div>
+
+        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q:
+            ลูกค้าจำเป็นต้องดาวน์โหลดแอปพลิเคชันหรือไม่?</h4>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+            <b>ไม่ต้องโหลดแอปครับ!</b> ลูกค้าเปิดกล้องมือถือสแกน QR Code บนโต๊ะ จะเปิดหน้าเว็บสั่งอาหารได้ทันที สั่งง่าย
+            รวดเร็ว และรองรับสมาร์ตโฟนทุกรุ่น
+          </p>
+        </div>
+
+        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: หลังหมดช่วงทดลอง 30 วัน
+            ข้อมูลร้านและเมนูจะหายไหม?</h4>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+            ข้อมูลเมนู ผังโต๊ะ และสถิติทั้งหมดจะยังคงปลอดภัยอยู่ในระบบ เมื่อชำระค่าบริการรายเดือน
+            ระบบจะต่ออายุและเปิดให้ใช้งานต่อเนื่องได้ทันทีโดยไม่ต้องตั้งค่าใหม่
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section
+    style="padding: 4rem 0; background: linear-gradient(135deg, rgba(234, 88, 12, 0.25) 0%, rgba(139, 92, 246, 0.2) 100%); text-align: center; border-top: 1px solid var(--border-glass);">
+    <div class="container" style="max-width: 760px;">
+      <h2 style="font-size: 2.4rem; font-weight: 800; color: white; margin-bottom: 1rem;">
+        พร้อมยกระดับร้านอาหารของคุณแล้วหรือยัง?
+      </h2>
+      <p style="color: var(--text-main); font-size: 1.15rem; margin-bottom: 2rem;">
+        เริ่มเปิดใช้งานร้านอาหารของคุณวันนี้ ทดลองใช้ฟรี 30 วันเต็ม เพิ่มยอดขาย ลดต้นทุน และสร้างความประทับใจให้ลูกค้า
+      </p>
+      <button onclick="openTrialModal('Professional')" class="btn btn-primary"
+        style="padding: 16px 40px; font-size: 1.15rem; font-weight: 700; box-shadow: 0 10px 30px rgba(234, 88, 12, 0.5);">
+        🎉 สมัครเปิดร้านทดลองใช้ฟรี 30 วัน ทันที
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer
+    style="border-top: 1px solid var(--border-glass); padding: 2.5rem 0; text-align: center; color: var(--text-dim); font-size: 0.9rem;">
+    <div class="container">
+      <div
+        style="display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-weight: 700; color: white; font-size: 1.15rem; margin-bottom: 6px;">
+        <img src="assets/img/logo.png" alt="Logo"
+          style="height: 28px; width: 28px; object-fit: contain; border-radius: 6px;">
+        <span>QR Food POS</span>
+      </div>
+      <p style="margin: 6px auto 10px auto; color: var(--text-dim); font-size: 0.88rem; max-width: 620px; line-height: 1.6;">ระบบสั่งอาหารตามโต๊ะผ่าน QR Code, จอครัว KDS, และระบบคิดเงิน POS พร้อมระบบแจ้งเตือน Telegram Bot</p>
+      <div style="font-size: 0.82rem; color: var(--text-muted);">by <a href="https://rundev.site" target="_blank" rel="noopener noreferrer" style="color: #fb923c; text-decoration: none; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.color='#fdba74'; this.style.textDecoration='underline';" onmouseout="this.style.color='#fb923c'; this.style.textDecoration='none';">rundev</a></div>
+    </div>
+  </footer>
+
+  <!-- 30-Day Free Trial Signup Modal -->
+  <div id="trial-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
+    <div class="modal-sheet" style="max-width: 520px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 700; color: white;">🎁 เปิดร้านทดลองใช้ฟรี 30 วัน</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">กรอกข้อมูลเพื่อสร้างร้านค้าและเข้าใช้งานระบบทันที</p>
+        </div>
+        <button onclick="document.getElementById('trial-modal').classList.remove('active')"
+          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form onsubmit="submitTrialSignup(event)">
+        <div style="margin-bottom: 1rem;">
+          <label
+            style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เลือกแพ็กเกจที่ต้องการทดลอง</label>
+          <select id="trial-plan"
+            style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size:0.95rem;">
+            <option value="Professional" selected>Professional (฿490/เดือน - แนะนำ 🔥)</option>
+            <option value="Starter">Starter (฿290/เดือน - ร้านขนาดเล็ก)</option>
+            <option value="Enterprise">Enterprise / Buffet (฿990/เดือน - ครบวงจร)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label
+            style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อร้านอาหารของคุณ
+            *</label>
+          <input type="text" id="trial-store-name" required placeholder="เช่น ครัวคุณแม่ อาหารป่า & ซีฟู้ด"
+            style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อผู้ติดต่อ
+              *</label>
+            <input type="text" id="trial-manager-name" required placeholder="เช่น สมชาย ใจดี"
+              style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เบอร์โทรศัพท์
+              *</label>
+            <input type="tel" id="trial-phone" required placeholder="08xxxxxxxx"
+              style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">Username
+              เข้าสู่ระบบ *</label>
+            <input type="text" id="trial-username" required placeholder="เช่น somchai_admin"
+              style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">รหัสผ่าน
+              (Password) *</label>
+            <input type="password" id="trial-password" required placeholder="อย่างน้อย 6 ตัวอักษร" minlength="6"
+              style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div
+          style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); padding: 12px; margin-bottom: 1.25rem; font-size: 0.85rem; color: #6ee7b7;">
+          ✨ ระบบจะสร้างโต๊ะจำลอง, เมนูตัวอย่าง และผังร้านค้าเริ่มต้นให้ทันที พร้อมพิมพ์ QR Code ใช้งานได้เลย!
+        </div>
+
+        <button type="submit" id="trial-submit-btn" class="btn btn-primary btn-block"
+          style="padding: 14px; font-size: 1.05rem; font-weight: 700;">
+          🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scroll To Top Floating Button -->
+  <button id="scroll-to-top-btn" class="scroll-to-top-btn" onclick="scrollToTop()" title="ขึ้นบนสุด (Back to Top)"
+    aria-label="ขึ้นบนสุด">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <script src="/js/app.js"></script>
+  <script>
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    window.addEventListener('scroll', () => {
+      const topBtn = document.getElementById('scroll-to-top-btn');
+      if (topBtn) {
+        if (window.scrollY > 300) {
+          topBtn.classList.add('visible');
+        } else {
+          topBtn.classList.remove('visible');
+        }
+      }
+    }, { passive: true });
+    let currentCycle = 'monthly';
+    let loadedPlans = [];
+
+    async function loadPublicPlans() {
+      try {
+        const res = await fetch('/api/platform/plans');
+        const data = await res.json();
+        if (data.success && data.plans && data.plans.length > 0) {
+          loadedPlans = data.plans;
+          renderPublicPricingCards(loadedPlans);
+          updateTrialPlanSelect(loadedPlans);
+        }
+      } catch (err) {
+        console.error('Error loading public plans:', err);
+      }
+    }
+
+    function renderPublicPricingCards(plans) {
+      const container = document.getElementById('pricing-cards-container');
+      if (!container || !plans || plans.length === 0) return;
+
+      container.innerHTML = plans.map(p => {
+        const features = Array.isArray(p.features) ? p.features : (typeof p.features === 'string' ? JSON.parse(p.features || '[]') : []);
+        const disabledFeatures = Array.isArray(p.disabled_features) ? p.disabled_features : (typeof p.disabled_features === 'string' ? JSON.parse(p.disabled_features || '[]') : []);
+
+        const isFeatured = p.is_featured;
+        const cardClass = isFeatured ? 'pricing-card featured' : 'pricing-card';
+        const badgeHtml = p.badge_text ? `<div class="pricing-badge-popular">${p.badge_text}</div>` : '';
+        const price = currentCycle === 'monthly' ? parseFloat(p.price_monthly) : parseFloat(p.price_yearly || p.price_monthly);
+        const periodText = currentCycle === 'monthly' ? '/ เดือน' : '/ ด. (จ่ายรายปี)';
+        const btnClass = isFeatured ? 'btn btn-primary btn-block' : 'btn btn-secondary btn-block';
+        const btnText = isFeatured ? '🔥 เริ่มทดลองใช้ฟรี 30 วัน' : 'ทดลองใช้ฟรี 30 วัน';
+        const btnStyle = isFeatured ? 'padding: 14px; font-weight: 700; font-size: 1.05rem;' : 'padding: 14px; font-weight: 600;';
+        const subtitleStyle = isFeatured ? 'font-size: 0.85rem; color: #fed7aa; margin-top: 4px;' : 'font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;';
+        const curStyle = isFeatured ? 'style="color: #fb923c;"' : '';
+        const amtStyle = isFeatured ? 'style="color: white;"' : '';
+
+        return `
+          <div class="${cardClass}">
+            ${badgeHtml}
+            <div style="font-size: ${isFeatured ? '1.35rem' : '1.25rem'}; font-weight: 700; color: white;">${p.name}</div>
+            <div style="${subtitleStyle}">${p.subtitle || ''}</div>
+            
+            <div class="pricing-price">
+              <span class="currency" ${curStyle}>฿</span>
+              <span class="amount" ${amtStyle}>${price.toLocaleString()}</span>
+              <span class="period">${periodText}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: ${isFeatured ? '#4ade80' : '#10b981'}; font-weight: ${isFeatured ? '600' : '500'};">✓ ทดลองใช้ฟรี 30 วัน${isFeatured ? 'เต็ม (แนะนำ)' : ''}</div>
+
+            <ul class="pricing-features">
+              ${features.map(f => `
+                <li><span class="feature-check">✓</span> ${f}</li>
+              `).join('')}
+              ${disabledFeatures.map(df => `
+                <li class="disabled"><span style="color:var(--text-dim); margin-right:8px;">✕</span> ${df}</li>
+              `).join('')}
+            </ul>
+
+            <button onclick="openTrialModal('${p.name.replace(/'/g, "\\'")}')" class="${btnClass}" style="${btnStyle}">
+              ${btnText}
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      initPricingSlider(plans);
+    }
+
+    let currentPricingIndex = 0;
+    let pricingScrollTimeout = null;
+
+    function initPricingSlider() {
+      const container = document.getElementById('pricing-cards-container');
+      const dotsContainer = document.getElementById('pricing-dots');
+      if (!container || !dotsContainer) return;
+
+      const cards = container.querySelectorAll('.pricing-card');
+      if (cards.length === 0) return;
+
+      if (currentPricingIndex >= cards.length) {
+        currentPricingIndex = 0;
+      }
+
+      // Generate dots
+      dotsContainer.innerHTML = Array.from(cards).map((_, idx) => `
+        <span class="pricing-dot ${idx === currentPricingIndex ? 'active' : ''}" 
+              onclick="goToPricingSlide(${idx})" 
+              title="แพ็กเกจ ${idx + 1}"></span>
+      `).join('');
+
+      // Add scroll listener
+      container.removeEventListener('scroll', handlePricingScroll);
+      container.addEventListener('scroll', handlePricingScroll, { passive: true });
+
+      updatePricingControls();
+    }
+
+    function handlePricingScroll() {
+      const container = document.getElementById('pricing-cards-container');
+      if (!container) return;
+
+      clearTimeout(pricingScrollTimeout);
+      pricingScrollTimeout = setTimeout(() => {
+        const cards = container.querySelectorAll('.pricing-card');
+        if (cards.length === 0) return;
+
+        const containerCenter = container.scrollLeft + container.clientWidth / 2;
+        let closestIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, idx) => {
+          const cardCenter = card.offsetLeft + card.clientWidth / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = idx;
+          }
+        });
+
+        currentPricingIndex = closestIndex;
+        updatePricingDots();
+      }, 40);
+    }
+
+    function updatePricingDots() {
+      const dots = document.querySelectorAll('.pricing-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentPricingIndex);
+      });
+
+      updatePricingControls();
+    }
+
+    function updatePricingControls() {
+      const container = document.getElementById('pricing-cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.pricing-card');
+      const prevBtn = document.getElementById('pricing-prev-btn');
+      const nextBtn = document.getElementById('pricing-next-btn');
+
+      const canPrev = currentPricingIndex > 0;
+      const canNext = currentPricingIndex < cards.length - 1;
+
+      if (prevBtn) {
+        prevBtn.style.opacity = canPrev ? '1' : '0.35';
+        prevBtn.style.pointerEvents = canPrev ? 'auto' : 'none';
+        prevBtn.classList.toggle('btn-orange-active', canPrev && !canNext);
+      }
+      if (nextBtn) {
+        nextBtn.style.opacity = canNext ? '1' : '0.35';
+        nextBtn.style.pointerEvents = canNext ? 'auto' : 'none';
+        nextBtn.classList.toggle('btn-orange-active', canNext);
+      }
+    }
+
+    function goToPricingSlide(index) {
+      const container = document.getElementById('pricing-cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.pricing-card');
+      if (!cards[index]) return;
+
+      currentPricingIndex = index;
+      const targetCard = cards[index];
+      const scrollPos = targetCard.offsetLeft - (container.clientWidth - targetCard.clientWidth) / 2;
+
+      container.scrollTo({
+        left: Math.max(0, scrollPos),
+        behavior: 'smooth'
+      });
+
+      updatePricingDots();
+    }
+
+    function slidePricingPrev() {
+      if (currentPricingIndex > 0) {
+        goToPricingSlide(currentPricingIndex - 1);
+      }
+    }
+
+    function slidePricingNext() {
+      const container = document.getElementById('pricing-cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.pricing-card');
+      if (currentPricingIndex < cards.length - 1) {
+        goToPricingSlide(currentPricingIndex + 1);
+      }
+    }
+
+    function updateTrialPlanSelect(plans) {
+      const select = document.getElementById('trial-plan');
+      if (!select || !plans || plans.length === 0) return;
+      const currentVal = select.value;
+
+      select.innerHTML = plans.map(p => {
+        const isFeatured = p.is_featured;
+        const extra = isFeatured ? ' - แนะนำ 🔥' : '';
+        return `<option value="${p.name}">${p.name} (฿${parseFloat(p.price_monthly).toLocaleString()}/เดือน${extra})</option>`;
+      }).join('');
+
+      if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    function setBillingCycle(cycle) {
+      currentCycle = cycle;
+      const monthlyBtn = document.getElementById('cycle-monthly-btn');
+      const yearlyBtn = document.getElementById('cycle-yearly-btn');
+
+      if (cycle === 'monthly') {
+        monthlyBtn.classList.add('active');
+        yearlyBtn.classList.remove('active');
+      } else {
+        yearlyBtn.classList.add('active');
+        monthlyBtn.classList.remove('active');
+      }
+
+      if (loadedPlans.length > 0) {
+        renderPublicPricingCards(loadedPlans);
+      } else {
+        // Fallback static elements
+        if (cycle === 'monthly') {
+          if (document.getElementById('price-starter')) document.getElementById('price-starter').innerText = '290';
+          if (document.getElementById('period-starter')) document.getElementById('period-starter').innerText = '/ เดือน';
+          if (document.getElementById('price-pro')) document.getElementById('price-pro').innerText = '490';
+          if (document.getElementById('period-pro')) document.getElementById('period-pro').innerText = '/ เดือน';
+          if (document.getElementById('price-enterprise')) document.getElementById('price-enterprise').innerText = '990';
+          if (document.getElementById('period-enterprise')) document.getElementById('period-enterprise').innerText = '/ เดือน';
+        } else {
+          if (document.getElementById('price-starter')) document.getElementById('price-starter').innerText = '230';
+          if (document.getElementById('period-starter')) document.getElementById('period-starter').innerText = '/ ด. (จ่ายรายปี)';
+          if (document.getElementById('price-pro')) document.getElementById('price-pro').innerText = '390';
+          if (document.getElementById('period-pro')) document.getElementById('period-pro').innerText = '/ ด. (จ่ายรายปี)';
+          if (document.getElementById('price-enterprise')) document.getElementById('price-enterprise').innerText = '790';
+          if (document.getElementById('period-enterprise')) document.getElementById('period-enterprise').innerText = '/ ด. (จ่ายรายปี)';
+        }
+      }
+    }
+
+    function openTrialModal(plan = 'Professional') {
+      const planSelect = document.getElementById('trial-plan');
+      if (planSelect) {
+        // Find matching option
+        for (let i = 0; i < planSelect.options.length; i++) {
+          if (planSelect.options[i].value.toLowerCase().includes(plan.toLowerCase()) || plan.toLowerCase().includes(planSelect.options[i].value.toLowerCase())) {
+            planSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      document.getElementById('trial-modal').classList.add('active');
+    }
+
+    async function submitTrialSignup(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('trial-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '⏳ กำลังเตรียมร้านค้าของคุณ...';
+
+      try {
+        const payload = {
+          plan_name: document.getElementById('trial-plan').value,
+          store_name: document.getElementById('trial-store-name').value.trim(),
+          manager_name: document.getElementById('trial-manager-name').value.trim(),
+          phone_number: document.getElementById('trial-phone').value.trim(),
+          manager_username: document.getElementById('trial-username').value.trim(),
+          manager_password: document.getElementById('trial-password').value.trim(),
+        };
+
+        const res = await fetch('/api/platform/trial-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast('เปิดร้านค้าทดลองใช้งานฟรี 30 วันสำเร็จ! กำลังเข้าสู่หลังบ้าน...', 'success');
+          localStorage.setItem('food_token', data.token);
+          localStorage.setItem('food_user', JSON.stringify(data.user));
+          localStorage.setItem('food_store', JSON.stringify(data.store));
+
+          setTimeout(() => {
+            window.location.href = data.redirectUrl || '/store.html';
+          }, 1000);
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการสมัคร', 'danger');
+          submitBtn.disabled = false;
+          submitBtn.innerText = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
+        }
+      } catch (err) {
+        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'danger');
+        submitBtn.disabled = false;
+        submitBtn.innerText = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
+      }
+    }
+
+    let currentFeaturesIndex = 0;
+    let featuresScrollTimeout = null;
+
+    function initFeaturesSlider() {
+      const container = document.getElementById('features-cards-container');
+      const dotsContainer = document.getElementById('features-dots');
+      if (!container || !dotsContainer) return;
+
+      const cards = container.querySelectorAll('.glass-card');
+      if (cards.length === 0) return;
+
+      if (currentFeaturesIndex >= cards.length) {
+        currentFeaturesIndex = 0;
+      }
+
+      // Generate dots
+      dotsContainer.innerHTML = Array.from(cards).map((_, idx) => `
+        <span class="features-dot ${idx === currentFeaturesIndex ? 'active' : ''}" 
+              onclick="goToFeaturesSlide(${idx})" 
+              title="ฟังก์ชัน ${idx + 1}"></span>
+      `).join('');
+
+      // Add scroll listener
+      container.removeEventListener('scroll', handleFeaturesScroll);
+      container.addEventListener('scroll', handleFeaturesScroll, { passive: true });
+
+      updateFeaturesControls();
+    }
+
+    function handleFeaturesScroll() {
+      const container = document.getElementById('features-cards-container');
+      if (!container) return;
+
+      clearTimeout(featuresScrollTimeout);
+      featuresScrollTimeout = setTimeout(() => {
+        const cards = container.querySelectorAll('.glass-card');
+        if (cards.length === 0) return;
+
+        const containerCenter = container.scrollLeft + container.clientWidth / 2;
+        let closestIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, idx) => {
+          const cardCenter = card.offsetLeft + card.clientWidth / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = idx;
+          }
+        });
+
+        currentFeaturesIndex = closestIndex;
+        updateFeaturesDots();
+      }, 40);
+    }
+
+    function updateFeaturesDots() {
+      const dots = document.querySelectorAll('.features-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentFeaturesIndex);
+      });
+
+      updateFeaturesControls();
+    }
+
+    function updateFeaturesControls() {
+      const container = document.getElementById('features-cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.glass-card');
+      const prevBtn = document.getElementById('features-prev-btn');
+      const nextBtn = document.getElementById('features-next-btn');
+
+      const canPrev = currentFeaturesIndex > 0;
+      const canNext = currentFeaturesIndex < cards.length - 1;
+
+      if (prevBtn) {
+        prevBtn.style.opacity = canPrev ? '1' : '0.35';
+        prevBtn.style.pointerEvents = canPrev ? 'auto' : 'none';
+        prevBtn.classList.toggle('btn-orange-active', canPrev && !canNext);
+      }
+      if (nextBtn) {
+        nextBtn.style.opacity = canNext ? '1' : '0.35';
+        nextBtn.style.pointerEvents = canNext ? 'auto' : 'none';
+        nextBtn.classList.toggle('btn-orange-active', canNext);
+      }
+    }
+
+    function goToFeaturesSlide(index) {
+      const container = document.getElementById('features-cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.glass-card');
+      if (!cards[index]) return;
+
+      currentFeaturesIndex = index;
+      const targetCard = cards[index];
+      const scrollPos = targetCard.offsetLeft - (container.clientWidth - targetCard.clientWidth) / 2;
+
+      container.scrollTo({
+        left: Math.max(0, scrollPos),
+        behavior: 'smooth'
+      });
+
+      updateFeaturesDots();
+    }
+
+    function slideFeaturesPrev() {
+      if (currentFeaturesIndex > 0) {
+        goToFeaturesSlide(currentFeaturesIndex - 1);
+      }
+    }
+
+    function slideFeaturesNext() {
+      const container = document.getElementById('features-cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.glass-card');
+      if (currentFeaturesIndex < cards.length - 1) {
+        goToFeaturesSlide(currentFeaturesIndex + 1);
+      }
+    }
+
+    initFeaturesSlider();
+    initPricingSlider();
+    loadPublicPlans();
+  </script>
+</body>
+
+</html>

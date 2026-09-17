@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Platform - TableQR Food POS</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/platform.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
+</head>
+
+<body style="background: #0b0f19;">
+
+  <!-- Mobile Top Header Bar (3-bar Hamburger Menu) -->
+  <header class="superadmin-mobile-header">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button id="superadmin-menu-toggle" class="superadmin-hamburger-btn" onclick="toggleSuperadminSidebar(true)"
+        aria-label="เปิดเมนู">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div
+          style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);">
+          👑</div>
+        <div>
+          <div style="font-weight: 800; color: white; font-size: 0.95rem; line-height: 1.1;">QR Food POS</div>
+          <div style="font-size: 0.68rem; color: #a78bfa; font-weight: 600;">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Backdrop (Dark Overlay for Mobile Drawer) -->
+  <div id="superadmin-sidebar-backdrop" class="superadmin-sidebar-backdrop" onclick="toggleSuperadminSidebar(false)">
+  </div>
+
+  <div class="superadmin-layout">
+
+    <!-- Left Sidebar Navbar (Drawer on Mobile / Fixed on Desktop) -->
+    <aside id="superadmin-sidebar" class="superadmin-sidebar">
+      <!-- Brand Header -->
+      <div class="superadmin-sidebar-brand">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="brand-icon"
+            style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4); flex-shrink: 0;">
+            👑</div>
+          <div>
+            <div style="font-weight: 800; color: white; font-size: 1.08rem; letter-spacing: -0.3px;">QR Food POS</div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+              <span class="badge badge-purple" style="font-size: 0.68rem; padding: 2px 7px;">Super Admin</span>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">by <a href="https://rundev.site" target="_blank" rel="noopener noreferrer" style="color: #c4b5fd; text-decoration: none; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.color='#ddd6fe'; this.style.textDecoration='underline';" onmouseout="this.style.color='#c4b5fd'; this.style.textDecoration='none';">rundev</a></span>
+            </div>
+          </div>
+        </div>
+        <!-- Close button on Mobile Drawer -->
+        <button class="superadmin-sidebar-close-btn" onclick="toggleSuperadminSidebar(false)"
+          aria-label="ปิดเมนู">✕</button>
+      </div>
+
+      <!-- Navigation Section -->
+      <div class="sidebar-section-title">เมนูควบคุมระบบ</div>
+
+      <nav class="superadmin-nav-list">
+        <button id="tab-stores-btn" class="superadmin-nav-item active" onclick="switchAdminTab('stores')">
+          <span class="nav-icon">🏪</span>
+          <div class="nav-text">
+            <div class="nav-title">จัดการร้านค้า</div>
+            <div class="nav-sub">Stores & Packages</div>
+          </div>
+        </button>
+
+        <button id="tab-analytics-btn" class="superadmin-nav-item" onclick="switchAdminTab('analytics')">
+          <span class="nav-icon">📊</span>
+          <div class="nav-text">
+            <div class="nav-title">สรุปยอดขาย</div>
+            <div class="nav-sub">Sales Analytics</div>
+          </div>
+        </button>
+
+        <button id="tab-users-btn" class="superadmin-nav-item" onclick="switchAdminTab('users')">
+          <span class="nav-icon">👥</span>
+          <div class="nav-text">
+            <div class="nav-title">ผู้ใช้งานในระบบ</div>
+            <div class="nav-sub">Platform Users</div>
+          </div>
+        </button>
+
+        <button id="tab-plans-btn" class="superadmin-nav-item" onclick="switchAdminTab('plans')">
+          <span class="nav-icon">📦</span>
+          <div class="nav-text">
+            <div class="nav-title">จัดการแพ็กเกจราคา</div>
+            <div class="nav-sub">Subscription Plans</div>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="superadmin-sidebar-footer">
+        <!-- Logged-in User Profile Card in Sidebar (Mobile Only) -->
+        <div class="superadmin-sidebar-user-card" style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: var(--radius-md); padding: 10px; margin-bottom: 8px;">
+          <div id="superadmin-sidebar-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(109, 40, 217, 0.2)); border: 2px solid rgba(167, 139, 250, 0.6); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); flex-shrink: 0; overflow: hidden;">
+            👑
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div id="superadmin-sidebar-user-name" style="font-size: 0.88rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">ผู้ดูแลระบบสูงสุด</div>
+            <div style="margin-top: 2px;">
+              <span class="badge badge-purple" style="font-size: 0.68rem; padding: 1px 7px;">👑 Super Admin</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; padding: 4px 6px; margin-bottom: 8px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">ธีมแสดงผล:</span>
+          <label class="theme-toggle-container" title="สลับโหมด มืด / สว่าง (Dark / Light Mode)">
+            <input class="theme-toggle-checkbox" type="checkbox" onchange="App.toggleTheme(this.checked)">
+            <div class="theme-toggle-track">
+              <div class="theme-toggle-thumb">
+                <span class="theme-icon-dark">🌙</span>
+                <span class="theme-icon-light">☀️</span>
+              </div>
+            </div>
+            <span class="theme-toggle-text">มืด</span>
+          </label>
+        </div>
+        <button class="btn btn-danger btn-block btn-sm" onclick="logout()"
+          style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; font-weight: 600;">
+          <span>🚪</span> ออกจากระบบ
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="superadmin-main">
+
+      <!-- Top Header Area -->
+      <div
+        style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-glass);">
+        <div>
+          <h1 id="page-main-title"
+            style="font-size: 2rem; font-weight: 800; color: white; letter-spacing: -0.5px; margin-bottom: 4px;">
+            ศูนย์ควบคุมแพลตฟอร์ม (SaaS Admin)</h1>
+          <p id="page-main-subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+            จัดการร้านค้าทั้งหมด ควบคุมแพ็กเกจการใช้งาน และวิเคราะห์ยอดขายรายวัน/เดือน/ปี</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <!-- Super Admin Desktop User Profile Chip (Desktop Only) -->
+          <div class="superadmin-desktop-only" style="display: flex; align-items: center; gap: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.35); padding: 5px 12px; border-radius: var(--radius-md);">
+            <div id="superadmin-desktop-avatar" style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(109, 40, 217, 0.2)); border: 2px solid rgba(167, 139, 250, 0.6); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); flex-shrink: 0; overflow: hidden;">
+              👑
+            </div>
+            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+              <span id="superadmin-desktop-user-name" style="font-size: 0.85rem; font-weight: 700; color: white; line-height: 1.2; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ผู้ดูแลระบบสูงสุด</span>
+              <span class="badge badge-purple" style="font-size: 0.68rem; padding: 1px 7px;">👑 Super Admin</span>
+            </div>
+          </div>
+
+          <label class="theme-toggle-container superadmin-desktop-only" title="สลับโหมด มืด / สว่าง (Dark / Light Mode)">
+            <input class="theme-toggle-checkbox" type="checkbox" onchange="App.toggleTheme(this.checked)">
+            <div class="theme-toggle-track">
+              <div class="theme-toggle-thumb">
+                <span class="theme-icon-dark">🌙</span>
+                <span class="theme-icon-light">☀️</span>
+              </div>
+            </div>
+            <span class="theme-toggle-text">มืด</span>
+          </label>
+          <button id="add-store-top-btn" class="btn btn-primary" onclick="openAddStoreModal()"
+            style="font-weight: 700; padding: 10px 18px; box-shadow: 0 4px 18px rgba(249, 115, 22, 0.35);">
+            ✨ + เพิ่มร้านค้าใหม่
+          </button>
+          <button class="btn btn-secondary btn-sm superadmin-desktop-only" onclick="logout()"
+            style="white-space: nowrap; padding: 8px 14px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+            <span>🚪</span> ออกจากระบบ
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: STORES MANAGEMENT -->
+      <div id="section-stores">
+        <!-- Global Platform Metric Cards (Mobile 3 cards in 1 row) -->
+        <div class="platform-metrics-grid">
+          <div class="glass-card metric-card-stat">
+            <div class="metric-title">🏪 ร้านค้าทั้งหมด</div>
+            <div id="stat-total-stores" class="metric-value" style="color: #38bdf8;">0</div>
+            <div class="metric-sub">Multi-Store Tenants</div>
+          </div>
+
+          <div class="glass-card metric-card-stat">
+            <div class="metric-title">🎁 ทดลองใช้ (Trial)</div>
+            <div id="stat-trial-stores" class="metric-value" style="color: #10b981;">0</div>
+            <div class="metric-sub">30-Day Free Trial</div>
+          </div>
+
+          <div class="glass-card metric-card-stat">
+            <div class="metric-title">📱 ลูกค้าสแกน QR</div>
+            <div id="stat-total-customers" class="metric-value" style="color: #a855f7;">0</div>
+            <div class="metric-sub">Total QR Customers</div>
+          </div>
+
+          <div class="glass-card metric-card-revenue">
+            <div class="metric-revenue-info">
+              <div class="metric-title">💰 ยอดธุรกรรมรวมทั้งแพลตฟอร์ม</div>
+              <div class="metric-sub">Platform Gross Volume</div>
+            </div>
+            <div id="stat-total-volume" class="metric-value" style="color: #fb923c;">฿0.00</div>
+          </div>
+        </div>
+
+        <!-- Stores Filter & Search Bar -->
+        <div class="glass-card"
+          style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; gap: 10px; align-items: center; flex: 1; max-width: 400px;">
+            <input type="text" id="store-search-input" onkeyup="filterStoresList()"
+              placeholder="🔍 ค้นหาชื่อร้านค้า, รหัสร้าน, หรือ Slug..."
+              style="width: 100%; padding: 9px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: white; font-size: 0.9rem;">
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-sm btn-secondary filter-store-btn active"
+              onclick="setStoreStatusFilter('all', this)">ทั้งหมด</button>
+            <button class="btn btn-sm btn-secondary filter-store-btn" onclick="setStoreStatusFilter('active', this)">🟢
+              ปกติ</button>
+            <button class="btn btn-sm btn-secondary filter-store-btn" onclick="setStoreStatusFilter('trial', this)">🎁
+              ทดลองใช้</button>
+            <button class="btn btn-sm btn-secondary filter-store-btn"
+              onclick="setStoreStatusFilter('suspended', this)">🔴 ระงับ</button>
+          </div>
+        </div>
+
+        <!-- Stores List Container -->
+        <div class="glass-card" style="padding: 1.5rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 1.25rem;">รายชื่อร้านค้าในระบบ
+          </h2>
+          <div id="platform-stores-list" style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">กำลังโหลดข้อมูลร้านค้า...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: SALES ANALYTICS (Daily, Monthly, Yearly) -->
+      <div id="section-analytics" style="display: none;">
+
+        <!-- Analytics Control Filter Bar -->
+        <div class="glass-card" style="padding: 1.5rem; margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+
+            <!-- Period Selector Tabs -->
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 0.9rem; color: var(--text-muted); margin-right: 4px;">ช่วงเวลา:</span>
+              <button id="period-daily-btn" class="btn btn-sm btn-primary" onclick="setAnalyticsPeriod('daily')">📅
+                รายวัน (Daily)</button>
+              <button id="period-monthly-btn" class="btn btn-sm btn-secondary"
+                onclick="setAnalyticsPeriod('monthly')">📆 รายเดือน (Monthly)</button>
+              <button id="period-yearly-btn" class="btn btn-sm btn-secondary" onclick="setAnalyticsPeriod('yearly')">📈
+                รายปี (Yearly)</button>
+            </div>
+
+            <!-- Store Selector & Date Pickers -->
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <div>
+                <select id="analytics-store-select" onchange="loadSalesAnalytics()"
+                  style="padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: white; font-size: 0.9rem;">
+                  <option value="all">🌐 ทุกร้านค้า (All Stores)</option>
+                </select>
+              </div>
+
+              <div id="analytics-year-wrapper">
+                <select id="analytics-year-select" onchange="loadSalesAnalytics()"
+                  style="padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: white; font-size: 0.9rem;">
+                  <option value="2026">ปี 2026</option>
+                  <option value="2025">ปี 2025</option>
+                </select>
+              </div>
+
+              <button class="btn btn-secondary btn-sm" onclick="loadSalesAnalytics()">🔄 รีเฟรชข้อมูล</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Analytics Summary KPI Cards -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+
+          <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #fb923c;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">💰 ยอดขายรวมตามช่วงเวลา</div>
+            <div id="analytics-total-revenue"
+              style="font-size: 2rem; font-weight: 800; color: #fb923c; font-family: var(--font-en);">฿0.00</div>
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Period Net Revenue</div>
+          </div>
+
+          <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #38bdf8;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">🧾 จำนวนออเดอร์ที่ชำระเงิน
+            </div>
+            <div id="analytics-total-orders"
+              style="font-size: 2rem; font-weight: 800; color: #38bdf8; font-family: var(--font-en);">0</div>
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Paid Orders Count</div>
+          </div>
+
+          <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #10b981;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">🎯 ยอดเฉลี่ยต่อบิล (AOV)
+            </div>
+            <div id="analytics-avg-order"
+              style="font-size: 2rem; font-weight: 800; color: #10b981; font-family: var(--font-en);">฿0.00</div>
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Average Order Value</div>
+          </div>
+
+          <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #a855f7;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">📑 ภาษี & Service Charge
+            </div>
+            <div id="analytics-tax-service"
+              style="font-size: 2rem; font-weight: 800; color: #a855f7; font-family: var(--font-en);">฿0.00</div>
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Total VAT & Service</div>
+          </div>
+
+        </div>
+
+        <!-- Visual Trend Chart -->
+        <div class="glass-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: white;">📊 กราฟแนวโน้มยอดขาย</h2>
+              <p id="chart-sub-label" style="font-size: 0.85rem; color: var(--text-muted);">แสดงข้อมูลยอดขายตามช่วงเวลา
+              </p>
+            </div>
+            <div id="chart-legend" style="display: flex; gap: 12px; font-size: 0.8rem; color: var(--text-muted);">
+              <span style="display:flex; align-items:center; gap:4px;"><span
+                  style="width:10px; height:10px; background:#ea580c; border-radius:2px;"></span> ยอดขาย (฿)</span>
+            </div>
+          </div>
+
+          <div id="analytics-chart-container" class="analytics-bar-chart">
+            <!-- Injected Visual Bars -->
+          </div>
+        </div>
+
+        <!-- Breakdown Grid: Stores & Periods -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+
+          <!-- Store Breakdown Table -->
+          <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: white; margin-bottom: 1rem;">🏪 ยอดขายแยกตามร้านค้า
+            </h3>
+            <div id="analytics-store-breakdown-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Injected Store Rows -->
+            </div>
+          </div>
+
+          <!-- Period Breakdown Table -->
+          <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: white; margin-bottom: 1rem;">📅
+              รายละเอียดยอดขายตามช่วงเวลา</h3>
+            <div id="analytics-period-breakdown-list"
+              style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto;">
+              <!-- Injected Period Rows -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TAB 3: USERS LIST -->
+      <div id="section-users" style="display: none;">
+        <!-- Users Search & Filter Control Bar -->
+        <div class="glass-card"
+          style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 260px; max-width: 400px;">
+            <input type="text" id="user-search-input" onkeyup="filterUsersList()"
+              placeholder="🔍 ค้นหาชื่อ, Username, อีเมล, ร้านค้า..."
+              style="width: 100%; padding: 9px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: white; font-size: 0.9rem;">
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-sm btn-secondary filter-user-btn active"
+              onclick="setUserRoleFilter('all', this)">ทั้งหมด</button>
+            <button class="btn btn-sm btn-secondary filter-user-btn" onclick="setUserRoleFilter('admin', this)">👑 Super
+              Admin</button>
+            <button class="btn btn-sm btn-secondary filter-user-btn" onclick="setUserRoleFilter('manager', this)">🏪
+              ผู้จัดการ</button>
+            <button class="btn btn-sm btn-secondary filter-user-btn" onclick="setUserRoleFilter('staff', this)">👨‍🍳
+              พนักงาน</button>
+            <button class="btn btn-primary btn-sm" onclick="openPlatformAddUserModal()"
+              style="font-weight: 700; margin-left: 6px;">
+              + เพิ่มผู้ใช้ / พนักงาน
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 1.75rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h2 style="font-size: 1.3rem; font-weight: 700; color: white;">รายชื่อผู้ใช้งานและพนักงานทั้งหมด</h2>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">จัดการบัญชีผู้ใช้ สังกัดร้านค้า กำหนดสิทธิ์
+                และรีเซ็ตรหัสผ่าน</p>
+            </div>
+            <div id="users-count-summary" style="font-size: 0.85rem; color: var(--text-muted);">
+              <!-- User counts -->
+            </div>
+          </div>
+          <div id="platform-users-list" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Injected Users -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SUBSCRIPTION PLANS MANAGEMENT -->
+      <div id="section-plans" style="display: none;">
+        <div class="glass-card"
+          style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; color: white; margin-bottom: 4px;">📦
+              จัดการแพ็กเกจราคาและฟังก์ชัน (Subscription Plans)</h2>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+              แก้ไขราคา รายละเอียด และฟีเจอร์ของ Starter, Professional, Enterprise —
+              ข้อมูลจะถูกบันทึกลงฐานข้อมูลและแสดงผลที่หน้าแรกอัตโนมัติ
+            </p>
+          </div>
+          <button class="btn btn-primary" onclick="openAddPlanModal()" style="font-weight: 700; padding: 10px 18px;">
+            ✨ + เพิ่มแพ็กเกจใหม่
+          </button>
+        </div>
+
+        <!-- Plans Grid -->
+        <div id="platform-plans-grid"
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="text-align: center; color: var(--text-muted); padding: 3rem; grid-column: 1 / -1;">
+            กำลังโหลดข้อมูลแพ็กเกจราคา...
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add Store Modal -->
+  <div id="add-store-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
+    <div class="modal-sheet" style="max-width: 580px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">+ เพิ่มร้านค้าใหม่ในระบบ</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">
+            สร้างร้านค้าและกำหนดสิทธิ์ผู้จัดการร้านพร้อมใช้งานทันที</p>
+        </div>
+        <button onclick="document.getElementById('add-store-modal').classList.remove('active')"
+          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form onsubmit="submitNewStore(event)">
+
+        <div
+          style="font-weight: 600; color: #fb923c; font-size: 0.9rem; margin-bottom: 8px; border-bottom: 1px solid var(--border-glass); padding-bottom: 4px;">
+          1. ข้อมูลร้านค้า (Store Details)</div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">รหัสร้านค้า
+              (Store Code) *</label>
+            <input type="text" id="new-store-code" required placeholder="เช่น ST-002"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อร้านค้า
+              (Store Name) *</label>
+            <input type="text" id="new-store-name" required placeholder="เช่น ชาบูอินดี้ บุฟเฟต์"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">URL Slug
+              (ภาษาอังกฤษ) *</label>
+            <input type="text" id="new-store-slug" required placeholder="shabu-indy"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เบอร์โทรศัพท์ร้าน</label>
+            <input type="tel" id="new-store-phone" placeholder="08xxxxxxxx"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">โลโก้ร้านค้า (Emoji หรือ อัปโหลดรูปภาพ)</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="new-store-logo" placeholder="🍲 หรือ https://..."
+              style="flex:1; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+            <input type="file" id="new-store-logo-file" accept="image/*" style="display:none;" onchange="handleAdminStoreLogoUpload(event, 'new-store-logo')">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('new-store-logo-file').click()"
+              style="padding:8px 12px; white-space:nowrap; font-size:0.82rem;">
+              📁 อัปโหลด
+            </button>
+          </div>
+        </div>
+
+        <div
+          style="font-weight: 600; color: #fb923c; font-size: 0.9rem; margin: 12px 0 8px; border-bottom: 1px solid var(--border-glass); padding-bottom: 4px;">
+          2. แพ็กเกจและการทดลองใช้ (Subscription & Trial)</div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">แพ็กเกจ
+              (Plan)</label>
+            <select id="new-store-plan" onchange="updateNewStorePrice()"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+              <option value="Professional" selected>Professional (฿490/ด.)</option>
+              <option value="Starter">Starter (฿290/ด.)</option>
+              <option value="Enterprise">Enterprise / Buffet (฿990/ด.)</option>
+            </select>
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">จำนวนวันทดลองใช้ฟรี</label>
+            <input type="number" id="new-store-trial-days" value="30" min="0" max="365"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div
+          style="font-weight: 600; color: #fb923c; font-size: 0.9rem; margin: 12px 0 8px; border-bottom: 1px solid var(--border-glass); padding-bottom: 4px;">
+          3. บัญชีผู้จัดการร้าน (Store Manager Account)</div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">Username
+              ผู้จัดการ *</label>
+            <input type="text" id="new-manager-username" required placeholder="manager2"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">รหัสผ่านผู้จัดการ
+              *</label>
+            <input type="password" id="new-manager-password" required placeholder="อย่างน้อย 6 ตัว" minlength="6"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label
+            style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อผู้จัดการร้าน</label>
+          <input type="text" id="new-manager-fullname" placeholder="เช่น นายวิชัย ผู้จัดการ"
+            style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+        </div>
+
+        <button type="submit" id="add-store-submit-btn" class="btn btn-primary btn-block"
+          style="padding: 12px; font-weight: 700; font-size: 1rem;">
+          ✨ สร้างร้านค้าและตั้งค่าเริ่มต้น
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Store Modal -->
+  <div id="edit-store-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
+    <div class="modal-sheet" style="max-width: 560px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">✏️ แก้ไขข้อมูลร้านค้า</h2>
+          <p id="edit-store-subtitle" style="font-size: 0.85rem; color: var(--text-muted);"></p>
+        </div>
+        <button onclick="document.getElementById('edit-store-modal').classList.remove('active')"
+          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form onsubmit="submitEditStore(event)">
+        <input type="hidden" id="edit-store-id">
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อร้านค้า
+              *</label>
+            <input type="text" id="edit-store-name" required
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">รหัสร้านค้า
+              (Code)</label>
+            <input type="text" id="edit-store-code" placeholder="ST-001"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">URL Slug (เช่น
+              somtum-zaab) *</label>
+            <input type="text" id="edit-store-slug" required pattern="[a-zA-Z0-9_-]+"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เบอร์โทรศัพท์ร้าน</label>
+            <input type="tel" id="edit-store-phone"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">โลโก้ร้านค้า (Emoji หรือ อัปโหลดรูปภาพ)</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="edit-store-logo" placeholder="🍲 หรือ https://..."
+              style="flex:1; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+            <input type="file" id="edit-store-logo-file" accept="image/*" style="display:none;" onchange="handleAdminStoreLogoUpload(event, 'edit-store-logo')">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('edit-store-logo-file').click()"
+              style="padding:8px 12px; white-space:nowrap; font-size:0.82rem;">
+              📁 อัปโหลด
+            </button>
+          </div>
+        </div>
+
+        <!-- Package Section Highlighted -->
+        <div
+          style="background: rgba(249, 115, 22, 0.06); border: 1px solid rgba(249, 115, 22, 0.25); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 1.15rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label
+              style="font-size: 0.9rem; font-weight: 700; color: #fb923c; margin: 0; display: flex; align-items: center; gap: 6px;">
+              <span>📦</span> แพ็กเกจร้านค้า (Subscription Plan) *
+            </label>
+            <button type="button"
+              onclick="document.getElementById('edit-store-modal').classList.remove('active'); switchAdminTab('plans');"
+              style="background:none; border:none; color:#a78bfa; font-size:0.78rem; cursor:pointer; text-decoration:underline;">
+              ⚙️ จัดการ/เพิ่มแพ็กเกจใหม่
+            </button>
+          </div>
+          <select id="edit-store-plan" onchange="onEditStorePlanChange()"
+            style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: white; font-size: 0.95rem; font-weight: 600;">
+            <!-- Populated dynamically from subscription_plans in database -->
+          </select>
+          <div id="edit-store-plan-info"
+            style="font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">สถานะร้านค้า
+              (Status)</label>
+            <select id="edit-store-status"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+              <option value="active">🟢 Active (ปกติ)</option>
+              <option value="suspended">🔴 Suspended (ระงับ)</option>
+              <option value="inactive">⚪ Inactive (ปิดชั่วคราว)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">📅 วันที่สมัคร (Registered Date)</label>
+            <input type="text" id="edit-store-created-at" readonly disabled placeholder="-"
+              style="width:100%; padding:9px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:#cbd5e1; cursor:not-allowed; font-weight:500;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">วันหมดอายุ
+              (Expiry Date)</label>
+            <input type="date" id="edit-store-trial-date"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">หรือ
+              เพิ่มวันใช้งาน (+ วัน)</label>
+            <input type="number" id="edit-store-extend-days" placeholder="เช่น 30" min="0"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <!-- Store Manager Password Reset Section -->
+        <div
+          style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 1.25rem;">
+          <label style="display:block; font-size:0.85rem; font-weight:600; color:#fb923c; margin-bottom:4px;">🔑
+            รีเซ็ตรหัสผ่านผู้จัดการร้าน (เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยน)</label>
+          <input type="password" id="edit-store-manager-password" placeholder="ใส่รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+            minlength="6"
+            style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteCurrentEditStore()" style="padding: 10px 14px;">
+            🗑️ ลบร้านค้านี้
+          </button>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary"
+              onclick="document.getElementById('edit-store-modal').classList.remove('active')"
+              style="padding: 10px 18px;">ยกเลิก</button>
+            <button type="submit" id="edit-store-submit-btn" class="btn btn-primary"
+              style="padding: 10px 24px; font-weight: 700;">💾 บันทึกการแก้ไข</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Platform Add User Modal -->
+  <div id="platform-add-user-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
+    <div class="modal-sheet" style="max-width: 540px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">+ เพิ่มผู้ใช้งาน / พนักงานใหม่</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">สร้างบัญชีผู้ใช้ใหม่และกำหนดสังกัดร้านค้า</p>
+        </div>
+        <button onclick="document.getElementById('platform-add-user-modal').classList.remove('active')"
+          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form onsubmit="submitPlatformAddUser(event)">
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อ-นามสกุล
+            *</label>
+          <input type="text" id="p-new-user-fullname" required placeholder="เช่น สมเกียรติ พัฒนา"
+            style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">Username
+              เข้าสู่ระบบ *</label>
+            <input type="text" id="p-new-user-username" required placeholder="เช่น somkiat" pattern="[a-zA-Z0-9_-]+"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">รหัสผ่าน
+              (Password) *</label>
+            <input type="password" id="p-new-user-password" required minlength="4" placeholder="อย่างน้อย 4 ตัว"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">บทบาทในระบบ
+              (Role) *</label>
+            <select id="p-new-user-role" onchange="togglePlatformUserStoreSelect('add')"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+              <option value="staff" selected>👨‍🍳 พนักงานทั่วไป (Staff)</option>
+              <option value="manager">🏪 ผู้จัดการร้าน (Manager)</option>
+              <option value="admin">👑 ผู้ดูแลระบบสูงสุด (Super Admin)</option>
+            </select>
+          </div>
+          <div id="p-new-user-store-wrapper">
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">สังกัดร้านค้า</label>
+            <select id="p-new-user-store"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+              <!-- Stores populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เบอร์โทรศัพท์</label>
+            <input type="tel" id="p-new-user-phone" placeholder="08xxxxxxxx"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">อีเมล</label>
+            <input type="email" id="p-new-user-email" placeholder="user@example.com"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div
+          style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:1.25rem;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.88rem; color:white;">
+            <input type="checkbox" id="p-new-user-active" checked
+              style="width:16px; height:16px; accent-color:#10b981; cursor:pointer;">
+            <span>🟢 สถานะ <strong>เปิดให้เข้าใช้งานได้ทันที</strong> (Active)</span>
+          </label>
+        </div>
+
+        <button type="submit" id="platform-add-user-submit-btn" class="btn btn-primary btn-block"
+          style="padding: 12px; font-weight: 700; font-size: 1rem;">
+          ✨ สร้างผู้ใช้งานใหม่
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Platform Edit User Modal -->
+  <div id="platform-edit-user-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
+    <div class="modal-sheet" style="max-width: 540px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">✏️ แก้ไขข้อมูลผู้ใช้งาน</h2>
+          <p id="p-edit-user-subtitle" style="font-size: 0.85rem; color: var(--text-muted);"></p>
+        </div>
+        <button onclick="document.getElementById('platform-edit-user-modal').classList.remove('active')"
+          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form onsubmit="submitPlatformEditUser(event)">
+        <input type="hidden" id="p-edit-user-id">
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อ-นามสกุล
+            *</label>
+          <input type="text" id="p-edit-user-fullname" required
+            style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">บทบาทในระบบ
+              (Role) *</label>
+            <select id="p-edit-user-role" onchange="togglePlatformUserStoreSelect('edit')"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+              <option value="staff">👨‍🍳 พนักงานทั่วไป (Staff)</option>
+              <option value="manager">🏪 ผู้จัดการร้าน (Manager)</option>
+              <option value="admin">👑 ผู้ดูแลระบบสูงสุด (Super Admin)</option>
+            </select>
+          </div>
+          <div id="p-edit-user-store-wrapper">
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">สังกัดร้านค้า</label>
+            <select id="p-edit-user-store"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+              <!-- Stores populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เบอร์โทรศัพท์</label>
+            <input type="tel" id="p-edit-user-phone"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">อีเมล</label>
+            <input type="email" id="p-edit-user-email"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">📅 วันที่สมัคร / สร้างบัญชี</label>
+            <input type="text" id="p-edit-user-created-at" readonly disabled placeholder="-"
+              style="width:100%; padding:9px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:#cbd5e1; cursor:not-allowed; font-weight:500;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">🔑 ตั้งรหัสผ่านใหม่ (ถ้าจะเปลี่ยน)</label>
+            <input type="password" id="p-edit-user-password" minlength="4"
+              placeholder="ระบุรหัสผ่านใหม่"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div
+          style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:1.25rem;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.88rem; color:white;">
+            <input type="checkbox" id="p-edit-user-active"
+              style="width:16px; height:16px; accent-color:#10b981; cursor:pointer;">
+            <span>🟢 สถานะ <strong>เปิดให้เข้าใช้งาน</strong> (Active)</span>
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="p-edit-user-del-btn" class="btn btn-danger btn-sm"
+            onclick="deleteCurrentPlatformUser()" style="padding: 10px 14px;">
+            🗑️ ลบผู้ใช้
+          </button>
+          <button type="submit" class="btn btn-primary" style="flex:1; padding: 12px; font-weight: 700;">
+            💾 บันทึกการแก้ไข
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Plan Add/Edit Modal -->
+  <div id="plan-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
+    <div class="modal-sheet" style="max-width: 600px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 id="plan-modal-title" style="font-size: 1.35rem; font-weight: 700; color: white;">✏️ แก้ไขแพ็กเกจราคา</h2>
+          <p id="plan-modal-subtitle" style="font-size: 0.85rem; color: var(--text-muted);">
+            ปรับแต่งราคาและรายการฟังก์ชันของแพ็กเกจนี้</p>
+        </div>
+        <button onclick="document.getElementById('plan-modal').classList.remove('active')"
+          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form onsubmit="submitPlanForm(event)">
+        <input type="hidden" id="edit-plan-id">
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">รหัสแพ็กเกจ
+              (Code) *</label>
+            <input type="text" id="edit-plan-code" required placeholder="เช่น starter, pro"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อแพ็กเกจ
+              (Plan Name) *</label>
+            <input type="text" id="edit-plan-name" required placeholder="เช่น Starter, Professional"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">คำอธิบายสั้น
+            (Subtitle)</label>
+          <input type="text" id="edit-plan-subtitle" placeholder="เช่น เหมาะสำหรับร้านขนาดเล็ก คาเฟ่ หรือร้านกาแฟ"
+            style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div
+            style="background: rgba(251, 146, 60, 0.06); padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid rgba(251, 146, 60, 0.2);">
+            <label style="display:block; font-size:0.85rem; font-weight:600; color:#fb923c; margin-bottom:4px;">💰
+              ราคารายเดือน (฿ / เดือน) *</label>
+            <input type="number" id="edit-plan-monthly-price" required step="1" min="0" placeholder="290"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size:1.1rem; font-weight:700;">
+          </div>
+          <div
+            style="background: rgba(16, 185, 129, 0.06); padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <label style="display:block; font-size:0.85rem; font-weight:600; color:#34d399; margin-bottom:4px;">💵
+              ราคารายปี (฿ / ด. เมื่อจ่ายรายปี)</label>
+            <input type="number" id="edit-plan-yearly-price" step="1" min="0" placeholder="230"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size:1.1rem; font-weight:700;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ข้อความป้าย
+              Badge เด่น (เว้นว่างได้)</label>
+            <input type="text" id="edit-plan-badge" placeholder="เช่น 🌟 ยอดนิยมที่สุด"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ลำดับการแสดงผล</label>
+            <input type="number" id="edit-plan-sort-order" value="1" min="0"
+              style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:white; font-weight:600; margin-bottom:4px;">
+            ✅ รายการฟังก์ชันที่มีในแพ็กเกจ (1 บรรทัด ต่อ 1 ข้อความ)
+          </label>
+          <textarea id="edit-plan-features" rows="5"
+            placeholder="รองรับสูงสุด 10 โต๊ะ&#10;สูงสุด 50 รายการเมนูอาหาร&#10;สแกน QR สั่งอาหารผ่านมือถือ&#10;แจ้งเตือนออเดอร์เข้า Telegram ครัว"
+            style="width:100%; padding:10px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size:0.88rem; line-height:1.5; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">
+            ✕ ฟังก์ชันที่ยังไม่รองรับในแพ็กเกจนี้ (มีเครื่องหมายกากบาทสีเทา, 1 บรรทัด ต่อ 1 ข้อความ)
+          </label>
+          <textarea id="edit-plan-disabled-features" rows="2"
+            placeholder="จอครัว KDS แบบเรียลไทม์&#10;วิเคราะห์ยอดขายขั้นสูงรายปี"
+            style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.2); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:var(--text-muted); font-size:0.85rem; line-height:1.4; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem;">
+          <div
+            style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:10px 12px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; color:white;">
+              <input type="checkbox" id="edit-plan-featured"
+                style="width:16px; height:16px; accent-color:#f97316; cursor:pointer;">
+              <span>🔥 <b>แพ็กเกจไฮไลต์เด่น (Featured)</b></span>
+            </label>
+          </div>
+          <div
+            style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:10px 12px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; color:white;">
+              <input type="checkbox" id="edit-plan-active" checked
+                style="width:16px; height:16px; accent-color:#10b981; cursor:pointer;">
+              <span>🟢 <b>เปิดใช้งาน (Active)</b></span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="edit-plan-del-btn" class="btn btn-danger btn-sm" onclick="deleteCurrentPlan()"
+            style="padding: 10px 14px; display:none;">
+            🗑️ ลบแพ็กเกจ
+          </button>
+          <button type="button" class="btn btn-secondary"
+            onclick="document.getElementById('plan-modal').classList.remove('active')" style="padding: 10px 18px;">
+            ยกเลิก
+          </button>
+          <button type="submit" id="edit-plan-submit-btn" class="btn btn-primary"
+            style="flex:1; padding: 12px; font-weight: 700;">
+            💾 บันทึกข้อมูลแพ็กเกจ
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Store Confirmation Modal Popup -->
+  <div id="delete-store-confirm-modal" class="modal-backdrop" onclick="closeDeleteStoreModal()">
+    <div class="modal-sheet" style="max-width: 480px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.4); box-shadow: 0 0 35px rgba(239, 68, 68, 0.25);" onclick="event.stopPropagation()">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 2px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+        🗑️
+      </div>
+
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: white; margin-bottom: 8px;">
+        ยืนยันการลบร้านค้าถาวร
+      </h2>
+      <p id="delete-store-modal-msg" style="font-size: 1.05rem; color: #fca5a5; font-weight: 600; margin-bottom: 1.25rem; line-height: 1.5;">
+        คุณต้องการจะลบร้าน <span id="delete-store-target-name" style="color: white; font-weight: 800; text-decoration: underline;">...</span> หรือไม่?
+      </p>
+
+      <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 14px 16px; text-align: left; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: #f87171; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+          ⚠️ ข้อมูลต่อไปนี้จะถูกลบออกจากฐานข้อมูลจริงทั้งหมด:
+        </div>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: var(--text-main); display: flex; flex-direction: column; gap: 6px;">
+          <li style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ef4444; font-weight: bold;">✕</span> บัญชีผู้ใช้ล็อกอิน (Owner, Manager, Staff) ของร้านนี้
+          </li>
+          <li style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ef4444; font-weight: bold;">✕</span> รายการเมนูอาหาร หมวดหมู่ และตัวเลือกเสริมทั้งหมด
+          </li>
+          <li style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ef4444; font-weight: bold;">✕</span> โต๊ะอาหาร โซน และ QR Code สำหรับสั่งอาหารทั้งหมด
+          </li>
+          <li style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ef4444; font-weight: bold;">✕</span> ประวัติการสั่งซื้อ ยอดขาย บิลชำระเงิน และการเรียกบริการ
+          </li>
+        </ul>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <button type="button" class="btn btn-secondary" onclick="closeDeleteStoreModal()" style="padding: 12px; font-weight: 600; font-size: 0.95rem;">
+          ไม่ (ยกเลิก)
+        </button>
+        <button type="button" id="delete-store-confirm-btn" class="btn btn-danger" onclick="executeDeletePlatformStore()" style="padding: 12px; font-weight: 700; font-size: 0.95rem; background: linear-gradient(135deg, #ef4444, #b91c1c);">
+          ใช่ (ลบถาวร)
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="/js/app.js"></script>
+  <script>
+    let globalPlatformData = null;
+    let globalPlansData = [];
+    let currentStoreStatusFilter = 'all';
+    let currentAnalyticsPeriod = 'daily';
+
+    function formatThaiDate(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '-';
+      const day = d.getDate();
+      const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+      const month = months[d.getMonth()];
+      const year = d.getFullYear() + 543;
+      return `${day} ${month} ${year}`;
+    }
+
+    function formatThaiDateTime(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '-';
+      const day = d.getDate();
+      const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+      const month = months[d.getMonth()];
+      const year = d.getFullYear() + 543;
+      const hours = String(d.getHours()).padStart(2, '0');
+      const mins = String(d.getMinutes()).padStart(2, '0');
+      return `${day} ${month} ${year} ${hours}:${mins} น.`;
+    }
+
+    function getAuthHeaders() {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('food_token');
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      };
+    }
+
+    function getUploadHeaders() {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('food_token');
+      return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
+
+    async function loadAdminUserProfile() {
+      try {
+        const res = await fetch('/api/auth/me', { headers: getAuthHeaders() });
+        const data = await res.json();
+        if (data.success && data.user) {
+          const u = data.user;
+          const name = u.full_name || u.username || 'Super Admin';
+          
+          const desktopName = document.getElementById('superadmin-desktop-user-name');
+          if (desktopName) desktopName.innerText = name;
+          
+          const sidebarName = document.getElementById('superadmin-sidebar-user-name');
+          if (sidebarName) sidebarName.innerText = name;
+          
+          const mobileName = document.getElementById('superadmin-mobile-user-name');
+          if (mobileName) mobileName.innerText = name;
+
+          const av = u.avatar_url;
+          const isImgAv = av && (av.startsWith('http://') || av.startsWith('https://') || av.startsWith('/uploads/') || av.startsWith('uploads/') || av.startsWith('/') || av.startsWith('data:image') || /\.(jpg|jpeg|png|webp|svg|gif|avif)(\?.*)?$/i.test(av));
+          if (isImgAv) {
+            const renderImg = (id) => {
+              const el = document.getElementById(id);
+              if (el) el.innerHTML = `<img src="${av}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;" onerror="this.parentElement.innerHTML='👑'">`;
+            };
+            renderImg('superadmin-desktop-avatar');
+            renderImg('superadmin-sidebar-avatar');
+          }
+        }
+      } catch (e) {
+        console.warn('Load admin user profile failed:', e);
+      }
+    }
+
+    function toggleSuperadminSidebar(open) {
+      const sidebar = document.getElementById('superadmin-sidebar');
+      const backdrop = document.getElementById('superadmin-sidebar-backdrop');
+      if (!sidebar) return;
+
+      const shouldOpen = (open !== undefined) ? open : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', shouldOpen);
+      if (backdrop) {
+        backdrop.classList.toggle('active', shouldOpen);
+      }
+
+      // Prevent background scrolling on mobile when drawer is open
+      if (window.innerWidth <= 900) {
+        document.body.style.overflow = shouldOpen ? 'hidden' : '';
+      }
+    }
+
+    function switchAdminTab(tab) {
+      // Auto-close mobile drawer
+      toggleSuperadminSidebar(false);
+
+      document.getElementById('section-stores').style.display = tab === 'stores' ? 'block' : 'none';
+      document.getElementById('section-analytics').style.display = tab === 'analytics' ? 'block' : 'none';
+      document.getElementById('section-users').style.display = tab === 'users' ? 'block' : 'none';
+      document.getElementById('section-plans').style.display = tab === 'plans' ? 'block' : 'none';
+
+      // Desktop Sidebar Sync
+      document.getElementById('tab-stores-btn')?.classList.toggle('active', tab === 'stores');
+      document.getElementById('tab-analytics-btn')?.classList.toggle('active', tab === 'analytics');
+      document.getElementById('tab-users-btn')?.classList.toggle('active', tab === 'users');
+      document.getElementById('tab-plans-btn')?.classList.toggle('active', tab === 'plans');
+
+      const addStoreBtn = document.getElementById('add-store-top-btn');
+      if (addStoreBtn) {
+        addStoreBtn.style.display = (tab === 'stores') ? 'inline-flex' : 'none';
+      }
+
+      const titleEl = document.getElementById('page-main-title');
+      const subEl = document.getElementById('page-main-subtitle');
+      if (titleEl && subEl) {
+        if (tab === 'stores') {
+          titleEl.innerText = 'ศูนย์ควบคุมแพลตฟอร์ม (SaaS Admin)';
+          subEl.innerText = 'จัดการร้านค้าทั้งหมด ควบคุมแพ็กเกจการใช้งาน และวิเคราะห์ยอดขายรายวัน/เดือน/ปี';
+        } else if (tab === 'analytics') {
+          titleEl.innerText = '📊 วิเคราะห์ยอดขาย (Sales Analytics)';
+          subEl.innerText = 'สถิติยอดขายรวม ออเดอร์ ค่าเฉลี่ยบิล และกราฟแนวโน้มรายวัน/เดือน/ปี';
+        } else if (tab === 'users') {
+          titleEl.innerText = '👥 ผู้ใช้งานในระบบ (Platform Users)';
+          subEl.innerText = 'จัดการบัญชีผู้ใช้ สังกัดร้านค้า กำหนดสิทธิ์ และรีเซ็ตรหัสผ่าน';
+        } else if (tab === 'plans') {
+          titleEl.innerText = '📦 จัดการแพ็กเกจราคา (Subscription Plans)';
+          subEl.innerText = 'ปรับแต่งราคา Starter, Professional, Enterprise และฟังก์ชันการใช้งาน';
+        }
+      }
+
+      if (tab === 'analytics') {
+        loadSalesAnalytics();
+      } else if (tab === 'plans') {
+        loadAdminPlans();
+      }
+    }
+
+    async function loadPlatformData() {
+      try {
+        loadAdminUserProfile();
+        const res = await fetch('/api/platform/overview', { headers: getAuthHeaders() });
+        if (res.status === 401 || res.status === 403) {
+          // Check if session cookie exists or prompt login
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          globalPlatformData = data;
+          const s = data.stats;
+          document.getElementById('stat-total-stores').innerText = s.totalStores;
+          document.getElementById('stat-trial-stores').innerText = s.trialStores || 0;
+          document.getElementById('stat-total-customers').innerText = (s.totalCustomers || 0).toLocaleString();
+          document.getElementById('stat-total-volume').innerText = App.formatMoney(s.totalVolume);
+
+          renderStoresList(data.stores);
+          renderUsersList(data.users);
+          populateAnalyticsStoreDropdown(data.stores);
+          loadAdminPlans();
+        }
+      } catch (err) {
+        console.error('Error loading platform data:', err);
+      }
+    }
+
+    function populateAnalyticsStoreDropdown(stores) {
+      const select = document.getElementById('analytics-store-select');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '<option value="all">🌐 ทุกร้านค้า (All Stores)</option>' +
+        stores.map(st => `<option value="${st.id}">🏪 ${st.name} (${st.store_code})</option>`).join('');
+      if (currentVal) select.value = currentVal;
+    }
+
+    function renderStoresList(stores) {
+      const container = document.getElementById('platform-stores-list');
+      if (!stores || stores.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:2rem;">ยังไม่มีร้านค้าในระบบ</div>`;
+        return;
+      }
+
+      container.innerHTML = stores.map(st => {
+        const isTrial = st.trial_days_left > 0;
+        const planNameLower = (st.plan_name || '').toLowerCase();
+        const planClass = planNameLower.includes('starter') ? 'badge-plan-starter' : (planNameLower.includes('enterprise') || planNameLower.includes('buffet') || planNameLower.includes('vip')) ? 'badge-plan-enterprise' : 'badge-plan-pro';
+
+        return `
+          <div class="store-row-card" data-name="${st.name.toLowerCase()}" data-code="${st.store_code.toLowerCase()}" data-slug="${st.slug.toLowerCase()}" data-status="${st.status}" data-trial="${isTrial ? 'trial' : 'notrial'}"
+               style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; transition: all 0.2s ease;">
+            
+            <div style="flex: 1; min-width: 260px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <span style="font-weight: 700; color: white; font-size: 1.15rem;">${st.name}</span>
+                <span style="font-size: 0.8rem; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; color: var(--text-muted); font-family: var(--font-en); font-weight: 600;">${st.store_code}</span>
+                <span class="badge ${planClass}" style="font-size: 0.75rem;">${st.plan_name || 'Standard'}</span>
+              </div>
+
+              <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span>URL Slug: <code style="color:#fb923c;">/order/${st.slug}</code></span>
+                <span>• โต๊ะ: <b>${st.table_count}</b> โต๊ะ</span>
+                <span>• เมนู: <b>${st.menu_count}</b> รายการ</span>
+                <span>• ออเดอร์: <b>${st.paid_orders_count || 0}</b> บิล</span>
+                <span>• 📅 สมัครเมื่อ: <b style="color: #cbd5e1;">${formatThaiDate(st.created_at)}</b></span>
+              </div>
+
+              <div style="margin-top: 8px; font-size: 0.82rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                ${isTrial ? `
+                  <!-- 1. ช่วงทดลองใช้ (Free Trial) -->
+                  <span style="color: #4ade80; background: rgba(16,185,129,0.12); padding: 3px 9px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.25); display: inline-flex; align-items: center; gap: 5px;">
+                    <span>🎁</span> ทดลองใช้ฟรี: เหลือ <b>${st.trial_days_left} วัน</b>
+                  </span>
+                  <span style="color: #38bdf8; background: rgba(56,189,248,0.12); padding: 3px 9px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.25); display: inline-flex; align-items: center; gap: 5px;">
+                    <span>📅</span> หมดอายุทดลอง: <b>${formatThaiDate(st.trial_ends_at)}</b>
+                  </span>
+                ` : `
+                  <!-- 2. เมื่อหมดช่วงทดลอง -> แสดงข้อมูลใช้งานจริง (Paid / Active Subscription) -->
+                  <span style="color: #c084fc; background: rgba(168,85,247,0.14); padding: 3px 9px; border-radius: 6px; border: 1px solid rgba(168,85,247,0.3); display: inline-flex; align-items: center; gap: 5px;">
+                    <span>💎</span> ใช้งานจริง: <b>${st.plan_name || 'Professional'} (${st.billing_cycle === 'yearly' ? 'รายปี' : 'รายเดือน'})</b>
+                  </span>
+                  ${st.status === 'active' ? `
+                    <span style="color: #34d399; background: rgba(16,185,129,0.12); padding: 3px 9px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.25); display: inline-flex; align-items: center; gap: 5px;">
+                      <span>🟢</span> สถานะ: <b>เปิดใช้งานจริงปกติ</b>
+                    </span>
+                  ` : `
+                    <span style="color: #f87171; background: rgba(239,68,68,0.12); padding: 3px 9px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.25); display: inline-flex; align-items: center; gap: 5px;">
+                      <span>🔴</span> สถานะ: <b>หมดอายุ / ระงับชั่วคราว</b>
+                    </span>
+                  `}
+                `}
+              </div>
+            </div>
+
+            <!-- Revenue & Status -->
+            <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+              <div style="text-align: right;">
+                <div style="font-size: 0.75rem; color: var(--text-dim);">ยอดขายสะสม:</div>
+                <div style="font-weight: 800; color: #fb923c; font-size: 1.25rem; font-family: var(--font-en);">${App.formatMoney(st.revenue)}</div>
+              </div>
+
+              <div>
+                <span class="badge ${st.status === 'active' ? 'badge-success' : 'badge-danger'}">
+                  ${st.status === 'active' ? '🟢 ใช้งานอยู่' : st.status === 'suspended' ? '🔴 ระงับ' : st.status}
+                </span>
+              </div>
+
+              <!-- Quick Action Links -->
+              <div style="display: flex; gap: 6px;">
+                <a href="/store.html?store_id=${st.id}" class="btn btn-secondary btn-sm" title="เข้าระบบจัดการร้านค้า">🏪 หน้าร้าน</a>
+                <button onclick="openEditStoreModal(${st.id})" class="btn btn-secondary btn-sm" title="แก้ไขข้อมูลร้านค้า">✏️ แก้ไข</button>
+                <button onclick="deletePlatformStore(${st.id}, '${st.name.replace(/'/g, "\\'")}')" class="btn btn-danger btn-sm" title="ลบร้านค้าและข้อมูลทั้งหมด">🗑️ ลบ</button>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    let currentUserRoleFilter = 'all';
+
+    function setUserRoleFilter(filter, btn) {
+      currentUserRoleFilter = filter;
+      document.querySelectorAll('.filter-user-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterUsersList();
+    }
+
+    function filterUsersList() {
+      if (!globalPlatformData || !globalPlatformData.users) return;
+      const q = (document.getElementById('user-search-input')?.value || '').toLowerCase().trim();
+      const users = globalPlatformData.users;
+
+      const filtered = users.filter(u => {
+        const isAdm = u.role === 'admin';
+        const isMgr = u.role === 'manager' || u.store_role === 'manager';
+        const isStf = !isAdm && !isMgr;
+
+        const matchesRole = currentUserRoleFilter === 'all'
+          || (currentUserRoleFilter === 'admin' && isAdm)
+          || (currentUserRoleFilter === 'manager' && isMgr)
+          || (currentUserRoleFilter === 'staff' && isStf);
+
+        const matchesSearch = !q ||
+          (u.full_name && u.full_name.toLowerCase().includes(q)) ||
+          (u.username && u.username.toLowerCase().includes(q)) ||
+          (u.email && u.email.toLowerCase().includes(q)) ||
+          (u.phone_number && u.phone_number.includes(q)) ||
+          (u.store_name && u.store_name.toLowerCase().includes(q)) ||
+          (u.store_code && u.store_code.toLowerCase().includes(q));
+
+        return matchesRole && matchesSearch;
+      });
+
+      renderUsersList(filtered);
+    }
+
+    function renderUsersList(users) {
+      const container = document.getElementById('platform-users-list');
+      if (!container) return;
+
+      if (!users || users.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 2.5rem 1rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-md); border: 1px dashed var(--border-glass);">
+            <div style="font-size: 2.2rem; margin-bottom: 6px;">👥</div>
+            <div style="font-size: 1rem; font-weight: 600; color: white;">ไม่พบรายชื่อผู้ใช้งาน</div>
+          </div>
+        `;
+        return;
+      }
+
+      const summary = document.getElementById('users-count-summary');
+      if (summary && globalPlatformData && globalPlatformData.users) {
+        const total = globalPlatformData.users.length;
+        const showing = users.length;
+        summary.innerText = `แสดง ${showing} จากทั้งหมด ${total} คน`;
+      }
+
+      container.innerHTML = users.map(u => {
+        const isAdm = u.role === 'admin';
+        const isMgr = u.role === 'manager' || u.store_role === 'manager';
+        const roleLabel = isAdm
+          ? '👑 Super Admin'
+          : (isMgr ? '🏪 เจ้าของร้าน (Manager)' : '👨‍🍳 พนักงาน (Staff)');
+        const badgeClass = isAdm ? 'badge-purple' : (isMgr ? 'badge-primary' : 'badge-info');
+        const avatarBg = isAdm
+          ? 'linear-gradient(135deg, #8b5cf6, #6d28d9)'
+          : (isMgr ? 'linear-gradient(135deg, #f97316, #ea580c)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)');
+
+        const statusBadge = u.is_active
+          ? `<span class="badge badge-success" style="font-size:0.75rem;">🟢 ใช้งานอยู่</span>`
+          : `<span class="badge badge-danger" style="font-size:0.75rem;">🔴 ระงับ</span>`;
+
+        return `
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; transition: all 0.2s ease;">
+            
+            <div style="display: flex; align-items: center; gap: 14px; min-width: 260px; flex: 1;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: ${avatarBg}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 700; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                ${(u.full_name || u.username || 'U').charAt(0).toUpperCase()}
+              </div>
+
+              <div>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:3px;">
+                  <span style="font-weight:700; color:white; font-size:1.05rem;">${u.full_name}</span>
+                  <span style="font-size:0.82rem; color:#fb923c; font-family:var(--font-en); font-weight:600;">@${u.username}</span>
+                </div>
+
+                <div style="font-size:0.82rem; color:var(--text-muted); display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                  <span>✉️ ${u.email}</span>
+                  ${u.phone_number ? `<span>📞 ${u.phone_number}</span>` : ''}
+                  <span>🏪 สังกัด: <b style="color:white;">${u.store_name ? `${u.store_name} (${u.store_code || ''})` : '🌐 ส่วนกลาง (Super Admin)'}</b></span>
+                  <span>• 📅 สมัครเมื่อ: <b style="color: #cbd5e1;">${formatThaiDate(u.created_at)}</b></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Role, Status & Actions (All in 1 Row) -->
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge ${badgeClass}">${roleLabel}</span>
+                ${statusBadge}
+              </div>
+
+              <div style="display:flex; gap:6px; margin-left:4px;">
+                <button class="btn btn-secondary btn-sm" onclick="openPlatformEditUserModal(${u.id})" title="แก้ไขข้อมูลผู้ใช้งาน">
+                  ✏️ แก้ไข
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deletePlatformUser(${u.id}, '${u.full_name}')" title="ลบผู้ใช้งาน">
+                  🗑️ ลบ
+                </button>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterStoresList() {
+      const q = document.getElementById('store-search-input').value.toLowerCase().trim();
+      const rows = document.querySelectorAll('.store-row-card');
+      rows.forEach(row => {
+        const name = row.getAttribute('data-name') || '';
+        const code = row.getAttribute('data-code') || '';
+        const slug = row.getAttribute('data-slug') || '';
+        const status = row.getAttribute('data-status') || '';
+        const trial = row.getAttribute('data-trial') || '';
+
+        const matchesSearch = !q || name.includes(q) || code.includes(q) || slug.includes(q);
+        const matchesStatus = currentStoreStatusFilter === 'all'
+          || (currentStoreStatusFilter === 'active' && status === 'active')
+          || (currentStoreStatusFilter === 'suspended' && status === 'suspended')
+          || (currentStoreStatusFilter === 'trial' && trial === 'trial');
+
+        row.style.display = (matchesSearch && matchesStatus) ? 'flex' : 'none';
+      });
+    }
+
+    function setStoreStatusFilter(filter, btn) {
+      currentStoreStatusFilter = filter;
+      document.querySelectorAll('.filter-store-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterStoresList();
+    }
+
+    // -------------------------------------------------------------
+    // Sales Analytics (Daily, Monthly, Yearly)
+    // -------------------------------------------------------------
+    function setAnalyticsPeriod(period) {
+      currentAnalyticsPeriod = period;
+      document.getElementById('period-daily-btn').className = period === 'daily' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary';
+      document.getElementById('period-monthly-btn').className = period === 'monthly' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary';
+      document.getElementById('period-yearly-btn').className = period === 'yearly' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary';
+      loadSalesAnalytics();
+    }
+
+    async function loadSalesAnalytics() {
+      try {
+        const storeId = document.getElementById('analytics-store-select').value;
+        const year = document.getElementById('analytics-year-select').value;
+
+        const url = `/api/platform/analytics/sales?period=${currentAnalyticsPeriod}&store_id=${storeId}&year=${year}`;
+        const res = await fetch(url, { headers: getAuthHeaders() });
+        const data = await res.json();
+
+        if (data.success) {
+          const sum = data.summary;
+          document.getElementById('analytics-total-revenue').innerText = App.formatMoney(sum.totalRevenue);
+          document.getElementById('analytics-total-orders').innerText = sum.totalOrders.toLocaleString();
+          document.getElementById('analytics-avg-order').innerText = App.formatMoney(sum.avgOrderValue);
+          document.getElementById('analytics-tax-service').innerText = App.formatMoney(sum.totalVat + sum.totalServiceCharge);
+
+          const periodName = currentAnalyticsPeriod === 'daily' ? 'รายวัน (ย้อนหลัง 30 วัน)' : currentAnalyticsPeriod === 'monthly' ? `รายเดือน (ปี ${year})` : 'รายปีสะสม';
+          document.getElementById('chart-sub-label').innerText = `สรุปยอดขายแบบ ${periodName}`;
+
+          renderAnalyticsChart(data.timeSeries);
+          renderStoreBreakdown(data.storeBreakdown);
+          renderPeriodBreakdown(data.timeSeries);
+        }
+      } catch (err) {
+        console.error('Error loading sales analytics:', err);
+      }
+    }
+
+    function renderAnalyticsChart(timeSeries) {
+      const container = document.getElementById('analytics-chart-container');
+      if (!timeSeries || timeSeries.length === 0) {
+        container.innerHTML = `<div style="margin:auto; color:var(--text-muted);">ไม่มีข้อมูลยอดขายในช่วงเวลานี้</div>`;
+        return;
+      }
+
+      const maxRev = Math.max(...timeSeries.map(t => t.revenue), 100);
+
+      container.innerHTML = timeSeries.map(t => {
+        const heightPct = Math.max(8, Math.round((t.revenue / maxRev) * 100));
+        return `
+          <div class="bar-col" title="${t.label}: ${App.formatMoney(t.revenue)} (${t.orders} บิล)">
+            <div class="bar-track" style="height: ${heightPct}%;">
+              <div class="bar-val-tooltip">${t.revenue > 0 ? (t.revenue >= 1000 ? (t.revenue / 1000).toFixed(1) + 'k' : t.revenue) : ''}</div>
+            </div>
+            <div class="bar-label">${t.shortLabel}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStoreBreakdown(stores) {
+      const container = document.getElementById('analytics-store-breakdown-list');
+      if (!stores || stores.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:1rem;">ไม่มีข้อมูล</div>`;
+        return;
+      }
+
+      const totalRev = stores.reduce((sum, s) => sum + s.revenue, 0) || 1;
+
+      container.innerHTML = stores.map((s, idx) => {
+        const pct = Math.round((s.revenue / totalRev) * 100);
+        return `
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 10px 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+              <span style="font-weight:600; color:white;">#${idx + 1} ${s.storeName} <span style="font-size:0.75rem; color:var(--text-muted);">(${s.storeCode})</span></span>
+              <span style="font-weight:700; color:#fb923c; font-family:var(--font-en);">${App.formatMoney(s.revenue)}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-bottom: 4px;">
+              <span>${s.orders} ออเดอร์</span>
+              <span>${pct}% ของยอดรวม</span>
+            </div>
+            <div style="height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow:hidden;">
+              <div style="height: 100%; width: ${pct}%; background: #ea580c; border-radius: 2px;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPeriodBreakdown(timeSeries) {
+      const container = document.getElementById('analytics-period-breakdown-list');
+      if (!timeSeries || timeSeries.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:1rem;">ไม่มีข้อมูล</div>`;
+        return;
+      }
+
+      container.innerHTML = timeSeries.slice().reverse().map(t => `
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 10px 14px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:600; color:white;">📅 ${t.label}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">${t.orders} บิลสำเร็จ</div>
+          </div>
+          <div style="font-weight:700; color:#fb923c; font-family:var(--font-en); font-size:1.05rem;">
+            ${App.formatMoney(t.revenue)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // -------------------------------------------------------------
+    // Add & Edit Store Modals & Dynamic Plans
+    // -------------------------------------------------------------
+    function populateStorePlanDropdown(selectId, selectedPlan) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+
+      let plans = globalPlansData && globalPlansData.length > 0 ? globalPlansData : [
+        { code: 'starter', name: 'Starter', price_monthly: 290, subtitle: 'เหมาะสำหรับร้านขนาดเล็ก (1 บัญชีผู้ดูแล)' },
+        { code: 'pro', name: 'Professional', price_monthly: 490, subtitle: 'ยอดนิยมสำหรับร้านอาหารทั่วไป', badge_text: '🔥 ยอดนิยม' },
+        { code: 'enterprise', name: 'Enterprise / Buffet', price_monthly: 990, subtitle: 'ครบวงจรสำหรับร้านขนาดใหญ่/บุฟเฟต์' }
+      ];
+
+      let optionsHtml = plans.map(p => {
+        const priceText = p.price_monthly ? ` (฿${parseFloat(p.price_monthly).toLocaleString()}/ด.)` : '';
+        const badgeText = p.badge_text ? ` [${p.badge_text}]` : '';
+        return `<option value="${p.name}" data-code="${p.code}">${p.name}${priceText}${badgeText}</option>`;
+      }).join('');
+
+      // If store has custom or old plan name not in DB list, append it
+      if (selectedPlan && !plans.some(p => p.name.toLowerCase() === selectedPlan.toLowerCase() || p.code.toLowerCase() === selectedPlan.toLowerCase())) {
+        optionsHtml += `<option value="${selectedPlan}">${selectedPlan} (กำหนดเอง/เดิม)</option>`;
+      }
+
+      select.innerHTML = optionsHtml;
+
+      // Select corresponding option
+      let matched = false;
+      if (selectedPlan) {
+        for (let i = 0; i < select.options.length; i++) {
+          const optVal = select.options[i].value.toLowerCase();
+          const selLower = selectedPlan.toLowerCase();
+          if (optVal === selLower || (selLower.includes('starter') && optVal.includes('starter')) || (selLower.includes('pro') && optVal.includes('pro')) || (selLower.includes('enter') && optVal.includes('enter'))) {
+            select.selectedIndex = i;
+            matched = true;
+            break;
+          }
+        }
+      }
+      if (!matched && selectedPlan) {
+        select.value = selectedPlan;
+      }
+    }
+
+    function onEditStorePlanChange() {
+      const select = document.getElementById('edit-store-plan');
+      const infoEl = document.getElementById('edit-store-plan-info');
+      if (!select || !infoEl) return;
+      const val = select.value;
+      const planObj = (globalPlansData || []).find(p => p.name === val || p.code === val);
+      if (planObj) {
+        const priceMonthly = parseFloat(planObj.price_monthly || 0).toLocaleString();
+        const priceYearly = parseFloat(planObj.price_yearly || 0).toLocaleString();
+        infoEl.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="color:#fb923c; font-weight:700;">฿${priceMonthly} / เดือน</span>
+            <span style="color:#34d399; font-size:0.78rem;">(฿${priceYearly}/ด. เมื่อจ่ายรายปี)</span>
+            ${planObj.subtitle ? `<span style="color:var(--text-dim);">• ${planObj.subtitle}</span>` : ''}
+          </div>
+        `;
+      } else {
+        infoEl.innerHTML = `<span style="color:var(--text-dim);">แพ็กเกจ: ${val}</span>`;
+      }
+    }
+
+    async function handleAdminStoreLogoUpload(e, targetInputId) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        App.toast('กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง', 'warning');
+        return;
+      }
+
+      try {
+        App.toast('⏳ กำลังแปลงเป็น WebP & อัปโหลดโลโก้ร้าน...', 'info');
+        const webpFile = await App.processImageToWebP(file, { maxWidth: 500, maxHeight: 500, quality: 0.9 });
+        const formData = new FormData();
+        formData.append('file', webpFile);
+        formData.append('folder', 'logos');
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: getUploadHeaders(),
+          body: formData,
+        });
+        const data = await res.json().catch(() => ({ success: false, message: `เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง (${res.status})` }));
+        if (res.ok && data.success) {
+          const input = document.getElementById(targetInputId);
+          if (input) input.value = data.url;
+          App.toast(`อัปโหลดโลโก้ร้านสำเร็จ ✨ (WebP • ${data.isS3 ? 'S3 Storage' : 'Cloud'})`, 'success');
+        } else {
+          App.toast(data.message || 'ไม่สามารถอัปโหลดโลโก้ได้', 'danger');
+        }
+      } catch (err) {
+        console.error('Superadmin logo upload error:', err);
+        App.toast(err.message || 'เกิดข้อผิดพลาดในการอัปโหลด', 'danger');
+      } finally {
+        e.target.value = '';
+      }
+    }
+
+    function openAddStoreModal() {
+      populateStorePlanDropdown('new-store-plan', 'Professional');
+      if (document.getElementById('new-store-logo')) document.getElementById('new-store-logo').value = '';
+      document.getElementById('add-store-modal').classList.add('active');
+    }
+
+    function updateNewStorePrice() {
+      // Dynamic price suggestion based on plan
+    }
+
+    async function submitNewStore(e) {
+      e.preventDefault();
+      const btn = document.getElementById('add-store-submit-btn');
+      btn.disabled = true;
+      btn.innerText = '⏳ กำลังสร้างร้านค้า...';
+
+      try {
+        const payload = {
+          store_code: document.getElementById('new-store-code').value.trim(),
+          name: document.getElementById('new-store-name').value.trim(),
+          slug: document.getElementById('new-store-slug').value.trim(),
+          phone_number: document.getElementById('new-store-phone').value.trim(),
+          logo_url: (document.getElementById('new-store-logo')?.value || '').trim() || null,
+          plan_name: document.getElementById('new-store-plan').value,
+          trial_days: parseInt(document.getElementById('new-store-trial-days').value, 10) || 30,
+          manager_username: document.getElementById('new-manager-username').value.trim(),
+          manager_password: document.getElementById('new-manager-password').value.trim(),
+          manager_full_name: document.getElementById('new-manager-fullname').value.trim(),
+        };
+
+        const res = await fetch('/api/platform/stores', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast('สร้างร้านค้าใหม่และบัญชีผู้จัดการเรียบร้อย! ✨', 'success');
+          document.getElementById('add-store-modal').classList.remove('active');
+          loadPlatformData();
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการสร้างร้านค้า', 'danger');
+        }
+      } catch (err) {
+        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '✨ สร้างร้านค้าและตั้งค่าเริ่มต้น';
+      }
+    }
+
+    async function openEditStoreModal(storeId) {
+      try {
+        let store = null;
+        if (globalPlatformData && globalPlatformData.stores) {
+          store = globalPlatformData.stores.find(s => s.id == storeId || String(s.id) === String(storeId));
+        }
+
+        if (!store) {
+          const res = await fetch('/api/platform/overview', { headers: getAuthHeaders() });
+          const data = await res.json();
+          if (data.success && data.stores) {
+            globalPlatformData = data;
+            store = data.stores.find(s => s.id == storeId || String(s.id) === String(storeId));
+          }
+        }
+
+        if (!store) {
+          App.toast('ไม่พบข้อมูลร้านค้านี้', 'warning');
+          return;
+        }
+
+        // Ensure global plans are loaded
+        if (!globalPlansData || globalPlansData.length === 0) {
+          try {
+            const res = await fetch('/api/platform/admin/plans', { headers: getAuthHeaders() });
+            const data = await res.json();
+            if (data.success && data.plans) {
+              globalPlansData = data.plans;
+            }
+          } catch (e) {
+            console.error('Error fetching plans for modal:', e);
+          }
+        }
+
+        const idEl = document.getElementById('edit-store-id');
+        if (idEl) idEl.value = store.id;
+
+        const subEl = document.getElementById('edit-store-subtitle');
+        if (subEl) subEl.innerText = `${store.name} (${store.store_code || 'ID: ' + store.id})`;
+
+        const nameEl = document.getElementById('edit-store-name');
+        if (nameEl) nameEl.value = store.name || '';
+
+        const codeEl = document.getElementById('edit-store-code');
+        if (codeEl) codeEl.value = store.store_code || '';
+
+        const slugEl = document.getElementById('edit-store-slug');
+        if (slugEl) slugEl.value = store.slug || '';
+
+        const logoEl = document.getElementById('edit-store-logo');
+        if (logoEl) logoEl.value = store.logo_url || '';
+
+        // Populate and set plan dynamically
+        populateStorePlanDropdown('edit-store-plan', store.plan_name || 'Professional');
+        onEditStorePlanChange();
+
+        const statusEl = document.getElementById('edit-store-status');
+        if (statusEl) statusEl.value = store.status || 'active';
+
+        const phoneEl = document.getElementById('edit-store-phone');
+        if (phoneEl) phoneEl.value = store.phone_number || '';
+
+        const extEl = document.getElementById('edit-store-extend-days');
+        if (extEl) extEl.value = '';
+
+        const passEl = document.getElementById('edit-store-manager-password');
+        if (passEl) passEl.value = '';
+
+        const trialDateEl = document.getElementById('edit-store-trial-date');
+        if (trialDateEl) {
+          if (store.trial_ends_at) {
+            const d = new Date(store.trial_ends_at);
+            if (!isNaN(d.getTime())) {
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, '0');
+              const dd = String(d.getDate()).padStart(2, '0');
+              trialDateEl.value = `${yyyy}-${mm}-${dd}`;
+            } else {
+              trialDateEl.value = '';
+            }
+          } else {
+            trialDateEl.value = '';
+          }
+        }
+
+        const createdAtEl = document.getElementById('edit-store-created-at');
+        if (createdAtEl) {
+          createdAtEl.value = store.created_at ? formatThaiDateTime(store.created_at) : '-';
+        }
+
+        const modalEl = document.getElementById('edit-store-modal');
+        if (modalEl) {
+          modalEl.classList.add('active');
+        }
+      } catch (err) {
+        console.error('Error opening edit store modal:', err);
+        App.toast('เกิดข้อผิดพลาดในการเปิดหน้าต่างแก้ไข', 'danger');
+      }
+    }
+
+    async function submitEditStore(e) {
+      e.preventDefault();
+      const btn = document.getElementById('edit-store-submit-btn');
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerText = 'กำลังบันทึก...';
+        }
+
+        const storeId = document.getElementById('edit-store-id').value;
+        const extendDaysVal = document.getElementById('edit-store-extend-days').value;
+        const trialDateVal = document.getElementById('edit-store-trial-date').value;
+        const newPasswordVal = document.getElementById('edit-store-manager-password').value.trim();
+
+        const payload = {
+          name: document.getElementById('edit-store-name').value.trim(),
+          store_code: document.getElementById('edit-store-code').value.trim(),
+          slug: document.getElementById('edit-store-slug').value.trim(),
+          logo_url: (document.getElementById('edit-store-logo')?.value || '').trim() || null,
+          plan_name: document.getElementById('edit-store-plan').value,
+          status: document.getElementById('edit-store-status').value,
+          phone_number: document.getElementById('edit-store-phone').value.trim(),
+          trial_ends_at: trialDateVal ? new Date(trialDateVal + 'T23:59:59').toISOString() : undefined,
+          extend_trial_days: extendDaysVal ? parseInt(extendDaysVal, 10) : null,
+          manager_password: newPasswordVal || undefined
+        };
+
+        const res = await fetch(`/api/platform/stores/${storeId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast('อัปเดตข้อมูลร้านค้าเรียบร้อยแล้ว ✨', 'success');
+          document.getElementById('edit-store-modal').classList.remove('active');
+          loadPlatformData();
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'danger');
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'danger');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '💾 บันทึกการแก้ไข';
+        }
+      }
+    }
+
+    let pendingDeleteStoreId = null;
+    let pendingDeleteStoreName = '';
+
+    function deleteCurrentEditStore() {
+      const storeId = parseInt(document.getElementById('edit-store-id').value, 10);
+      const storeName = document.getElementById('edit-store-name').value;
+      if (!storeId) return;
+      document.getElementById('edit-store-modal').classList.remove('active');
+      deletePlatformStore(storeId, storeName);
+    }
+
+    function deletePlatformStore(storeId, storeName) {
+      pendingDeleteStoreId = storeId;
+      pendingDeleteStoreName = storeName || 'นี้';
+
+      const targetNameEl = document.getElementById('delete-store-target-name');
+      if (targetNameEl) {
+        targetNameEl.innerText = `"${pendingDeleteStoreName}"`;
+      }
+
+      const confirmBtn = document.getElementById('delete-store-confirm-btn');
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = 'ใช่ (ลบถาวร)';
+      }
+
+      const modal = document.getElementById('delete-store-confirm-modal');
+      if (modal) {
+        modal.classList.add('active');
+      }
+    }
+
+    function closeDeleteStoreModal() {
+      const modal = document.getElementById('delete-store-confirm-modal');
+      if (modal) {
+        modal.classList.remove('active');
+      }
+      pendingDeleteStoreId = null;
+      pendingDeleteStoreName = '';
+    }
+
+    async function executeDeletePlatformStore() {
+      if (!pendingDeleteStoreId) return;
+
+      const confirmBtn = document.getElementById('delete-store-confirm-btn');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = '⏳ กำลังลบข้อมูล...';
+      }
+
+      try {
+        const storeId = pendingDeleteStoreId;
+        const storeName = pendingDeleteStoreName;
+
+        const res = await fetch(`/api/platform/stores/${storeId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast(data.message || `ลบร้านค้า "${storeName}" และข้อมูลที่เกี่ยวข้องทั้งหมดเรียบร้อยแล้ว 🗑️`, 'success');
+          closeDeleteStoreModal();
+          loadPlatformData();
+        } else {
+          App.toast(data.message || 'ไม่สามารถลบร้านค้าได้', 'danger');
+          if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = 'ใช่ (ลบถาวร)';
+          }
+        }
+      } catch (err) {
+        console.error('Error deleting store:', err);
+        App.toast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'danger');
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.innerText = 'ใช่ (ลบถาวร)';
+        }
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      localStorage.clear();
+      window.location.href = '/';
+    }
+
+    // -------------------------------------------------------------
+    // Platform Users CRUD Functions
+    // -------------------------------------------------------------
+    function populateUserModalStores() {
+      if (!globalPlatformData || !globalPlatformData.stores) return;
+      const stores = globalPlatformData.stores;
+
+      const addSelect = document.getElementById('p-new-user-store');
+      if (addSelect) {
+        addSelect.innerHTML = '<option value="none">🌐 ไม่มีสังกัด (ส่วนกลาง)</option>' +
+          stores.map(s => `<option value="${s.id}">🏪 ${s.name} (${s.store_code})</option>`).join('');
+      }
+
+      const editSelect = document.getElementById('p-edit-user-store');
+      if (editSelect) {
+        editSelect.innerHTML = '<option value="none">🌐 ไม่มีสังกัด (ส่วนกลาง)</option>' +
+          stores.map(s => `<option value="${s.id}">🏪 ${s.name} (${s.store_code})</option>`).join('');
+      }
+    }
+
+    function togglePlatformUserStoreSelect(mode) {
+      const role = document.getElementById(mode === 'add' ? 'p-new-user-role' : 'p-edit-user-role').value;
+      const wrapper = document.getElementById(mode === 'add' ? 'p-new-user-store-wrapper' : 'p-edit-user-store-wrapper');
+      if (wrapper) {
+        wrapper.style.display = role === 'admin' ? 'none' : 'block';
+      }
+    }
+
+    function openPlatformAddUserModal() {
+      populateUserModalStores();
+      document.getElementById('p-new-user-fullname').value = '';
+      document.getElementById('p-new-user-username').value = '';
+      document.getElementById('p-new-user-password').value = '';
+      document.getElementById('p-new-user-phone').value = '';
+      document.getElementById('p-new-user-email').value = '';
+      document.getElementById('p-new-user-role').value = 'staff';
+      document.getElementById('p-new-user-active').checked = true;
+      togglePlatformUserStoreSelect('add');
+      document.getElementById('platform-add-user-modal').classList.add('active');
+    }
+
+    async function submitPlatformAddUser(e) {
+      e.preventDefault();
+      const btn = document.getElementById('platform-add-user-submit-btn');
+      btn.disabled = true;
+      btn.innerText = '⏳ กำลังบันทึก...';
+
+      try {
+        const payload = {
+          full_name: document.getElementById('p-new-user-fullname').value.trim(),
+          username: document.getElementById('p-new-user-username').value.trim(),
+          password: document.getElementById('p-new-user-password').value.trim(),
+          role: document.getElementById('p-new-user-role').value,
+          store_id: document.getElementById('p-new-user-store').value,
+          phone_number: document.getElementById('p-new-user-phone').value.trim(),
+          email: document.getElementById('p-new-user-email').value.trim(),
+          is_active: document.getElementById('p-new-user-active').checked,
+        };
+
+        const res = await fetch('/api/platform/users', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast(data.message || 'สร้างผู้ใช้งานใหม่เรียบร้อย! ✨', 'success');
+          document.getElementById('platform-add-user-modal').classList.remove('active');
+          loadPlatformData();
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาด', 'danger');
+        }
+      } catch (err) {
+        App.toast('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '✨ สร้างผู้ใช้งานใหม่';
+      }
+    }
+
+    function openPlatformEditUserModal(userId) {
+      if (!globalPlatformData || !globalPlatformData.users) return;
+      const user = globalPlatformData.users.find(u => u.id === userId);
+      if (!user) return;
+
+      populateUserModalStores();
+      document.getElementById('p-edit-user-id').value = user.id;
+      document.getElementById('p-edit-user-subtitle').innerText = `${user.full_name} (@${user.username})`;
+      document.getElementById('p-edit-user-fullname').value = user.full_name || '';
+      document.getElementById('p-edit-user-role').value = user.role || 'staff';
+      document.getElementById('p-edit-user-store').value = user.store_id || 'none';
+      document.getElementById('p-edit-user-phone').value = user.phone_number || '';
+      document.getElementById('p-edit-user-email').value = user.email || '';
+      document.getElementById('p-edit-user-password').value = '';
+      document.getElementById('p-edit-user-active').checked = user.is_active;
+
+      const userCreatedEl = document.getElementById('p-edit-user-created-at');
+      if (userCreatedEl) {
+        userCreatedEl.value = user.created_at ? formatThaiDateTime(user.created_at) : '-';
+      }
+
+      togglePlatformUserStoreSelect('edit');
+      document.getElementById('platform-edit-user-modal').classList.add('active');
+    }
+
+    async function submitPlatformEditUser(e) {
+      e.preventDefault();
+      try {
+        const userId = document.getElementById('p-edit-user-id').value;
+        const payload = {
+          full_name: document.getElementById('p-edit-user-fullname').value.trim(),
+          role: document.getElementById('p-edit-user-role').value,
+          store_id: document.getElementById('p-edit-user-store').value,
+          phone_number: document.getElementById('p-edit-user-phone').value.trim(),
+          email: document.getElementById('p-edit-user-email').value.trim(),
+          is_active: document.getElementById('p-edit-user-active').checked,
+        };
+
+        const newPass = document.getElementById('p-edit-user-password').value.trim();
+        if (newPass) {
+          payload.password = newPass;
+        }
+
+        const res = await fetch(`/api/platform/users/${userId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast(data.message || 'อัปเดตข้อมูลผู้ใช้งานเรียบร้อย! ✨', 'success');
+          document.getElementById('platform-edit-user-modal').classList.remove('active');
+          loadPlatformData();
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาด', 'danger');
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'danger');
+      }
+    }
+
+    function deleteCurrentPlatformUser() {
+      const userId = parseInt(document.getElementById('p-edit-user-id').value, 10);
+      const fullname = document.getElementById('p-edit-user-fullname').value;
+      document.getElementById('platform-edit-user-modal').classList.remove('active');
+      deletePlatformUser(userId, fullname);
+    }
+
+    async function deletePlatformUser(userId, fullname) {
+      if (!confirm(`คุณต้องการลบผู้ใช้งาน "${fullname || 'นี้'}" ออกจากระบบใช่หรือไม่?`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/platform/users/${userId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast(data.message || 'ลบผู้ใช้งานเรียบร้อยแล้ว', 'success');
+          loadPlatformData();
+        } else {
+          App.toast(data.message || 'ไม่สามารถลบผู้ใช้งานได้', 'danger');
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการลบผู้ใช้งาน', 'danger');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Subscription Plans CRUD Functions
+    // -------------------------------------------------------------
+    async function loadAdminPlans() {
+      const container = document.getElementById('platform-plans-grid');
+      if (!container) return;
+
+      try {
+        const res = await fetch('/api/platform/admin/plans', { headers: getAuthHeaders() });
+        const data = await res.json();
+
+        if (data.success) {
+          globalPlansData = data.plans || [];
+          renderAdminPlans(globalPlansData);
+        } else {
+          container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:2rem; grid-column:1/-1;">${data.message || 'ไม่สามารถโหลดแพ็กเกจราคาได้'}</div>`;
+        }
+      } catch (err) {
+        console.error('Error loading plans:', err);
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:2rem; grid-column:1/-1;">เกิดข้อผิดพลาดในการโหลดแพ็กเกจราคา</div>`;
+      }
+    }
+
+    function renderAdminPlans(plans) {
+      const container = document.getElementById('platform-plans-grid');
+      if (!container) return;
+
+      if (!plans || plans.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:2rem; grid-column:1/-1;">ยังไม่มีข้อมูลแพ็กเกจราคาในระบบ</div>`;
+        return;
+      }
+
+      container.innerHTML = plans.map(p => {
+        const features = Array.isArray(p.features) ? p.features : (typeof p.features === 'string' ? JSON.parse(p.features || '[]') : []);
+        const disabledFeatures = Array.isArray(p.disabled_features) ? p.disabled_features : (typeof p.disabled_features === 'string' ? JSON.parse(p.disabled_features || '[]') : []);
+
+        const isFeatured = p.is_featured;
+        const cardBorder = isFeatured ? 'border: 2px solid #f97316; box-shadow: 0 0 24px rgba(249, 115, 22, 0.2);' : 'border: 1px solid var(--border-glass);';
+        const badgeHtml = p.badge_text ? `<div style="display:inline-block; background:linear-gradient(135deg, #f97316, #ea580c); color:white; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:8px;">${p.badge_text}</div>` : '';
+
+        return `
+          <div class="glass-card" style="padding: 1.75rem; position:relative; display:flex; flex-direction:column; justify-content:space-between; ${cardBorder}">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                <div>
+                  ${badgeHtml}
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <h3 style="font-size:1.35rem; font-weight:800; color:white; margin:0;">${p.name}</h3>
+                    <span style="font-size:0.75rem; background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:6px; color:var(--text-muted); font-family:var(--font-en); font-weight:600;">${p.code}</span>
+                  </div>
+                </div>
+                <div>
+                  ${p.is_active ? '<span class="badge badge-success" style="font-size:0.72rem;">🟢 เปิดใช้งาน</span>' : '<span class="badge badge-danger" style="font-size:0.72rem;">🔴 ปิดใช้งาน</span>'}
+                </div>
+              </div>
+
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem; min-height:36px; line-height:1.4;">
+                ${p.subtitle || 'แพ็กเกจสำหรับร้านอาหาร'}
+              </div>
+
+              <!-- Price Box -->
+              <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:1.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+                  <span style="font-size:0.82rem; color:var(--text-muted);">รายเดือน:</span>
+                  <div>
+                    <span style="font-size:1.4rem; font-weight:800; color:#fb923c; font-family:var(--font-en);">฿${parseFloat(p.price_monthly).toLocaleString()}</span>
+                    <span style="font-size:0.8rem; color:var(--text-muted);"> / เดือน</span>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px dashed rgba(255,255,255,0.08); padding-top:4px;">
+                  <span style="font-size:0.82rem; color:var(--text-muted);">รายปี (เฉลี่ย):</span>
+                  <div>
+                    <span style="font-size:1.15rem; font-weight:700; color:#34d399; font-family:var(--font-en);">฿${parseFloat(p.price_yearly || 0).toLocaleString()}</span>
+                    <span style="font-size:0.78rem; color:var(--text-muted);"> / ด.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Feature List -->
+              <div style="margin-bottom:1.5rem;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">รายการฟังก์ชันในแพ็กเกจ:</div>
+                <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px; font-size:0.85rem;">
+                  ${features.map(f => `
+                    <li style="display:flex; align-items:flex-start; gap:8px; color:var(--text-main); line-height:1.4;">
+                      <span style="color:#10b981; font-weight:700;">✓</span>
+                      <span>${f}</span>
+                    </li>
+                  `).join('')}
+                  ${disabledFeatures.map(df => `
+                    <li style="display:flex; align-items:flex-start; gap:8px; color:var(--text-dim); line-height:1.4; text-decoration:line-through;">
+                      <span style="color:var(--text-dim); margin-right:2px;">✕</span>
+                      <span>${df}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; gap:8px; padding-top:12px; border-top:1px solid var(--border-glass);">
+              <button class="btn btn-primary" onclick="openEditPlanModal(${p.id})" style="flex:1; padding:10px; font-weight:700;">
+                ✏️ แก้ไขแพ็กเกจนี้
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openAddPlanModal() {
+      document.getElementById('plan-modal-title').innerText = '✨ เพิ่มแพ็กเกจใหม่';
+      document.getElementById('plan-modal-subtitle').innerText = 'กำหนดราคาและฟังก์ชันการใช้งานของแพ็กเกจใหม่';
+      document.getElementById('edit-plan-id').value = '';
+      document.getElementById('edit-plan-code').value = '';
+      document.getElementById('edit-plan-code').disabled = false;
+      document.getElementById('edit-plan-name').value = '';
+      document.getElementById('edit-plan-subtitle').value = '';
+      document.getElementById('edit-plan-monthly-price').value = '';
+      document.getElementById('edit-plan-yearly-price').value = '';
+      document.getElementById('edit-plan-badge').value = '';
+      document.getElementById('edit-plan-sort-order').value = (globalPlansData.length + 1) * 10;
+      document.getElementById('edit-plan-features').value = '';
+      document.getElementById('edit-plan-disabled-features').value = '';
+      document.getElementById('edit-plan-featured').checked = false;
+      document.getElementById('edit-plan-active').checked = true;
+      document.getElementById('edit-plan-del-btn').style.display = 'none';
+
+      document.getElementById('plan-modal').classList.add('active');
+    }
+
+    function openEditPlanModal(planId) {
+      const plan = globalPlansData.find(p => p.id === planId);
+      if (!plan) return;
+
+      document.getElementById('plan-modal-title').innerText = `✏️ แก้ไขแพ็กเกจ: ${plan.name}`;
+      document.getElementById('plan-modal-subtitle').innerText = `ปรับแต่งราคาและฟังก์ชันการใช้งานของแพ็กเกจ ${plan.name} (${plan.code})`;
+      document.getElementById('edit-plan-id').value = plan.id;
+      document.getElementById('edit-plan-code').value = plan.code || '';
+      document.getElementById('edit-plan-code').disabled = true;
+      document.getElementById('edit-plan-name').value = plan.name || '';
+      document.getElementById('edit-plan-subtitle').value = plan.subtitle || '';
+      document.getElementById('edit-plan-monthly-price').value = plan.price_monthly !== null ? plan.price_monthly : '';
+      document.getElementById('edit-plan-yearly-price').value = plan.price_yearly !== null ? plan.price_yearly : '';
+      document.getElementById('edit-plan-badge').value = plan.badge_text || '';
+      document.getElementById('edit-plan-sort-order').value = plan.sort_order || 1;
+
+      const features = Array.isArray(plan.features) ? plan.features : (typeof plan.features === 'string' ? JSON.parse(plan.features || '[]') : []);
+      const disabledFeatures = Array.isArray(plan.disabled_features) ? plan.disabled_features : (typeof plan.disabled_features === 'string' ? JSON.parse(plan.disabled_features || '[]') : []);
+
+      document.getElementById('edit-plan-features').value = features.join('\n');
+      document.getElementById('edit-plan-disabled-features').value = disabledFeatures.join('\n');
+      document.getElementById('edit-plan-featured').checked = !!plan.is_featured;
+      document.getElementById('edit-plan-active').checked = !!plan.is_active;
+
+      document.getElementById('edit-plan-del-btn').style.display = 'inline-block';
+      document.getElementById('plan-modal').classList.add('active');
+    }
+
+    async function submitPlanForm(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('edit-plan-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '⏳ กำลังบันทึกข้อมูล...';
+
+      try {
+        const planId = document.getElementById('edit-plan-id').value;
+        const featuresText = document.getElementById('edit-plan-features').value;
+        const disabledFeaturesText = document.getElementById('edit-plan-disabled-features').value;
+
+        const payload = {
+          code: document.getElementById('edit-plan-code').value.trim(),
+          name: document.getElementById('edit-plan-name').value.trim(),
+          subtitle: document.getElementById('edit-plan-subtitle').value.trim(),
+          price_monthly: parseFloat(document.getElementById('edit-plan-monthly-price').value || 0),
+          price_yearly: parseFloat(document.getElementById('edit-plan-yearly-price').value || 0),
+          badge_text: document.getElementById('edit-plan-badge').value.trim() || null,
+          sort_order: parseInt(document.getElementById('edit-plan-sort-order').value || 0, 10),
+          features: featuresText.split('\n').map(s => s.trim()).filter(Boolean),
+          disabled_features: disabledFeaturesText.split('\n').map(s => s.trim()).filter(Boolean),
+          is_featured: document.getElementById('edit-plan-featured').checked,
+          is_active: document.getElementById('edit-plan-active').checked,
+        };
+
+        const isUpdate = Boolean(planId);
+        const url = isUpdate ? `/api/platform/admin/plans/${planId}` : '/api/platform/admin/plans';
+        const method = isUpdate ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast(data.message || 'บันทึกข้อมูลแพ็กเกจเรียบร้อยแล้ว ✨', 'success');
+          document.getElementById('plan-modal').classList.remove('active');
+          loadAdminPlans();
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'danger');
+        }
+      } catch (err) {
+        console.error('Error saving plan:', err);
+        App.toast('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'danger');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = '💾 บันทึกข้อมูลแพ็กเกจ';
+      }
+    }
+
+    function deleteCurrentPlan() {
+      const planId = parseInt(document.getElementById('edit-plan-id').value, 10);
+      const planName = document.getElementById('edit-plan-name').value;
+      if (!planId) return;
+      deletePlan(planId, planName);
+    }
+
+    async function deletePlan(planId, planName) {
+      if (!confirm(`คุณต้องการลบแพ็กเกจ "${planName || 'นี้'}" ออกจากระบบใช่หรือไม่?`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/platform/admin/plans/${planId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast(data.message || 'ลบแพ็กเกจเรียบร้อยแล้ว', 'success');
+          document.getElementById('plan-modal').classList.remove('active');
+          loadAdminPlans();
+        } else {
+          App.toast(data.message || 'ไม่สามารถลบแพ็กเกจได้', 'danger');
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการลบแพ็กเกจ', 'danger');
+      }
+    }
+
+    loadPlatformData();
+  </script>
+</body>
+
+</html>
