@@ -2083,7 +2083,7 @@
       try {
         const res = await fetch('/api/auth/me', { headers: getAuthHeaders() });
         if (res.status === 401 || res.status === 403) {
-          window.location.href = '/login.html';
+          window.location.href = '/?modal=login';
           return false;
         }
         const data = await res.json();

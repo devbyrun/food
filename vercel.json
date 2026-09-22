@@ -15,15 +15,23 @@
     },
     {
       "source": "/login",
-      "destination": "/login.html"
+      "destination": "/index.html?modal=login"
     },
     {
       "source": "/register",
-      "destination": "/register.html"
+      "destination": "/index.html?modal=register"
     },
     {
       "source": "/signup",
-      "destination": "/register.html"
+      "destination": "/index.html?modal=register"
+    },
+    {
+      "source": "/lineliff",
+      "destination": "/lineliff.html"
+    },
+    {
+      "source": "/liff",
+      "destination": "/lineliff.html"
     },
     {
       "source": "/logintest",

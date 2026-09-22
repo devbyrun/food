@@ -1194,7 +1194,7 @@
         const res = await fetch('/api/platform/overview', { headers: getAuthHeaders() });
         if (res.status === 401 || res.status === 403) {
           // Check if session cookie exists or prompt login
-          window.location.href = '/login.html';
+          window.location.href = '/?modal=login';
           return;
         }
 

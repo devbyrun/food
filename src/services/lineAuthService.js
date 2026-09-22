@@ -13,6 +13,7 @@ function getLineCredentials() {
     channelId: process.env.LINE_CHANNEL_ID || '',
     channelSecret: process.env.LINE_CHANNEL_SECRET || '',
     callbackUrl: process.env.LINE_CALLBACK_URL || '',
+    liffId: process.env.LINE_LIFF_ID || '',
   };
 }
 
@@ -23,15 +24,21 @@ function isLineConfigured() {
 
 function getCallbackUrl(req, customRedirect) {
   if (customRedirect) return customRedirect;
-  const { callbackUrl } = getLineCredentials();
-  if (callbackUrl) return callbackUrl;
 
   if (req) {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    return `${protocol}://${host}/api/auth/line/callback`;
+    const host = req.headers['x-forwarded-host'] || req.get('host') || '';
+    const protocol = req.headers['x-forwarded-proto'] || (host.includes('localhost') ? 'http' : 'https');
+    if (host.includes('localhost') || host.includes('127.0.0.1')) {
+      return `http://${host}/api/auth/line/callback`;
+    }
+    if (host) {
+      return `${protocol}://${host}/api/auth/line/callback`;
+    }
   }
-  return 'http://localhost:3000/api/auth/line/callback';
+
+  const { callbackUrl } = getLineCredentials();
+  if (callbackUrl) return callbackUrl;
+  return 'https://food.rundev.site/api/auth/line/callback';
 }
 
 function getAuthorizationUrl(req, state = 'foodpos_state', customRedirect = '') {

@@ -4,11 +4,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Food POS </title>
+  <title>QR Food POS - ระบบสั่งอาหาร QR Code, KDS & POS</title>
   <meta name="description"
     content="ระบบสั่งอาหารตามโต๊ะผ่าน QR Code, จอครัว KDS และระบบคิดเงิน POS เชื่อมต่อ Telegram Bot ทดลองใช้งานฟรี 30 วัน ราคารายเดือนสุดคุ้ม">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" type="image/png" href="assets/img/logo.png">
+  <style>
+    /* ======================================================== */
+    /* AUTH MODAL POPUP & SEGMENTED SWITCHER                    */
+    /* ======================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 1rem;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-sheet {
+      background: #111827;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(234, 88, 12, 0.15);
+      width: 100%;
+      max-width: 480px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 1.75rem 1.6rem;
+      position: relative;
+      transform: scale(0.93) translateY(12px);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.active .modal-sheet {
+      transform: scale(1) translateY(0);
+    }
+
+    .auth-switcher-container {
+      margin-bottom: 1.35rem;
+    }
+
+    .auth-switcher {
+      display: flex;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .auth-switch-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .auth-switch-btn:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .auth-switch-btn.active {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.45);
+      transform: scale(1.01);
+    }
+
+    .modal-form-control {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(0, 0, 0, 0.38);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .modal-form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.25);
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .plan-card-option {
+      border: 1px solid var(--border-glass);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .plan-card-option:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(234, 88, 12, 0.4);
+    }
+
+    .plan-card-option.selected {
+      background: rgba(234, 88, 12, 0.12);
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(234, 88, 12, 0.25);
+    }
+
+    .plan-radio-circle {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .plan-card-option.selected .plan-radio-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    .plan-card-option.selected .plan-radio-circle::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .modal-tab-pane {
+      animation: fadeInModalTab 0.22s ease-out;
+    }
+
+    @keyframes fadeInModalTab {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -47,9 +219,12 @@
       </nav>
 
       <div style="display: flex; gap: 10px; align-items: center;">
-        <a href="/login.html" class="btn btn-secondary btn-sm">🔐 เข้าสู่ระบบร้านค้า</a>
-        <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm nav-trial-btn hide-on-mobile" style="text-decoration: none;">✨
-          ทดลองใช้ฟรี 30 วัน</a>
+        <button type="button" onclick="openAuthModal('login')" class="btn btn-secondary btn-sm" style="cursor: pointer;">
+          🔐 เข้าสู่ระบบร้านค้า
+        </button>
+        <button type="button" onclick="openAuthModal('register')" class="btn btn-primary btn-sm nav-trial-btn hide-on-mobile" style="cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px;">
+          ✨ ทดลองใช้ฟรี 30 วัน
+        </button>
       </div>
     </div>
   </header>
@@ -62,7 +237,7 @@
       <div class="hero-trial-badge">
         <div class="hero-badge-row1">
           <span style="font-size: 1rem;">🎁</span>
-          <span>โปรโมชันพิเศษ: สมัครวันนี้</span>
+          <span>โปรโมชันพิเศษ: แอดไลน์รับสิทธิ์</span>
         </div>
         <div class="hero-badge-row2">
           <b>ทดลองใช้งานฟรี 30 วันเต็ม</b> ไม่ต้องผูกบัตรเครดิต
@@ -87,10 +262,10 @@
 
       <!-- Primary Action Buttons -->
       <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem;">
-        <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer" class="btn btn-primary"
-          style="padding: 16px 36px; font-size: 1.1rem; box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4); text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+        <button type="button" onclick="openAuthModal('register')" class="btn btn-primary"
+          style="padding: 16px 36px; font-size: 1.1rem; box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4); border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
           🚀 เริ่มต้นใช้งานฟรี 30 วัน (Free Trial)
-        </a>
+        </button>
         <a href="/test.html" class="btn btn-secondary" style="padding: 16px 28px; font-size: 1.1rem;">
           📱 ทดสอบระบบสด (Live Demo)
         </a>
@@ -329,8 +504,8 @@
               <li><span class="feature-check">✓</span> ทีมงานดูแลช่วยเหลือทาง Line/โทร</li>
             </ul>
 
-            <button onclick="openTrialModal('Professional')" class="btn btn-primary btn-block"
-              style="padding: 14px; font-weight: 700; font-size: 1.05rem;">
+            <button type="button" onclick="openAuthModal('register', 'Professional')" class="btn btn-primary btn-block"
+              style="padding: 14px; font-weight: 700; font-size: 1.05rem; cursor: pointer; border: none; width: 100%;">
               🔥 เริ่มทดลองใช้ฟรี 30 วัน
             </button>
           </div>
@@ -358,8 +533,8 @@
               <li><span class="feature-check">✓</span> บริการให้คำปรึกษา & ซัพพอร์ต 24/7</li>
             </ul>
 
-            <button onclick="openTrialModal('Enterprise')" class="btn btn-secondary btn-block"
-              style="padding: 14px; font-weight: 600;">
+            <button type="button" onclick="openAuthModal('register', 'Enterprise')" class="btn btn-secondary btn-block"
+              style="padding: 14px; font-weight: 600; cursor: pointer; border: none; width: 100%;">
               ทดลองใช้ฟรี 30 วัน
             </button>
           </div>
@@ -390,129 +565,128 @@
 
       <div style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: ทดลองใช้ฟรี 30 วัน
-            ต้องผูกบัตรเครดิตไหม?</h4>
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: ทดลองใช้ฟรี 30 วัน ต้องผูกบัตรเครดิตไหม?</h4>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            <b>ไม่ต้องผูกบัตรเครดิตครับ!</b> คุณสามารถสมัครกรอกชื่อร้านแล้วเริ่มพิมพ์ QR Code ใช้งานได้ทันที ครบ 30
-            วันแล้วค่อยตัดสินใจชำระเงินต่ออายุการใช้งาน
+            <b>ไม่ต้องผูกบัตรเครดิตใดๆ ทั้งสิ้นครับ!</b> คุณสามารถแอด LINE Official Account และเชื่อมต่อ LINE เพื่อเปิดร้านทดลองใช้งานฟังก์ชันทุกอย่างได้ทันที 30 วัน เมื่อครบกำหนดหากไม่ต้องการใช้งานต่อ ระบบจะไม่มีการตัดเงินใดๆ
           </p>
         </div>
 
         <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: ต้องซื้อเครื่อง POS หรือฮาร์ดแวร์แพงๆ
-            เพิ่มหรือไม่?</h4>
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: อุปกรณ์ที่ต้องใช้มีอะไรบ้าง? ต้องซื้อเครื่อง POS แพงๆ ไหม?</h4>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            <b>ไม่จำเป็นเลยครับ!</b> ระบบทำงานบน Cloud 100% ครัวสามารถใช้แท็บเล็ต/มือถือธรรมดาเปิดดู KDS
-            หรือรับแจ้งเตือนผ่าน Telegram ได้เลย ส่วนแคชเชียร์ใช้โน้ตบุ๊ก มือถือ หรือแท็บเล็ตเครื่องไหนก็ได้
+            ไม่ต้องซื้อเครื่อง POS ราคาแพงเลยครับ! คุณสามารถใช้ <b>มือถือ, แท็บเล็ต, iPad หรือคอมพิวเตอร์</b> ที่มีอยู่แล้วเปิดผ่านเว็บเบราว์เซอร์ได้ทันที ส่วนลูกค้าเพียงใช้สมาร์ทโฟนสแกน QR Code เพื่อสั่งอาหาร
           </p>
         </div>
 
         <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q:
-            ลูกค้าจำเป็นต้องดาวน์โหลดแอปพลิเคชันหรือไม่?</h4>
+          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: เชื่อมต่อการแจ้งเตือนกับ LINE หรือ Telegram ได้อย่างไร?</h4>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            <b>ไม่ต้องโหลดแอปครับ!</b> ลูกค้าเปิดกล้องมือถือสแกน QR Code บนโต๊ะ จะเปิดหน้าเว็บสั่งอาหารได้ทันที สั่งง่าย
-            รวดเร็ว และรองรับสมาร์ตโฟนทุกรุ่น
-          </p>
-        </div>
-
-        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: หลังหมดช่วงทดลอง 30 วัน
-            ข้อมูลร้านและเมนูจะหายไหม?</h4>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            ข้อมูลเมนู ผังโต๊ะ และสถิติทั้งหมดจะยังคงปลอดภัยอยู่ในระบบ เมื่อชำระค่าบริการรายเดือน
-            ระบบจะต่ออายุและเปิดให้ใช้งานต่อเนื่องได้ทันทีโดยไม่ต้องตั้งค่าใหม่
+            ในระบบหลังบ้านมีเมนูตั้งค่า Bot Token ทั้ง Telegram และ LINE Notify ให้คุณนำไปใส่ได้ง่ายๆ ภายใน 1 นาที พร้อมคู่มือและทีมงานคอยช่วยเหลือ
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Banner -->
-  <section
-    style="padding: 4rem 0; background: linear-gradient(135deg, rgba(234, 88, 12, 0.25) 0%, rgba(139, 92, 246, 0.2) 100%); text-align: center; border-top: 1px solid var(--border-glass);">
-    <div class="container" style="max-width: 760px;">
+  <!-- Final CTA Section -->
+  <section style="padding: 5rem 0; background: radial-gradient(circle at center, rgba(234, 88, 12, 0.15) 0%, transparent 70%);">
+    <div class="container" style="text-align: center; max-width: 700px;">
       <h2 style="font-size: 2.4rem; font-weight: 800; color: white; margin-bottom: 1rem;">
         พร้อมยกระดับร้านอาหารของคุณแล้วหรือยัง?
       </h2>
-      <p style="color: var(--text-main); font-size: 1.15rem; margin-bottom: 2rem;">
-        เริ่มเปิดใช้งานร้านอาหารของคุณวันนี้ ทดลองใช้ฟรี 30 วันเต็ม เพิ่มยอดขาย ลดต้นทุน และสร้างความประทับใจให้ลูกค้า
+      <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">
+        เริ่มต้นใช้งานระบบ QR Food วันนี้ ทดลองใช้ฟรี 30 วันเต็ม ไม่ต้องผูกบัตรเครดิต
       </p>
-      <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer" class="btn btn-primary"
-        style="padding: 16px 40px; font-size: 1.15rem; font-weight: 700; box-shadow: 0 10px 30px rgba(234, 88, 12, 0.5); text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-        🎉 สมัครเปิดร้านทดลองใช้ฟรี 30 วัน ทันที
-      </a>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button onclick="openAuthModal('register')" class="btn btn-primary btn-lg" style="padding: 15px 32px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          ✨ เริ่มต้นทดลองใช้ฟรี 30 วัน
+        </button>
+        <button onclick="openAuthModal('login')" class="btn btn-secondary btn-lg" style="padding: 15px 28px; font-size: 1.1rem; cursor: pointer;">
+          🔐 เข้าสู่ระบบร้านค้า
+        </button>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer
-    style="border-top: 1px solid var(--border-glass); padding: 2.5rem 0; text-align: center; color: var(--text-dim); font-size: 0.9rem;">
+  <footer style="padding: 2.5rem 0; border-top: 1px solid var(--border-glass); background: rgba(0,0,0,0.4); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
     <div class="container">
-      <div
-        style="display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-weight: 700; color: white; font-size: 1.15rem; margin-bottom: 6px;">
-        <img src="assets/img/logo.png" alt="Logo"
-          style="height: 28px; width: 28px; object-fit: contain; border-radius: 6px;">
-        <span>QR Food POS</span>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+        <img src="/assets/img/logo.png" alt="Logo" style="height: 26px; border-radius: 6px;">
+        <span style="font-weight: 700; color: white; font-size: 1rem;">QR Food POS</span>
       </div>
-
-      <div style="margin: 8px 0 12px;">
-        <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer"
-          style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.88rem; text-decoration: none; padding: 6px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); transition: all 0.2s;"
-          onmouseover="this.style.color='white'; this.style.borderColor='rgba(255,255,255,0.3)'; this.style.background='rgba(255,255,255,0.1)';"
-          onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-glass)'; this.style.background='rgba(255, 255, 255, 0.05)';">
-          <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: #06C755; color: white; font-size: 9px; font-weight: 800;">L</span>
-          <span>💬 ติดต่อผู้พัฒนา</span>
-        </a>
-      </div>
-
-      <p
-        style="margin: 6px auto 10px auto; color: var(--text-dim); font-size: 0.88rem; max-width: 620px; line-height: 1.6;">
-        ระบบสั่งอาหารตามโต๊ะผ่าน QR Code, จอครัว KDS, และระบบคิดเงิน POS พร้อมระบบแจ้งเตือน Telegram Bot</p>
-      <div style="font-size: 0.82rem; color: var(--text-muted);">by <a href="https://rundev.site" target="_blank"
-          rel="noopener noreferrer"
-          style="color: #fb923c; text-decoration: none; font-weight: 500; transition: all 0.2s;"
-          onmouseover="this.style.color='#fdba74'; this.style.textDecoration='underline';"
-          onmouseout="this.style.color='#fb923c'; this.style.textDecoration='none';">rundev</a></div>
+      <p>© 2026 QR Food POS Platform. สงวนลิขสิทธิ์ทุกประการ</p>
     </div>
   </footer>
 
-  <!-- 30-Day Free Trial Signup Modal (with LINE Login) -->
-  <div id="trial-modal" class="modal-backdrop" onclick="this.classList.remove('active')">
-    <div class="modal-sheet" style="max-width: 520px;" onclick="event.stopPropagation()">
+  <!-- ======================================================== -->
+  <!-- AUTH MODAL POPUP: [ 🔐 เข้าสู่ระบบ | 🎁 ลงทะเบียน (ฟรี 30 วัน) ] -->
+  <!-- ======================================================== -->
+  <div id="auth-modal" class="modal-backdrop" onclick="handleAuthModalBackdropClick(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
       
-      <!-- Modal Header -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
-        <div>
-          <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(6, 199, 85, 0.15); border: 1px solid rgba(6, 199, 85, 0.3); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; color: #4ade80; font-weight: 600; margin-bottom: 8px;">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #06C755;"></span>
-            LINE Authentication Verified
+      <!-- Close Button -->
+      <button type="button" onclick="closeAuthModal()" title="ปิด (ESC)"
+        style="position: absolute; top: 14px; right: 14px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-glass); color: var(--text-muted); font-size: 1.1rem; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+        onmouseover="this.style.background='rgba(239,68,68,0.2)';this.style.color='white';this.style.borderColor='#ef4444';"
+        onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='var(--text-muted)';this.style.borderColor='var(--border-glass)';">
+        ✕
+      </button>
+
+      <!-- Segmented Switcher Pill Control -->
+      <div class="auth-switcher-container" style="padding-right: 36px; margin-bottom: 1.25rem;">
+        <div class="auth-switcher">
+          <button type="button" id="modal-tab-btn-login" onclick="switchAuthTab('login')" class="auth-switch-btn active">
+            <span>🔐</span>
+            <span>เข้าสู่ระบบ</span>
+          </button>
+          <button type="button" id="modal-tab-btn-register" onclick="switchAuthTab('register')" class="auth-switch-btn">
+            <span>🎁</span>
+            <span>ลงทะเบียน (ฟรี 30 วัน)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- TAB 1: LOGIN SECTION                                   -->
+      <!-- ====================================================== -->
+      <div id="modal-tab-content-login" class="modal-tab-pane">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 14px; margin-bottom: 0.5rem; box-shadow: var(--shadow-glow); overflow: hidden; padding: 4px;">
+            <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
           </div>
-          <h2 id="trial-modal-title" style="font-size: 1.35rem; font-weight: 700; color: white;">🎁 เริ่มต้นใช้งานฟรี 30 วัน</h2>
-          <p id="trial-modal-subtitle" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">เข้าสู่ระบบด้วย LINE เพื่อเปิดร้านและรับสิทธิ์ทดลองใช้ฟรีทุกฟังก์ชัน</p>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">เข้าสู่ระบบจัดการร้าน</h2>
+          <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 2px;">Store Management & Platform Admin</p>
         </div>
-        <button onclick="document.getElementById('trial-modal').classList.remove('active')"
-          style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; padding: 4px;">✕</button>
-      </div>
 
-      <!-- Step Progress Indicator -->
-      <div class="trial-steps-bar">
-        <div id="step-indicator-1" class="trial-step-item active">
-          <span class="trial-step-num">1</span>
-          <span>เข้าสู่ระบบ LINE</span>
-        </div>
-        <div id="step-divider" class="trial-step-divider"></div>
-        <div id="step-indicator-2" class="trial-step-item">
-          <span class="trial-step-num">2</span>
-          <span>ตั้งชื่อร้านอาหาร</span>
-        </div>
-      </div>
+        <!-- Login Form -->
+        <form id="modal-login-form" onsubmit="doModalLogin(event)">
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">ชื่อผู้ใช้ (Username)</label>
+            <input type="text" id="modal-username" class="modal-form-control" required placeholder="เช่น manager, staff, admin" autocomplete="username">
+          </div>
 
-      <!-- STEP 1: LINE Authentication -->
-      <div id="trial-step-1">
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-          <button type="button" id="btn-line-main-login" onclick="handleLineAuthClick()" class="btn-line btn-block"
-            style="padding: 15px 20px; font-size: 1.05rem; width: 100%;">
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">รหัสผ่าน (Password)</label>
+            <input type="password" id="modal-password" class="modal-form-control" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+
+          <button type="submit" id="modal-btn-login-submit" class="btn btn-primary btn-block" style="padding: 12px; font-size: 0.95rem; font-weight: 700;">
+            เข้าสู่ระบบ 🚀
+          </button>
+        </form>
+
+        <!-- Divider & LINE Login -->
+        <div style="margin-top: 1.15rem; text-align: center;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+            <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+            <span style="font-size: 0.78rem; color: var(--text-dim);">หรือ</span>
+            <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+          </div>
+
+          <button type="button" id="modal-btn-line-login" onclick="loginWithLineFromModal()" class="btn-line btn-block"
+            style="padding: 12px 14px; font-size: 0.92rem; width: 100%;">
             <span class="line-icon-wrap">
               <svg viewBox="0 0 24 24" fill="#06C755">
                 <path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2zm-4.7 11.23h-1.5a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.5c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm2.84 0h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm4.84-2.83l-1.92-2.58h-.02v2.58c0 .36-.29.65-.65.65h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.17l1.92 2.58h.02V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65h-.54zm4.12 2.83h-2.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h2.92c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65z"/>
@@ -520,117 +694,131 @@
             </span>
             <span>เข้าสู่ระบบด้วย LINE (Log in with LINE)</span>
           </button>
-          <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 8px;">
-            🔒 เชื่อมต่อปลอดภัย • เข้าสู่ระบบทันใจ ไม่ต้องจำรหัสผ่าน
-          </div>
-        </div>
 
-        <!-- LINE Benefits List -->
-        <div class="line-benefit-grid">
-          <div class="line-benefit-item">
-            <div class="line-benefit-icon" style="background: rgba(6, 199, 85, 0.15); color: #06C755;">⚡</div>
-            <div>
-              <div style="font-weight: 600; color: white;">สะดวก รวดเร็ว 1-Click Login</div>
-              <div style="font-size: 0.76rem; color: var(--text-muted);">เข้าสู่ระบบหลังบ้านได้ทันทีผ่านมือถือหรือคอม</div>
-            </div>
-          </div>
-          <div class="line-benefit-item">
-            <div class="line-benefit-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">🎁</div>
-            <div>
-              <div style="font-weight: 600; color: white;">ทดลองใช้งานฟรี 30 วันเต็ม</div>
-              <div style="font-size: 0.76rem; color: var(--text-muted);">ปลดล็อกทุกฟังก์ชัน KDS, แคชเชียร์ POS, ผังโต๊ะ</div>
-            </div>
-          </div>
-          <div class="line-benefit-item">
-            <div class="line-benefit-icon" style="background: rgba(249, 115, 22, 0.15); color: #fb923c;">💬</div>
-            <div>
-              <div style="font-weight: 600; color: white;">ทีมงานซัพพอร์ตใกล้ชิด</div>
-              <div style="font-size: 0.76rem; color: var(--text-muted);">ให้คำปรึกษาและช่วยตั้งค่าระบบผ่าน LINE ทันใจ</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick LINE Connect Simulator for instant testing -->
-        <div style="border-top: 1px solid var(--border-glass); margin-top: 1.25rem; padding-top: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 0.78rem; color: var(--text-dim); font-weight: 500;">⚡ ทดลองจำลองเข้าสู่ระบบ LINE (Fast Connect):</span>
-          </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem; padding: 6px 10px; display: inline-flex; align-items: center; gap: 6px;"
-              onclick="fastConnectLine('U_somchai_food', 'คุณสมชาย (ร้านส้มตำ)', '👨‍🍳')">
-              <span>👨‍🍳</span> คุณสมชาย (ร้านส้มตำ)
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem; padding: 6px 10px; display: inline-flex; align-items: center; gap: 6px;"
-              onclick="fastConnectLine('U_jaeporn_cafe', 'เจ๊พร คาเฟ่ & เบเกอรี่', '👩‍🍳')">
-              <span>👩‍🍳</span> เจ๊พร คาเฟ่ & เบเกอรี่
+          <div style="margin-top: 14px; text-align: center;">
+            <button type="button" onclick="switchAuthTab('register')" style="background: none; border: none; color: #4ade80; font-size: 0.82rem; cursor: pointer; font-weight: 500;">
+              ✨ ยังไม่มีร้านค้า? คลิกเพื่อดูสิทธิ์ลงทะเบียนฟรี 30 วัน →
             </button>
           </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 1.25rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
-          <a href="/login.html" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">
-            มีบัญชี Username / Password เดิมแล้ว? <span style="color: var(--primary); font-weight: 600;">เข้าสู่ระบบที่นี่ →</span>
-          </a>
         </div>
       </div>
 
-      <!-- STEP 2: Store Setup & Confirmation -->
-      <div id="trial-step-2" style="display: none;">
+      <!-- ====================================================== -->
+      <!-- TAB 2: REGISTER SECTION                                -->
+      <!-- ====================================================== -->
+      <div id="modal-tab-content-register" class="modal-tab-pane" style="display: none;">
         
-        <!-- Connected LINE User Chip -->
-        <div class="line-user-chip">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <img id="connected-line-avatar" src="/assets/img/logo.png" alt="LINE Avatar" class="line-user-avatar">
-            <div>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span id="connected-line-name" style="font-weight: 700; color: white; font-size: 0.95rem;">ผู้ใช้ LINE</span>
-                <span style="font-size: 0.7rem; background: #06C755; color: white; padding: 1px 6px; border-radius: 10px; font-weight: 600;">LINE ID</span>
-              </div>
-              <div style="font-size: 0.75rem; color: #86efac;">✓ เชื่อมต่อบัญชี LINE เรียบร้อยแล้ว</div>
+        <!-- Step 1: LINE Sign Up Prompt -->
+        <div id="modal-reg-step-1">
+          <div style="text-align: center; margin-bottom: 1.15rem;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(6, 199, 85, 0.15); border: 1px solid rgba(6, 199, 85, 0.3); padding: 3px 10px; border-radius: 20px; font-size: 0.76rem; color: #4ade80; font-weight: 600; margin-bottom: 6px;">
+              <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #06C755;"></span>
+              ทดลองใช้งานฟรี 30 วันเต็ม
             </div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: white;">ลงทะเบียนเปิดร้านค้าใหม่</h2>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">สิทธิ์ฟรี 30 วัน เฉพาะผู้ที่แอด LINE Official Account</p>
           </div>
-          <button type="button" onclick="switchTrialStep(1)" style="background: none; border: 1px solid var(--border-glass); color: var(--text-muted); font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; cursor: pointer;">
-            เปลี่ยนบัญชี
-          </button>
+
+          <!-- LINE OA CTA Banner Box -->
+          <div style="background: linear-gradient(135deg, rgba(6, 199, 85, 0.14), rgba(6, 199, 85, 0.05)); border: 1px solid rgba(6, 199, 85, 0.35); border-radius: 16px; padding: 1.15rem 1rem; text-align: center; margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(6, 199, 85, 0.1);">
+            <div style="font-size: 1.8rem; margin-bottom: 4px;">📲</div>
+            <div style="font-weight: 800; color: white; font-size: 0.98rem; margin-bottom: 4px;">
+              แอด LINE เพื่อรับสิทธิ์ทดลองใช้ฟรี 30 วัน
+            </div>
+            <p style="font-size: 0.8rem; color: #86efac; line-height: 1.4; margin-bottom: 12px;">
+              กดแอด LINE เพื่อรับลิงก์สร้างร้านค้าและคู่มือเริ่มใช้งานทันที
+            </p>
+            
+            <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer" class="btn-line btn-block" style="padding: 13px 16px; font-size: 0.95rem; font-weight: 700; text-decoration: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(6, 199, 85, 0.35);">
+              <span class="line-icon-wrap"><svg viewBox="0 0 24 24" fill="#06C755"><path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2z"/></svg></span>
+              <span>🟢 แอด LINE เพื่อรับสิทธิ์ลงทะเบียน</span>
+            </a>
+          </div>
+
+          <!-- Secondary Direct Line Auth Button -->
+          <div style="border-top: 1px solid var(--border-glass); padding-top: 0.9rem; text-align: center;">
+            <div style="font-size: 0.76rem; color: var(--text-dim); margin-bottom: 6px;">
+              หรือเข้าสู่ระบบด้วย LINE เพื่อดำเนินการเปิดร้านทันที:
+            </div>
+            <button type="button" id="modal-btn-reg-line-main" onclick="startLineRegistration()" class="btn btn-secondary btn-block"
+              style="padding: 11px 14px; font-size: 0.88rem; width: 100%; cursor: pointer;">
+              <span style="color: #06C755; margin-right: 6px;">●</span> เข้าสู่ระบบด้วย LINE เพื่อลงทะเบียนเปิดร้าน
+            </button>
+          </div>
+
+          <div style="margin-top: 12px; text-align: center;">
+            <button type="button" onclick="switchAuthTab('login')" style="background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer;">
+              มีบัญชีร้านค้าอยู่แล้ว? <span style="color: var(--primary); font-weight: 600;">เข้าสู่ระบบที่นี่ →</span>
+            </button>
+          </div>
         </div>
 
-        <form id="line-trial-form" onsubmit="submitLineTrialSignup(event)">
-          <div style="margin-bottom: 1rem;">
-            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เลือกแพ็กเกจที่ต้องการทดลอง</label>
-            <select id="trial-plan"
-              style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size:0.95rem;">
-              <option value="Professional" selected>Professional (฿490/เดือน - แนะนำ 🔥)</option>
-              <option value="Starter">Starter (฿290/เดือน - ร้านขนาดเล็ก)</option>
-              <option value="Enterprise">Enterprise / Buffet (฿990/เดือน - ครบวงจร)</option>
-            </select>
+        <!-- Step 2: Store Details Form (appears after LINE auth) -->
+        <div id="modal-reg-step-2" style="display: none;">
+          
+          <!-- Connected LINE Profile Chip -->
+          <div style="background: rgba(6, 199, 85, 0.1); border: 1px solid rgba(6, 199, 85, 0.25); border-radius: 12px; padding: 8px 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img id="modal-reg-user-avatar" src="/assets/img/logo.png" alt="Avatar" style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #06C755; object-fit: cover;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span id="modal-reg-user-name" style="font-weight: 700; color: white; font-size: 0.85rem;">ผู้ใช้ LINE</span>
+                  <span style="font-size: 0.65rem; background: #06C755; color: white; padding: 1px 5px; border-radius: 8px; font-weight: 600;">LINE</span>
+                </div>
+                <div style="font-size: 0.7rem; color: #86efac;">✓ บัญชียืนยันตัวตนแล้ว</div>
+              </div>
+            </div>
+            <button type="button" onclick="switchRegStep(1)" style="background: none; border: 1px solid var(--border-glass); color: var(--text-muted); font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; cursor: pointer;">
+              เปลี่ยน
+            </button>
           </div>
 
-          <div style="margin-bottom: 1rem;">
-            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">ชื่อร้านอาหารของคุณ *</label>
-            <input type="text" id="trial-store-name" required placeholder="เช่น ครัวคุณแม่ อาหารป่า & ซีฟู้ด"
-              style="width:100%; padding:11px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size: 0.95rem;">
-          </div>
+          <form id="modal-reg-form-step2" onsubmit="submitFinalStoreSignupModal(event)">
+            
+            <!-- Plan Selection -->
+            <div style="margin-bottom: 0.9rem;">
+              <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 5px;">เลือกแพ็กเกจทดลองใช้</label>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div class="plan-card-option selected" onclick="selectRegPlan('Professional', this)">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="plan-radio-circle"></div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: white;">Professional <span style="font-size: 0.7rem; color: #fb923c;">฿490/ด. 🔥</span></div>
+                  </div>
+                  <span style="font-size: 0.7rem; color: #4ade80;">ฟรี 30 วัน</span>
+                </div>
+                <div class="plan-card-option" onclick="selectRegPlan('Starter', this)">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="plan-radio-circle"></div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: white;">Starter <span style="font-size: 0.7rem; color: #38bdf8;">฿290/ด.</span></div>
+                  </div>
+                  <span style="font-size: 0.7rem; color: #4ade80;">ฟรี 30 วัน</span>
+                </div>
+              </div>
+              <input type="hidden" id="modal-reg-selected-plan" value="Professional">
+            </div>
 
-          <div style="margin-bottom: 1.25rem;">
-            <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">เบอร์โทรศัพท์ติดต่อ (ไม่บังคับ)</label>
-            <input type="tel" id="trial-phone" placeholder="08xxxxxxxx"
-              style="width:100%; padding:11px 14px; background:rgba(0,0,0,0.4); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size: 0.95rem;">
-          </div>
+            <!-- Store Name -->
+            <div style="margin-bottom: 0.9rem;">
+              <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">ชื่อร้านอาหารของคุณ *</label>
+              <input type="text" id="modal-reg-store-name" class="modal-form-control" required placeholder="เช่น ครัวคุณแม่ อาหารป่า & ซีฟู้ด">
+            </div>
 
-          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); padding: 12px; margin-bottom: 1.25rem; font-size: 0.85rem; color: #6ee7b7;">
-            ✨ ระบบจะสร้างโต๊ะจำลอง, เมนูตัวอย่าง และผังร้านค้าเริ่มต้นให้ทันที พร้อมพิมพ์ QR Code ใช้งานได้เลย!
-          </div>
+            <!-- Phone -->
+            <div style="margin-bottom: 1.15rem;">
+              <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">เบอร์โทรศัพท์ติดต่อ *</label>
+              <input type="tel" id="modal-reg-phone" class="modal-form-control" required placeholder="08xxxxxxxx">
+            </div>
 
-          <button type="submit" id="trial-submit-btn" class="btn btn-primary btn-block"
-            style="padding: 14px; font-size: 1.05rem; font-weight: 700;">
-            🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน
-          </button>
-        </form>
+            <button type="submit" id="modal-btn-submit-final-reg" class="btn btn-primary btn-block" style="padding: 12px; font-size: 0.95rem; font-weight: 700;">
+              🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน
+            </button>
+          </form>
+        </div>
+
       </div>
 
     </div>
   </div>
-
 
   <!-- Scroll To Top Floating Button -->
   <button id="scroll-to-top-btn" class="scroll-to-top-btn" onclick="scrollToTop()" title="ขึ้นบนสุด (Back to Top)"
@@ -660,9 +848,320 @@
         }
       }
     }, { passive: true });
+
     let currentCycle = 'monthly';
     let loadedPlans = [];
+    let currentModalLineUser = null;
 
+    // ========================================================
+    // AUTH MODAL POPUP CONTROLS & TAB SWITCHING
+    // ========================================================
+    function openLoginModal() {
+      openAuthModal('login');
+    }
+
+    function openAuthModal(tab = 'login', plan = 'Professional') {
+      const modal = document.getElementById('auth-modal');
+      if (!modal) return;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      switchAuthTab(tab);
+
+      if (tab === 'register' && plan) {
+        const planInput = document.getElementById('modal-reg-selected-plan');
+        if (planInput) planInput.value = plan;
+
+        document.querySelectorAll('#modal-reg-step-2 .plan-card-option').forEach(card => {
+          if (card.innerText.includes(plan)) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
+        });
+      }
+    }
+
+    function closeAuthModal() {
+      const modal = document.getElementById('auth-modal');
+      if (!modal) return;
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleAuthModalBackdropClick(e) {
+      if (e.target.id === 'auth-modal') {
+        closeAuthModal();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAuthModal();
+      }
+    });
+
+    function switchAuthTab(tab) {
+      const loginTabBtn = document.getElementById('modal-tab-btn-login');
+      const regTabBtn = document.getElementById('modal-tab-btn-register');
+      const loginContent = document.getElementById('modal-tab-content-login');
+      const regContent = document.getElementById('modal-tab-content-register');
+
+      if (tab === 'login') {
+        if (loginTabBtn) loginTabBtn.classList.add('active');
+        if (regTabBtn) regTabBtn.classList.remove('active');
+        if (loginContent) loginContent.style.display = 'block';
+        if (regContent) regContent.style.display = 'none';
+
+        setTimeout(() => {
+          const uInput = document.getElementById('modal-username');
+          if (uInput) uInput.focus();
+        }, 100);
+      } else {
+        if (regTabBtn) regTabBtn.classList.add('active');
+        if (loginTabBtn) loginTabBtn.classList.remove('active');
+        if (loginContent) loginContent.style.display = 'none';
+        if (regContent) regContent.style.display = 'block';
+      }
+    }
+
+    function switchRegStep(step) {
+      const step1 = document.getElementById('modal-reg-step-1');
+      const step2 = document.getElementById('modal-reg-step-2');
+      if (step === 1) {
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+      } else {
+        if (step1) step1.style.display = 'none';
+        if (step2) step2.style.display = 'block';
+        setTimeout(() => {
+          const input = document.getElementById('modal-reg-store-name');
+          if (input) input.focus();
+        }, 100);
+      }
+    }
+
+    function selectRegPlan(planName, element) {
+      document.querySelectorAll('#modal-reg-step-2 .plan-card-option').forEach(c => c.classList.remove('selected'));
+      element.classList.add('selected');
+      const planInput = document.getElementById('modal-reg-selected-plan');
+      if (planInput) planInput.value = planName;
+    }
+
+    // ========================================================
+    // AUTH LOGIC (LOGIN & REGISTRATION)
+    // ========================================================
+    async function doModalLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('modal-username').value.trim();
+      const p = document.getElementById('modal-password').value;
+      const btn = document.getElementById('modal-btn-login-submit');
+
+      btn.disabled = true;
+      btn.innerText = 'กำลังตรวจสอบ...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, password: p })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('food_token', data.token);
+          App.toast('เข้าสู่ระบบสำเร็จ กำลังนำทาง...', 'success');
+          setTimeout(() => {
+            window.location.href = data.redirectUrl || '/store.html';
+          }, 600);
+        } else {
+          App.toast(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'danger');
+          btn.disabled = false;
+          btn.innerText = 'เข้าสู่ระบบ 🚀';
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'danger');
+        btn.disabled = false;
+        btn.innerText = 'เข้าสู่ระบบ 🚀';
+      }
+    }
+
+    async function loginWithLineFromModal() {
+      const btn = document.getElementById('modal-btn-line-login');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="line-icon-wrap">⏳</span> กำลังเชื่อมต่อ LINE...';
+      }
+
+      try {
+        const configRes = await fetch('/api/auth/line/config');
+        const config = await configRes.json();
+
+        if (config.success && config.isConfigured) {
+          const urlRes = await fetch('/api/auth/line/auth-url?state=login');
+          const urlData = await urlRes.json();
+          if (urlData.success && urlData.authUrl) {
+            window.location.href = urlData.authUrl;
+            return;
+          }
+        }
+
+        // Fast Connect Prompt Fallback
+        const lineUserId = prompt('ระบุ LINE User ID เพื่อเข้าสู่ระบบ (เช่น U_somchai_food):', 'U_somchai_food');
+        if (!lineUserId) {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<span class="line-icon-wrap"><svg viewBox="0 0 24 24" fill="#06C755"><path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2z"/></svg></span><span>เข้าสู่ระบบด้วย LINE (Log in with LINE)</span>`;
+          }
+          return;
+        }
+
+        const res = await fetch('/api/auth/line/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            line_user_id: lineUserId,
+            displayName: 'ผู้ใช้ LINE',
+            pictureUrl: null,
+          })
+        });
+
+        const data = await res.json();
+        if (data.success && data.token) {
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('food_token', data.token);
+          App.toast('เข้าสู่ระบบสำเร็จ กำลังนำทาง...', 'success');
+          setTimeout(() => {
+            window.location.href = data.redirectUrl || '/store.html';
+          }, 600);
+        } else {
+          App.toast(data.message || 'ไม่พบบัญชีร้านค้านี้ในระบบ กรุณาแอด LINE เพื่อลงทะเบียน', 'warning');
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'danger');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span class="line-icon-wrap"><svg viewBox="0 0 24 24" fill="#06C755"><path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2z"/></svg></span><span>เข้าสู่ระบบด้วย LINE (Log in with LINE)</span>`;
+        }
+      }
+    }
+
+    async function startLineRegistration() {
+      const btn = document.getElementById('modal-btn-reg-line-main');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="line-icon-wrap">⏳</span> กำลังเชื่อมต่อ LINE...';
+      }
+
+      try {
+        const configRes = await fetch('/api/auth/line/config');
+        const config = await configRes.json();
+
+        if (config.success && config.isConfigured) {
+          const urlRes = await fetch('/api/auth/line/auth-url?state=register');
+          const urlData = await urlRes.json();
+          if (urlData.success && urlData.authUrl) {
+            window.location.href = urlData.authUrl;
+            return;
+          }
+        }
+
+        // Prompt for demo if config not active
+        const lineId = prompt('ระบุ LINE User ID เพื่อลงทะเบียนร้านใหม่:', 'U_new_store_' + Math.random().toString(36).substring(2, 6));
+        if (!lineId) {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<span>เข้าสู่ระบบด้วย LINE เพื่อลงทะเบียนร้าน</span>`;
+          }
+          return;
+        }
+
+        currentModalLineUser = {
+          line_user_id: lineId,
+          displayName: 'เจ้าของร้าน (LINE User)',
+          pictureUrl: null,
+          email: null
+        };
+
+        const nameEl = document.getElementById('modal-reg-user-name');
+        if (nameEl) nameEl.innerText = currentModalLineUser.displayName;
+        switchRegStep(2);
+      } catch (err) {
+        console.warn('LINE Auth error:', err);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span>เข้าสู่ระบบด้วย LINE เพื่อลงทะเบียนร้าน</span>`;
+        }
+      }
+    }
+
+    async function submitFinalStoreSignupModal(e) {
+      e.preventDefault();
+      if (!currentModalLineUser) {
+        App.toast('กรุณายืนยันตัวตนด้วย LINE ก่อน', 'warning');
+        switchRegStep(1);
+        return;
+      }
+
+      const submitBtn = document.getElementById('modal-btn-submit-final-reg');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '⏳ กำลังสร้างร้านค้าและผังโต๊ะของคุณ...';
+
+      const storeName = document.getElementById('modal-reg-store-name').value.trim();
+      const phone = document.getElementById('modal-reg-phone').value.trim();
+      const planName = document.getElementById('modal-reg-selected-plan').value;
+
+      try {
+        const payload = {
+          line_user_id: currentModalLineUser.line_user_id,
+          displayName: currentModalLineUser.displayName,
+          pictureUrl: currentModalLineUser.pictureUrl,
+          email: currentModalLineUser.email,
+          plan_name: planName,
+          store_name: storeName,
+          phone_number: phone,
+        };
+
+        const res = await fetch('/api/auth/line/trial-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast('🎉 เปิดร้านค้าทดลองใช้งานฟรี 30 วันสำเร็จ!', 'success');
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('food_token', data.token);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          localStorage.setItem('food_user', JSON.stringify(data.user));
+          localStorage.setItem('food_store', JSON.stringify(data.store));
+
+          setTimeout(() => {
+            window.location.href = data.redirectUrl || '/store.html';
+          }, 800);
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการเปิดร้านค้า', 'danger');
+          submitBtn.disabled = false;
+          submitBtn.innerText = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
+        }
+      } catch (err) {
+        console.error('Signup error:', err);
+        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'danger');
+        submitBtn.disabled = false;
+        submitBtn.innerText = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
+      }
+    }
+
+    // ========================================================
+    // PRICING CARDS & SLIDERS
+    // ========================================================
     async function loadPublicPlans() {
       try {
         const res = await fetch('/api/platform/plans');
@@ -670,7 +1169,6 @@
         if (data.success && data.plans && data.plans.length > 0) {
           loadedPlans = data.plans;
           renderPublicPricingCards(loadedPlans);
-          updateTrialPlanSelect(loadedPlans);
         }
       } catch (err) {
         console.error('Error loading public plans:', err);
@@ -719,9 +1217,9 @@
               `).join('')}
             </ul>
 
-            <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer" class="${btnClass}" style="${btnStyle} text-decoration: none; display: flex; align-items: center; justify-content: center;">
+            <button type="button" onclick="openAuthModal('register', '${p.name}')" class="${btnClass}" style="${btnStyle} cursor: pointer; border: none; width: 100%;">
               ${btnText}
-            </a>
+            </button>
           </div>
         `;
       }).join('');
@@ -751,7 +1249,6 @@
               title="แพ็กเกจ ${idx + 1}"></span>
       `).join('');
 
-      // Add scroll listener
       container.removeEventListener('scroll', handlePricingScroll);
       container.addEventListener('scroll', handlePricingScroll, { passive: true });
 
@@ -849,22 +1346,6 @@
       }
     }
 
-    function updateTrialPlanSelect(plans) {
-      const select = document.getElementById('trial-plan');
-      if (!select || !plans || plans.length === 0) return;
-      const currentVal = select.value;
-
-      select.innerHTML = plans.map(p => {
-        const isFeatured = p.is_featured;
-        const extra = isFeatured ? ' - แนะนำ 🔥' : '';
-        return `<option value="${p.name}">${p.name} (฿${parseFloat(p.price_monthly).toLocaleString()}/เดือน${extra})</option>`;
-      }).join('');
-
-      if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
-        select.value = currentVal;
-      }
-    }
-
     function setBillingCycle(cycle) {
       currentCycle = cycle;
       const monthlyBtn = document.getElementById('cycle-monthly-btn');
@@ -880,223 +1361,12 @@
 
       if (loadedPlans.length > 0) {
         renderPublicPricingCards(loadedPlans);
-      } else {
-        // Fallback static elements
-        if (cycle === 'monthly') {
-          if (document.getElementById('price-starter')) document.getElementById('price-starter').innerText = '290';
-          if (document.getElementById('period-starter')) document.getElementById('period-starter').innerText = '/ เดือน';
-          if (document.getElementById('price-pro')) document.getElementById('price-pro').innerText = '490';
-          if (document.getElementById('period-pro')) document.getElementById('period-pro').innerText = '/ เดือน';
-          if (document.getElementById('price-enterprise')) document.getElementById('price-enterprise').innerText = '990';
-          if (document.getElementById('period-enterprise')) document.getElementById('period-enterprise').innerText = '/ เดือน';
-        } else {
-          if (document.getElementById('price-starter')) document.getElementById('price-starter').innerText = '230';
-          if (document.getElementById('period-starter')) document.getElementById('period-starter').innerText = '/ ด. (จ่ายรายปี)';
-          if (document.getElementById('price-pro')) document.getElementById('price-pro').innerText = '390';
-          if (document.getElementById('period-pro')) document.getElementById('period-pro').innerText = '/ ด. (จ่ายรายปี)';
-          if (document.getElementById('price-enterprise')) document.getElementById('price-enterprise').innerText = '790';
-          if (document.getElementById('period-enterprise')) document.getElementById('period-enterprise').innerText = '/ ด. (จ่ายรายปี)';
-        }
       }
     }
 
-    let currentLineProfile = null;
-
-    function openTrialModal(plan = 'Professional') {
-      window.open('https://lin.ee/sHKiMFg', '_blank');
-    }
-
-    function switchTrialStep(step) {
-      const step1 = document.getElementById('trial-step-1');
-      const step2 = document.getElementById('trial-step-2');
-      const ind1 = document.getElementById('step-indicator-1');
-      const ind2 = document.getElementById('step-indicator-2');
-      const div = document.getElementById('step-divider');
-      const title = document.getElementById('trial-modal-title');
-      const sub = document.getElementById('trial-modal-subtitle');
-
-      if (step === 1) {
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        if (ind1) { ind1.className = 'trial-step-item active'; }
-        if (ind2) { ind2.className = 'trial-step-item'; }
-        if (div) { div.className = 'trial-step-divider'; }
-        if (title) title.innerText = '🎁 เริ่มต้นใช้งานฟรี 30 วัน';
-        if (sub) sub.innerText = 'เข้าสู่ระบบด้วย LINE เพื่อเปิดร้านและรับสิทธิ์ทดลองใช้ฟรีทุกฟังก์ชัน';
-      } else {
-        if (step1) step1.style.display = 'none';
-        if (step2) step2.style.display = 'block';
-        if (ind1) { ind1.className = 'trial-step-item completed'; ind1.querySelector('.trial-step-num').innerText = '✓'; }
-        if (ind2) { ind2.className = 'trial-step-item active'; }
-        if (div) { div.className = 'trial-step-divider active'; }
-        if (title) title.innerText = '🏪 ตั้งชื่อร้านค้าของคุณ';
-        if (sub) sub.innerText = 'ระบุชื่อร้านค้าเพื่อเริ่มสร้างระบบโต๊ะและจอครัวทันที';
-        
-        // Focus on store name
-        setTimeout(() => {
-          const nameInput = document.getElementById('trial-store-name');
-          if (nameInput) nameInput.focus();
-        }, 100);
-      }
-    }
-
-    async function handleLineAuthClick() {
-      const btn = document.getElementById('btn-line-main-login');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<span class="line-icon-wrap">⏳</span> กำลังเชื่อมต่อ LINE...';
-      }
-
-      try {
-        // Check if real LINE OAuth is configured on server
-        const configRes = await fetch('/api/auth/line/config');
-        const config = await configRes.json();
-
-        if (config.success && config.isConfigured) {
-          // Redirect to real LINE Login OAuth
-          const urlRes = await fetch('/api/auth/line/auth-url?state=free_trial');
-          const urlData = await urlRes.json();
-          if (urlData.success && urlData.authUrl) {
-            window.location.href = urlData.authUrl;
-            return;
-          }
-        }
-
-        // If not configured in .env, use interactive fast LINE connect
-        fastConnectLine('U_line_' + Math.random().toString(36).substring(2, 8), 'เจ้าของร้าน (LINE User)', '👨‍🍳');
-      } catch (err) {
-        console.warn('LINE Auth check error, falling back to direct connect:', err);
-        fastConnectLine('U_line_' + Math.random().toString(36).substring(2, 8), 'เจ้าของร้าน (LINE User)', '👨‍🍳');
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = `
-            <span class="line-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="#06C755">
-                <path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2zm-4.7 11.23h-1.5a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.5c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm2.84 0h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm4.84-2.83l-1.92-2.58h-.02v2.58c0 .36-.29.65-.65.65h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.17l1.92 2.58h.02V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65h-.54zm4.12 2.83h-2.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h2.92c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65z"/>
-              </svg>
-            </span>
-            <span>เข้าสู่ระบบด้วย LINE (Log in with LINE)</span>
-          `;
-        }
-      }
-    }
-
-    async function fastConnectLine(lineUserId, displayName, avatar) {
-      App.toast(`กำลังเชื่อมต่อ LINE: ${displayName}...`, 'info');
-
-      try {
-        const res = await fetch('/api/auth/line/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            line_user_id: lineUserId,
-            displayName: displayName,
-            pictureUrl: avatar.startsWith('http') ? avatar : null,
-          })
-        });
-
-        const data = await res.json();
-        if (data.success) {
-          if (!data.isNewUser && data.token) {
-            // Existing user with linked store -> Auto login
-            App.toast(data.message || 'เข้าสู่ระบบสำเร็จ กำลังเปิดร้านค้า...', 'success');
-            localStorage.setItem('auth_token', data.token);
-            localStorage.setItem('food_token', data.token);
-            localStorage.setItem('auth_user', JSON.stringify(data.user));
-            localStorage.setItem('food_user', JSON.stringify(data.user));
-            if (data.store) localStorage.setItem('food_store', JSON.stringify(data.store));
-
-            setTimeout(() => {
-              window.location.href = data.redirectUrl || '/store.html';
-            }, 800);
-            return;
-          }
-
-          // New User -> Set profile and transition to Step 2
-          currentLineProfile = data.lineProfile || {
-            line_user_id: lineUserId,
-            displayName: displayName,
-            pictureUrl: avatar.startsWith('http') ? avatar : null,
-          };
-
-          const nameEl = document.getElementById('connected-line-name');
-          const avatarEl = document.getElementById('connected-line-avatar');
-          if (nameEl) nameEl.innerText = currentLineProfile.displayName || 'ผู้ใช้ LINE';
-          if (avatarEl) {
-            if (currentLineProfile.pictureUrl) {
-              avatarEl.src = currentLineProfile.pictureUrl;
-            } else {
-              avatarEl.src = '/assets/img/logo.png';
-            }
-          }
-
-          App.toast(`ยืนยันตัวตน LINE สำเร็จ: ${displayName} ✨`, 'success');
-          switchTrialStep(2);
-        } else {
-          App.toast(data.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ LINE', 'danger');
-        }
-      } catch (err) {
-        console.error('Fast LINE connect error:', err);
-        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'danger');
-      }
-    }
-
-    async function submitLineTrialSignup(e) {
-      e.preventDefault();
-      if (!currentLineProfile) {
-        App.toast('กรุณายืนยันตัวตนด้วย LINE ก่อน', 'warning');
-        switchTrialStep(1);
-        return;
-      }
-
-      const submitBtn = document.getElementById('trial-submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.innerText = '⏳ กำลังสร้างร้านค้าและผังโต๊ะของคุณ...';
-
-      try {
-        const payload = {
-          line_user_id: currentLineProfile.line_user_id,
-          displayName: currentLineProfile.displayName,
-          pictureUrl: currentLineProfile.pictureUrl,
-          email: currentLineProfile.email,
-          plan_name: document.getElementById('trial-plan').value,
-          store_name: document.getElementById('trial-store-name').value.trim(),
-          phone_number: document.getElementById('trial-phone').value.trim(),
-        };
-
-        const res = await fetch('/api/auth/line/trial-signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (data.success) {
-          App.toast('🎉 เปิดร้านค้าทดลองใช้งานฟรี 30 วันสำเร็จ! กำลังเข้าสู่ระบบ...', 'success');
-          localStorage.setItem('auth_token', data.token);
-          localStorage.setItem('food_token', data.token);
-          localStorage.setItem('auth_user', JSON.stringify(data.user));
-          localStorage.setItem('food_user', JSON.stringify(data.user));
-          localStorage.setItem('food_store', JSON.stringify(data.store));
-
-          setTimeout(() => {
-            window.location.href = data.redirectUrl || '/store.html';
-          }, 1000);
-        } else {
-          App.toast(data.message || 'เกิดข้อผิดพลาดในการเปิดร้านค้า', 'danger');
-          submitBtn.disabled = false;
-          submitBtn.innerText = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
-        }
-      } catch (err) {
-        console.error('Line Trial Signup error:', err);
-        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'danger');
-        submitBtn.disabled = false;
-        submitBtn.innerText = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
-      }
-    }
-
-    // Check URL parameters for LINE OAuth callbacks
+    // ========================================================
+    // URL CALLBACK & INITIALIZATION
+    // ========================================================
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       
@@ -1107,32 +1377,34 @@
         const lineEmail = urlParams.get('line_email');
 
         if (lineId) {
-          currentLineProfile = {
+          currentModalLineUser = {
             line_user_id: lineId,
             displayName: lineName || 'ผู้ใช้ LINE',
             pictureUrl: linePic || null,
             email: lineEmail || null,
           };
 
-          const nameEl = document.getElementById('connected-line-name');
-          const avatarEl = document.getElementById('connected-line-avatar');
-          if (nameEl) nameEl.innerText = currentLineProfile.displayName;
-          if (avatarEl && currentLineProfile.pictureUrl) avatarEl.src = currentLineProfile.pictureUrl;
+          openAuthModal('register');
+          const nameEl = document.getElementById('modal-reg-user-name');
+          const avatarEl = document.getElementById('modal-reg-user-avatar');
+          if (nameEl) nameEl.innerText = currentModalLineUser.displayName;
+          if (avatarEl && currentModalLineUser.pictureUrl) avatarEl.src = currentModalLineUser.pictureUrl;
 
-          openTrialModal();
-          switchTrialStep(2);
+          switchRegStep(2);
           App.toast(`ยินดีต้อนรับ ${lineName}! กรุณากรอกชื่อร้านเพื่อเริ่มใช้งาน`, 'success');
           window.history.replaceState({}, document.title, window.location.pathname);
         }
-      } else if (urlParams.get('open_trial') === '1') {
-        openTrialModal();
+      } else if (urlParams.get('modal') === 'login' || urlParams.get('login') === '1') {
+        openAuthModal('login');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (urlParams.get('modal') === 'register' || urlParams.get('register') === '1' || urlParams.get('open_trial') === '1') {
+        openAuthModal('register');
         window.history.replaceState({}, document.title, window.location.pathname);
       } else if (urlParams.get('line_error')) {
         App.toast('การเข้าสู่ระบบด้วย LINE ไม่สำเร็จ: ' + urlParams.get('line_error'), 'danger');
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     });
-
 
     let currentFeaturesIndex = 0;
     let featuresScrollTimeout = null;
@@ -1149,14 +1421,12 @@
         currentFeaturesIndex = 0;
       }
 
-      // Generate dots
       dotsContainer.innerHTML = Array.from(cards).map((_, idx) => `
         <span class="features-dot ${idx === currentFeaturesIndex ? 'active' : ''}" 
               onclick="goToFeaturesSlide(${idx})" 
               title="ฟังก์ชัน ${idx + 1}"></span>
       `).join('');
 
-      // Add scroll listener
       container.removeEventListener('scroll', handleFeaturesScroll);
       container.addEventListener('scroll', handleFeaturesScroll, { passive: true });
 
@@ -1253,6 +1523,17 @@
         goToFeaturesSlide(currentFeaturesIndex + 1);
       }
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('modal') === 'login' || urlParams.get('login') === '1') {
+        openLoginModal();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (urlParams.get('line_error')) {
+        App.toast('การเข้าสู่ระบบด้วย LINE ไม่สำเร็จ: ' + urlParams.get('line_error'), 'danger');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
 
     initFeaturesSlider();
     initPricingSlider();

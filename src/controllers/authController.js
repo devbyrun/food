@@ -102,6 +102,7 @@ function getLineConfig(req, res) {
       success: true,
       isConfigured,
       channelId: creds.channelId || null,
+      liffId: creds.liffId || null,
       callbackUrl: lineAuthService.getCallbackUrl(req),
     });
   } catch (err) {

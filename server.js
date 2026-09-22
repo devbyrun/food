@@ -37,12 +37,16 @@ app.get('/order/:storeSlug/:qrToken', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'customer.html'));
 });
 
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+app.get(['/login', '/login.html'], (req, res) => {
+  res.redirect('/?modal=login');
 });
 
 app.get(['/register', '/signup', '/register.html', '/signup.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+  res.redirect('/?modal=register');
+});
+
+app.get(['/lineliff', '/liff', '/lineliff.html', '/liff.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'lineliff.html'));
 });
 
 app.get(['/store', '/store-admin'], (req, res) => {
@@ -70,7 +74,7 @@ server.listen(PORT, async () => {
   console.log(`📱 Customer Demo QR Order: http://localhost:${PORT}/order/somtum-zaab/zaab-t01-abc1`);
   console.log(`🏪 Store Admin Portal:     http://localhost:${PORT}/store.html`);
   console.log(`👑 Super Admin Portal:     http://localhost:${PORT}/superadmin.html`);
-  console.log(`🔐 Login Portal:           http://localhost:${PORT}/login.html`);
+  console.log(`🔐 Login & Register Modal:   http://localhost:${PORT}/?modal=login`);
   console.log('----------------------------------------------------');
 
   try {

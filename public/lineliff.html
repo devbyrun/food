@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ลงทะเบียนเปิดร้านค้า ฟรี 30 วัน (LINE LIFF) - QR Food POS</title>
+  <meta name="description" content="ลงทะเบียนเปิดร้านอาหารใหม่ผ่าน LINE LIFF ทดลองใช้งานระบบ QR Code, KDS และ POS ฟรี 30 วันเต็ม">
+  <link rel="icon" type="image/png" href="/assets/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- LINE LIFF SDK v2 -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    :root {
+      --line-green: #06C755;
+      --line-green-dark: #059640;
+      --line-glow: rgba(6, 199, 85, 0.35);
+    }
+
+    body {
+      min-height: 100vh;
+      background: #090d16;
+      background: radial-gradient(circle at 50% 0%, rgba(6, 199, 85, 0.18) 0%, rgba(9, 13, 22, 1) 60%);
+      color: #f1f5f9;
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1.25rem 1rem 3rem;
+      margin: 0;
+    }
+
+    .liff-container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .liff-card {
+      background: rgba(17, 24, 39, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 1.75rem 1.4rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(6, 199, 85, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liff-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #06C755, #f97316, #06C755);
+      background-size: 200% 100%;
+      animation: gradientMove 4s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .badge-trial {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6, 199, 85, 0.15);
+      border: 1px solid rgba(6, 199, 85, 0.35);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: #4ade80;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #06C755;
+      box-shadow: 0 0 10px #06C755;
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    .line-user-box {
+      background: linear-gradient(135deg, rgba(6, 199, 85, 0.15) 0%, rgba(6, 199, 85, 0.05) 100%);
+      border: 1px solid rgba(6, 199, 85, 0.3);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .line-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #06C755;
+      object-fit: cover;
+      box-shadow: 0 0 10px rgba(6, 199, 85, 0.4);
+    }
+
+    .form-control-liff {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: white;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.25s ease;
+      box-sizing: border-box;
+    }
+
+    .form-control-liff:focus {
+      border-color: #06C755;
+      box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.25);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .plan-option-card {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .plan-option-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(6, 199, 85, 0.4);
+    }
+
+    .plan-option-card.selected {
+      background: rgba(6, 199, 85, 0.12);
+      border-color: #06C755;
+      box-shadow: 0 0 16px rgba(6, 199, 85, 0.25);
+    }
+
+    .plan-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .plan-option-card.selected .plan-radio {
+      border-color: #06C755;
+      background: #06C755;
+    }
+
+    .plan-option-card.selected .plan-radio::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .benefit-item svg {
+      width: 15px;
+      height: 15px;
+      fill: #06C755;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .btn-submit-liff {
+      background: linear-gradient(135deg, #06C755 0%, #059640 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: inherit;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 8px 24px var(--line-glow);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit-liff:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(6, 199, 85, 0.45);
+    }
+
+    .btn-submit-liff:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-submit-liff:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Loading Spinner */
+    .spinner-liff {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(6, 199, 85, 0.2);
+      border-radius: 50%;
+      border-top-color: #06C755;
+      animation: spinLiff 0.8s linear infinite;
+    }
+
+    @keyframes spinLiff {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="liff-container">
+    
+    <!-- Top Brand Logo -->
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+      <a href="/" style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 16px; box-shadow: 0 8px 24px rgba(234, 88, 12, 0.35); padding: 5px; text-decoration: none;">
+        <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+      </a>
+      <h1 style="font-size: 1.35rem; font-weight: 800; color: white; margin: 8px 0 2px;">QR Food POS</h1>
+      <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">ระบบจัดการร้านอาหาร & สั่งอาหารผ่าน QR Code</p>
+    </div>
+
+    <!-- Main LIFF Card Container -->
+    <div class="liff-card">
+
+      <!-- ======================================================== -->
+      <!-- STATE 0: LIFF INITIALIZING SPINNER                      -->
+      <!-- ======================================================== -->
+      <div id="liff-loading-view" style="text-align: center; padding: 2.5rem 1rem;">
+        <div class="spinner-liff" style="margin-bottom: 1rem;"></div>
+        <div style="font-weight: 700; color: white; font-size: 1rem; margin-bottom: 4px;">กำลังเชื่อมต่อระบบ LINE LIFF...</div>
+        <div style="font-size: 0.82rem; color: #94a3b8;">กรุณารอสักครู่ ระบบกำลังดึงข้อมูลบัญชีของคุณ</div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- STATE 1: EXISTING STORE FOUND (QUICK REDIRECT)          -->
+      <!-- ======================================================== -->
+      <div id="liff-existing-store-view" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
+        <div style="font-size: 2.8rem; margin-bottom: 0.75rem;">🎉</div>
+        <div class="badge-trial">
+          <span class="badge-dot"></span> บัญชีร้านค้าพร้อมใช้งาน
+        </div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: white; margin-bottom: 6px;">ยินดีต้อนรับกลับ!</h2>
+        <p id="existing-store-desc" style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 1.5rem;">
+          พบบัญชีร้านอาหารของคุณในระบบแล้ว สามารถเข้าสู่ระบบจัดการได้ทันที
+        </p>
+
+        <a id="btn-goto-store" href="/store.html" class="btn-submit-liff" style="text-decoration: none; margin-bottom: 10px;">
+          🏪 เข้าสู่ระบบจัดการร้านของคุณ →
+        </a>
+        <a href="/" style="display: inline-block; color: #94a3b8; font-size: 0.82rem; text-decoration: none; margin-top: 8px;">
+          กลับหน้าหลัก
+        </a>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- STATE 2: NEW STORE REGISTRATION (30-DAY FREE TRIAL)     -->
+      <!-- ======================================================== -->
+      <div id="liff-register-view" style="display: none;">
+        
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div class="badge-trial">
+            <span class="badge-dot"></span> สิทธิ์ทดลองใช้ฟรี 30 วันเต็ม
+          </div>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: white; margin: 0 0 4px;">ลงทะเบียนเปิดร้านค้าใหม่</h2>
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">สร้างร้านอาหารของคุณง่ายๆ เริ่มใช้งานได้ใน 1 นาที</p>
+        </div>
+
+        <!-- LINE User Profile Banner -->
+        <div class="line-user-box">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <img id="line-user-avatar" class="line-avatar" src="/assets/img/logo.png" alt="LINE Avatar">
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span id="line-user-name" style="font-weight: 700; color: white; font-size: 0.92rem;">กำลังโหลด...</span>
+                <span style="font-size: 0.65rem; background: #06C755; color: white; padding: 1px 6px; border-radius: 8px; font-weight: 700;">LINE</span>
+              </div>
+              <div style="font-size: 0.72rem; color: #4ade80;">✓ ยืนยันตัวตนสำเร็จ</div>
+            </div>
+          </div>
+          <button type="button" onclick="refreshLineProfile()" title="รีเฟรชข้อมูล" style="background: none; border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-size: 0.72rem; padding: 4px 8px; border-radius: 8px; cursor: pointer;">
+            รีเฟรช
+          </button>
+        </div>
+
+        <!-- Store Setup Form -->
+        <form id="liff-trial-form" onsubmit="submitLiffRegistration(event)">
+          
+          <!-- Plan Selection -->
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.82rem; color: #cbd5e1; font-weight: 600; margin-bottom: 6px;">
+              เลือกแพ็กเกจทดลองใช้
+            </label>
+            
+            <div class="plan-option-card selected" onclick="selectLiffPlan('Professional', this)">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="plan-radio"></div>
+                <div>
+                  <div style="font-size: 0.88rem; font-weight: 700; color: white;">
+                    Professional <span style="font-size: 0.72rem; color: #fb923c; font-weight: 600;">(แนะนำ 🔥)</span>
+                  </div>
+                  <div style="font-size: 0.72rem; color: #94a3b8;">ครบทุกฟังก์ชัน QR โต๊ะ, KDS ครัว, POS</div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.75rem; color: #4ade80; font-weight: 700; display: block;">ฟรี 30 วัน</span>
+                <span style="font-size: 0.68rem; color: #64748b;">(ปกติ ฿490/ด.)</span>
+              </div>
+            </div>
+
+            <div class="plan-option-card" onclick="selectLiffPlan('Starter', this)">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="plan-radio"></div>
+                <div>
+                  <div style="font-size: 0.88rem; font-weight: 700; color: white;">Starter</div>
+                  <div style="font-size: 0.72rem; color: #94a3b8;">สำหรับร้านขนาดเล็ก เริ่มต้นสั่งอาหาร QR</div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.75rem; color: #4ade80; font-weight: 700; display: block;">ฟรี 30 วัน</span>
+                <span style="font-size: 0.68rem; color: #64748b;">(ปกติ ฿290/ด.)</span>
+              </div>
+            </div>
+
+            <input type="hidden" id="liff-selected-plan" value="Professional">
+          </div>
+
+          <!-- Store Name Input -->
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.82rem; color: #cbd5e1; font-weight: 600; margin-bottom: 5px;">
+              ชื่อร้านอาหารของคุณ <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="liff-store-name" class="form-control-liff" required placeholder="เช่น ครัวคุณแม่ อาหารป่า & ซีฟู้ด" autocomplete="organization">
+          </div>
+
+          <!-- Phone Number Input -->
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.82rem; color: #cbd5e1; font-weight: 600; margin-bottom: 5px;">
+              เบอร์โทรศัพท์ติดต่อ <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="tel" id="liff-store-phone" class="form-control-liff" required placeholder="08xxxxxxxx" autocomplete="tel">
+          </div>
+
+          <!-- Benefits Checklist -->
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 12px; margin-bottom: 1.25rem;">
+            <div class="benefit-item">
+              <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <span>ทดลองใช้งานฟรี 30 วันเต็ม ไม่คิดเงินทันที</span>
+            </div>
+            <div class="benefit-item">
+              <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <span>สร้างโต๊ะและพิมพ์ QR Code รับออเดอร์ได้ทันที</span>
+            </div>
+            <div class="benefit-item">
+              <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <span>จอครัว KDS และระบบคิดเงิน POS ครบวงจร</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="liff-btn-submit" class="btn-submit-liff">
+            <span>🚀 สร้างร้านและเริ่มใช้งานฟรี 30 วัน</span>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- STATE 3: ERROR / MANUAL AUTH FALLBACK                   -->
+      <!-- ======================================================== -->
+      <div id="liff-error-view" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: white; margin-bottom: 6px;">เชื่อมต่อบัญชี LINE</h3>
+        <p id="liff-error-msg" style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1.25rem;">
+          กรุณากดปุ่มด้านล่างเพื่อยืนยันตัวตนด้วย LINE สำหรับเปิดใช้งาน
+        </p>
+
+        <button type="button" onclick="startManualLineLogin()" class="btn-submit-liff" style="margin-bottom: 10px;">
+          <span>🟢 เข้าสู่ระบบด้วย LINE เพื่อลงทะเบียน</span>
+        </button>
+
+        <button type="button" onclick="simulateDevLineUser()" style="background: none; border: 1px dashed rgba(255,255,255,0.2); color: #94a3b8; font-size: 0.78rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; width: 100%;">
+          ⚡ ทดสอบแบบจำลองบัญชี LINE (Demo Mode)
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Footer Notes -->
+    <div style="text-align: center; margin-top: 1.5rem; color: #64748b; font-size: 0.75rem;">
+      <p style="margin: 0 0 4px;">© 2026 QR Food POS Platform. All rights reserved.</p>
+      <p style="margin: 0;">หากต้องการความช่วยเหลือ ติดต่อ LINE: <a href="https://lin.ee/sHKiMFg" target="_blank" style="color: #06C755; text-decoration: none;">@QRFoodPOS</a></p>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let currentLiffUser = null;
+    let liffConfig = null;
+
+    // -------------------------------------------------------------
+    // 1. Initialize LIFF App Lifecycle
+    // -------------------------------------------------------------
+    async function initLiffApp() {
+      try {
+        // Fetch server LINE configuration
+        const configRes = await fetch('/api/auth/line/config');
+        liffConfig = await configRes.json();
+
+        const liffId = liffConfig.liffId;
+
+        // If LIFF SDK is available and LIFF ID exists
+        if (window.liff && liffId) {
+          await liff.init({ liffId: liffId });
+
+          if (liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            let email = null;
+            try {
+              const idToken = liff.getDecodedIDToken();
+              if (idToken && idToken.email) email = idToken.email;
+            } catch (e) {
+              console.warn('ID Token decode note:', e);
+            }
+
+            handleAuthenticatedLineUser({
+              line_user_id: profile.userId,
+              displayName: profile.displayName || 'ผู้ใช้ LINE',
+              pictureUrl: profile.pictureUrl || null,
+              email: email,
+            });
+            return;
+          } else {
+            // If in LINE in-app browser, prompt login automatically
+            if (liff.isInClient()) {
+              liff.login();
+              return;
+            } else {
+              // External browser -> Show direct login button
+              showLiffError('กรุณายืนยันตัวตนด้วยบัญชี LINE ของคุณเพื่อรับสิทธิ์เปิดร้านค้าฟรี 30 วัน');
+              return;
+            }
+          }
+        }
+
+        // Fallback: Check if URL has params (e.g. from OAuth redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('line_id')) {
+          handleAuthenticatedLineUser({
+            line_user_id: urlParams.get('line_id'),
+            displayName: urlParams.get('line_name') || 'ผู้ใช้ LINE',
+            pictureUrl: urlParams.get('line_pic') || null,
+            email: urlParams.get('line_email') || null,
+          });
+          return;
+        }
+
+        // If LIFF ID is not yet defined in .env, prompt manual / demo login
+        showLiffError('ยินดีต้อนรับสู่ระบบเปิดร้านค้า QR Food POS กรุณาเข้าสู่ระบบด้วย LINE เพื่อดำเนินการต่อ');
+
+      } catch (err) {
+        console.error('LIFF Init Error:', err);
+        showLiffError('ไม่สามารถเชื่อมต่อ LINE LIFF ได้โดยตรง: ' + (err.message || ''));
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 2. Handle Authenticated User (Check Existing vs New)
+    // -------------------------------------------------------------
+    async function handleAuthenticatedLineUser(profile) {
+      currentLiffUser = profile;
+
+      // Update avatar and name on UI
+      const nameEl = document.getElementById('line-user-name');
+      const avatarEl = document.getElementById('line-user-avatar');
+      if (nameEl) nameEl.innerText = profile.displayName;
+      if (avatarEl && profile.pictureUrl) avatarEl.src = profile.pictureUrl;
+
+      // Check if user already has an existing active store
+      try {
+        const checkRes = await fetch('/api/auth/line/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            line_user_id: profile.line_user_id,
+            displayName: profile.displayName,
+            pictureUrl: profile.pictureUrl,
+            email: profile.email
+          })
+        });
+
+        const checkData = await checkRes.json();
+
+        if (checkData.success && checkData.token && !checkData.isNewUser) {
+          // Existing store found!
+          localStorage.setItem('auth_user', JSON.stringify(checkData.user));
+          localStorage.setItem('food_user', JSON.stringify(checkData.user));
+          localStorage.setItem('auth_token', checkData.token);
+          localStorage.setItem('food_token', checkData.token);
+
+          document.getElementById('liff-loading-view').style.display = 'none';
+          document.getElementById('liff-register-view').style.display = 'none';
+          document.getElementById('liff-error-view').style.display = 'none';
+          
+          const descEl = document.getElementById('existing-store-desc');
+          if (descEl && checkData.user.store_name) {
+            descEl.innerHTML = `พบบัญชีร้าน <strong>"${checkData.user.store_name}"</strong> ของคุณแล้ว<br>สามารถกดเข้าสู่ระบบจัดการร้านได้ทันที`;
+          }
+          document.getElementById('liff-existing-store-view').style.display = 'block';
+          return;
+        }
+
+      } catch (e) {
+        console.warn('Check existing user note:', e);
+      }
+
+      // New user -> Show 30-Day Free Trial registration form
+      document.getElementById('liff-loading-view').style.display = 'none';
+      document.getElementById('liff-existing-store-view').style.display = 'none';
+      document.getElementById('liff-error-view').style.display = 'none';
+      document.getElementById('liff-register-view').style.display = 'block';
+    }
+
+    // -------------------------------------------------------------
+    // 3. Plan Selection
+    // -------------------------------------------------------------
+    function selectLiffPlan(planName, el) {
+      document.querySelectorAll('.plan-option-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('liff-selected-plan').value = planName;
+    }
+
+    // -------------------------------------------------------------
+    // 4. Submit Registration & Create Store
+    // -------------------------------------------------------------
+    async function submitLiffRegistration(e) {
+      e.preventDefault();
+      if (!currentLiffUser) {
+        App.toast('กรุณายืนยันตัวตนด้วย LINE ก่อน', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('liff-btn-submit');
+      const storeName = document.getElementById('liff-store-name').value.trim();
+      const phone = document.getElementById('liff-store-phone').value.trim();
+      const planName = document.getElementById('liff-selected-plan').value;
+
+      if (!storeName) {
+        App.toast('กรุณาระบุชื่อร้านอาหารของคุณ', 'warning');
+        return;
+      }
+      if (!phone) {
+        App.toast('กรุณาระบุเบอร์โทรศัพท์ติดต่อ', 'warning');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-liff" style="width: 20px; height: 20px; border-width: 2px;"></span> กำลังสร้างร้านและตั้งค่าผังโต๊ะ...';
+
+      try {
+        const payload = {
+          line_user_id: currentLiffUser.line_user_id,
+          displayName: currentLiffUser.displayName,
+          pictureUrl: currentLiffUser.pictureUrl,
+          email: currentLiffUser.email,
+          plan_name: planName,
+          store_name: storeName,
+          phone_number: phone,
+        };
+
+        const res = await fetch('/api/auth/line/trial-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.toast('🎉 เปิดร้านค้าทดลองใช้งานฟรี 30 วันสำเร็จ!', 'success');
+          
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('food_token', data.token);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          localStorage.setItem('food_user', JSON.stringify(data.user));
+          localStorage.setItem('food_store', JSON.stringify(data.store));
+
+          setTimeout(() => {
+            window.location.href = data.redirectUrl || '/store.html';
+          }, 800);
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการเปิดร้านค้า', 'danger');
+          btn.disabled = false;
+          btn.innerHTML = '<span>🚀 สร้างร้านและเริ่มใช้งานฟรี 30 วัน</span>';
+        }
+      } catch (err) {
+        console.error('Registration error:', err);
+        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง', 'danger');
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀 สร้างร้านและเริ่มใช้งานฟรี 30 วัน</span>';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 5. Fallback & Helper Actions
+    // -------------------------------------------------------------
+    function showLiffError(msg) {
+      document.getElementById('liff-loading-view').style.display = 'none';
+      document.getElementById('liff-register-view').style.display = 'none';
+      document.getElementById('liff-existing-store-view').style.display = 'none';
+      document.getElementById('liff-error-view').style.display = 'block';
+      if (msg) document.getElementById('liff-error-msg').innerText = msg;
+    }
+
+    async function startManualLineLogin() {
+      try {
+        if (window.liff && liffConfig && liffConfig.liffId) {
+          liff.login();
+          return;
+        }
+
+        const urlRes = await fetch('/api/auth/line/auth-url?state=lineliff');
+        const urlData = await urlRes.json();
+        if (urlData.success && urlData.authUrl) {
+          window.location.href = urlData.authUrl;
+          return;
+        }
+
+        simulateDevLineUser();
+      } catch (e) {
+        simulateDevLineUser();
+      }
+    }
+
+    function simulateDevLineUser() {
+      const demoLineId = 'U_liff_demo_' + Math.random().toString(36).substring(2, 7);
+      handleAuthenticatedLineUser({
+        line_user_id: demoLineId,
+        displayName: 'คุณลูกค้า (LINE User)',
+        pictureUrl: '/assets/img/logo.png',
+        email: 'customer@line.user',
+      });
+    }
+
+    function refreshLineProfile() {
+      if (window.liff && liff.isLoggedIn()) {
+        liff.getProfile().then(p => {
+          handleAuthenticatedLineUser({
+            line_user_id: p.userId,
+            displayName: p.displayName,
+            pictureUrl: p.pictureUrl,
+            email: null,
+          });
+        });
+      } else {
+        simulateDevLineUser();
+      }
+    }
+
+    // Start on page load
+    window.addEventListener('DOMContentLoaded', initLiffApp);
+  </script>
+</body>
+
+</html>
