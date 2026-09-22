@@ -685,20 +685,118 @@ async function getMenus(req, res) {
       [storeId]
     );
 
-    const optGroupsRes = await query(
-      `SELECT * FROM option_groups WHERE store_id = $1 ORDER BY id ASC`,
+    const optGroupRes = await query(
+      `SELECT mog.menu_id, og.id as group_id, og.name as group_name, og.is_required, og.min_select, og.max_select,
+              oi.id as item_id, oi.name as item_name, oi.extra_price, oi.is_available as item_available, oi.sort_order
+       FROM menu_option_groups mog
+       JOIN option_groups og ON mog.group_id = og.id
+       JOIN option_items oi ON og.id = oi.group_id
+       WHERE og.store_id = $1
+       ORDER BY og.id ASC, oi.sort_order ASC, oi.id ASC`,
       [storeId]
     );
+
+    const menuMap = {};
+    for (const m of menusRes.rows) {
+      m.option_groups = [];
+      menuMap[m.id] = m;
+    }
+
+    const groupMap = {};
+    for (const row of optGroupRes.rows) {
+      const menu = menuMap[row.menu_id];
+      if (!menu) continue;
+
+      const groupKey = `${row.menu_id}_${row.group_id}`;
+      if (!groupMap[groupKey]) {
+        groupMap[groupKey] = {
+          id: row.group_id,
+          name: row.group_name,
+          is_required: row.is_required,
+          min_select: row.min_select,
+          max_select: row.max_select,
+          items: [],
+        };
+        menu.option_groups.push(groupMap[groupKey]);
+      }
+
+      groupMap[groupKey].items.push({
+        id: row.item_id,
+        name: row.item_name,
+        extra_price: parseFloat(row.extra_price || 0),
+        is_available: row.item_available,
+        sort_order: row.sort_order,
+      });
+    }
 
     return res.json({
       success: true,
       categories: categoriesRes.rows,
       menus: menusRes.rows,
-      optionGroups: optGroupsRes.rows,
+      optionGroups: optGroupRes.rows,
     });
   } catch (err) {
     console.error('[Admin getMenus Error]:', err);
     return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด' });
+  }
+}
+
+async function saveMenuOptionGroups(queryFunc, storeId, menuId, optionGroups) {
+  if (!Array.isArray(optionGroups)) return;
+
+  // 1. Get existing option groups linked to this menu
+  const existingLinks = await queryFunc(
+    `SELECT group_id FROM menu_option_groups WHERE menu_id = $1`,
+    [menuId]
+  );
+  const oldGroupIds = existingLinks.rows.map(r => r.group_id);
+
+  // Remove existing links
+  await queryFunc(`DELETE FROM menu_option_groups WHERE menu_id = $1`, [menuId]);
+
+  // If old groups are no longer linked to any other menu, clean them up
+  for (const oldGid of oldGroupIds) {
+    const checkRes = await queryFunc(`SELECT 1 FROM menu_option_groups WHERE group_id = $1 LIMIT 1`, [oldGid]);
+    if (checkRes.rows.length === 0) {
+      await queryFunc(`DELETE FROM option_groups WHERE id = $1 AND store_id = $2`, [oldGid, storeId]);
+    }
+  }
+
+  // 2. Insert new groups and items
+  for (const group of optionGroups) {
+    const groupName = (group.name || '').trim();
+    if (!groupName) continue;
+    const items = Array.isArray(group.items) ? group.items.filter(it => it && (it.name || '').trim() !== '') : [];
+    if (items.length === 0) continue;
+
+    const isRequired = group.is_required === true || group.is_required === 'true';
+    const maxSelect = parseInt(group.max_select || 1, 10);
+    const minSelect = isRequired ? 1 : 0;
+
+    const groupRes = await queryFunc(
+      `INSERT INTO option_groups (store_id, name, is_required, min_select, max_select)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [storeId, groupName, isRequired, minSelect, maxSelect]
+    );
+    const newGroupId = groupRes.rows[0].id;
+
+    // Link group to menu
+    await queryFunc(
+      `INSERT INTO menu_option_groups (menu_id, group_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [menuId, newGroupId]
+    );
+
+    // Insert items
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const itemName = it.name.trim();
+      const extraPrice = parseFloat(it.extra_price || 0);
+      await queryFunc(
+        `INSERT INTO option_items (group_id, name, extra_price, is_available, sort_order)
+         VALUES ($1, $2, $3, TRUE, $4)`,
+        [newGroupId, itemName, extraPrice, i]
+      );
+    }
   }
 }
 
@@ -732,7 +830,7 @@ async function toggleMenuAvailability(req, res) {
 async function createMenu(req, res) {
   try {
     const storeId = getStoreId(req);
-    const { category_id, name, description, price, special_price, image_url, is_recommend } = req.body;
+    const { category_id, name, description, price, special_price, image_url, is_recommend, option_groups } = req.body;
 
     if (!category_id || !name || price === undefined || price === null || price === '') {
       return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลสำคัญให้ครบถ้วน' });
@@ -753,8 +851,14 @@ async function createMenu(req, res) {
       ]
     );
 
-    broadcastToStore(storeId, 'menu_updated', { action: 'created', menu: insertRes.rows[0] });
-    return res.json({ success: true, message: 'เพิ่มเมนูอาหารเรียบร้อย', menu: insertRes.rows[0] });
+    const createdMenu = insertRes.rows[0];
+
+    if (option_groups && Array.isArray(option_groups)) {
+      await saveMenuOptionGroups(query, storeId, createdMenu.id, option_groups);
+    }
+
+    broadcastToStore(storeId, 'menu_updated', { action: 'created', menu: createdMenu });
+    return res.json({ success: true, message: 'เพิ่มเมนูอาหารเรียบร้อย', menu: createdMenu });
   } catch (err) {
     console.error('[Admin createMenu Error]:', err);
     return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด' });
@@ -765,7 +869,7 @@ async function updateMenu(req, res) {
   try {
     const storeId = getStoreId(req);
     const { menuId } = req.params;
-    const { category_id, name, description, price, special_price, image_url, is_recommend, is_available } = req.body;
+    const { category_id, name, description, price, special_price, image_url, is_recommend, is_available, option_groups } = req.body;
 
     if (!category_id || !name || price === undefined || price === null || price === '') {
       return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลสำคัญให้ครบถ้วน' });
@@ -802,6 +906,10 @@ async function updateMenu(req, res) {
       return res.status(404).json({ success: false, message: 'ไม่พบเมนูอาหารนี้' });
     }
 
+    if (option_groups !== undefined && Array.isArray(option_groups)) {
+      await saveMenuOptionGroups(query, storeId, menuId, option_groups);
+    }
+
     broadcastToStore(storeId, 'menu_updated', { action: 'updated', menu: updateRes.rows[0] });
     return res.json({ success: true, message: 'บันทึกการแก้ไขเมนูเรียบร้อย', menu: updateRes.rows[0] });
   } catch (err) {
@@ -814,6 +922,8 @@ async function deleteMenu(req, res) {
   try {
     const storeId = getStoreId(req);
     const { menuId } = req.params;
+
+    await saveMenuOptionGroups(query, storeId, menuId, []);
 
     const delRes = await query(`DELETE FROM menus WHERE id = $1 AND store_id = $2 RETURNING id`, [menuId, storeId]);
     if (delRes.rows.length === 0) {
@@ -1519,6 +1629,74 @@ async function deleteStaff(req, res) {
   }
 }
 
+// -------------------------------------------------------------
+// Realtime Order & Service Sync Fallback (Smart Polling)
+// -------------------------------------------------------------
+async function getLatestOrdersSync(req, res) {
+  try {
+    const storeId = getStoreId(req);
+
+    // Get latest active order
+    const latestOrderRes = await query(
+      `SELECT o.id, o.order_number, o.table_id, o.customer_name, o.net_amount, o.status, o.created_at,
+              t.table_number, t.is_takeaway
+       FROM orders o
+       LEFT JOIN restaurant_tables t ON t.id = o.table_id
+       WHERE o.store_id = $1 AND o.status = 'active'
+       ORDER BY o.id DESC LIMIT 1`,
+      [storeId]
+    );
+
+    // Get kitchen pending count
+    const kitchenCountRes = await query(
+      `SELECT COUNT(oi.id) as pending_dishes
+       FROM order_items oi
+       JOIN orders o ON o.id = oi.order_id
+       WHERE o.store_id = $1 AND oi.status = 'pending'`,
+      [storeId]
+    );
+
+    // Get latest pending service call
+    const serviceCallRes = await query(
+      `SELECT sc.id, sc.table_id, sc.call_type, sc.created_at, t.table_number
+       FROM service_calls sc
+       LEFT JOIN restaurant_tables t ON t.id = sc.table_id
+       WHERE sc.store_id = $1 AND sc.status = 'pending'
+       ORDER BY sc.id DESC LIMIT 1`,
+      [storeId]
+    );
+
+    let recentItems = [];
+    if (latestOrderRes.rows.length > 0) {
+      const itemsRes = await query(
+        `SELECT oi.id, oi.menu_name, oi.quantity, oi.unit_price, oi.total_price, oi.special_notes,
+                COALESCE(json_agg(json_build_object('name', oio.option_name, 'extra_price', oio.extra_price)) FILTER (WHERE oio.id IS NOT NULL), '[]') as options
+         FROM order_items oi
+         LEFT JOIN order_item_options oio ON oio.order_item_id = oi.id
+         WHERE oi.order_id = $1
+         GROUP BY oi.id
+         ORDER BY oi.id ASC`,
+        [latestOrderRes.rows[0].id]
+      );
+      recentItems = itemsRes.rows;
+    }
+
+    return res.json({
+      success: true,
+      latestOrder: latestOrderRes.rows[0] ? {
+        ...latestOrderRes.rows[0],
+        items: recentItems,
+      } : null,
+      pendingKitchenCount: parseInt(kitchenCountRes.rows[0]?.pending_dishes || 0, 10),
+      latestServiceCall: serviceCallRes.rows[0] || null,
+      serverTime: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('[Admin getLatestOrdersSync Error]:', err);
+    return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการตรวจสอบออเดอร์' });
+  }
+}
+
 module.exports = {
   getDashboardMetrics,
   getTables,
@@ -1551,5 +1729,6 @@ module.exports = {
   createStaff,
   updateStaff,
   deleteStaff,
+  getLatestOrdersSync,
 };
 

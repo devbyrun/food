@@ -10,33 +10,40 @@
 </head>
 <body style="padding-bottom: 90px;">
 
-  <!-- Customer App Header -->
-  <header style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border-glass);">
+  <!-- Customer App Header (Clean Top Bar) -->
+  <header style="background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border-glass);">
     <div class="container" style="padding: 12px 1rem; display: flex; align-items: center; justify-content: space-between;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div id="store-logo" style="width: 44px; height: 44px; border-radius: 12px; background: #1e293b; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div id="store-logo" style="width: 42px; height: 42px; border-radius: 12px; background: #1e293b; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; border: 1px solid var(--border-glass); flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
           <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block;">
         </div>
         <div>
-          <h1 id="store-name" style="font-size: 1.1rem; font-weight: 700; color: white; line-height: 1.2;">กำลังโหลด...</h1>
-          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-            <span id="table-badge" class="badge badge-primary" style="padding: 2px 8px; font-size: 0.75rem;">โต๊ะ ...</span>
-            <span id="zone-badge" class="badge badge-info" style="padding: 2px 8px; font-size: 0.75rem;">โซน ...</span>
-          </div>
+          <h1 id="store-name" style="font-size: 1.12rem; font-weight: 700; color: white; line-height: 1.2; margin: 0;">กำลังโหลด...</h1>
         </div>
-      </div>
-      <div>
-        <button id="btn-status-toggle" class="btn btn-secondary btn-sm" onclick="toggleStatusView()" style="display: none; border-radius: var(--radius-full);">
-          🕒 สถานะอาหาร
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- Store Banner (Optional Hero) -->
-  <div id="banner-container" style="height: 140px; width: 100%; position: relative; overflow: hidden; background: #1e293b; display: none;">
-    <img id="banner-img" src="" alt="Banner" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.4;">
-    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, var(--bg-dark));"></div>
+  <!-- Store Banner & Sub-Header (Hero Section Below Header) -->
+  <div id="hero-section" style="position: relative; width: 100%; background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), var(--bg-dark)); overflow: hidden; border-bottom: 1px solid var(--border-glass);">
+    <!-- Background Hero Banner (When Available) -->
+    <div id="banner-container" style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; display: none;">
+      <img id="banner-img" src="" alt="Banner" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.4;">
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(9, 13, 22, 0.88) 100%);"></div>
+    </div>
+
+    <!-- Table Badges & Status Button Floating on Hero Area -->
+    <div class="container" style="position: relative; z-index: 2; padding: 14px 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px;">
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span id="table-badge" class="badge badge-primary" style="padding: 6px 14px; font-size: 0.85rem; font-weight: 700; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35); border-radius: var(--radius-full);">โต๊ะ ...</span>
+        <span id="zone-badge" class="badge badge-info" style="padding: 5px 12px; font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-full); background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.4);">โซน ...</span>
+      </div>
+      <div>
+        <button id="btn-status-toggle" class="btn btn-secondary btn-sm" onclick="toggleStatusView()" style="display: none; border-radius: var(--radius-full); padding: 7px 16px; font-size: 0.85rem; font-weight: 600; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.4); color: white;">
+          🕒 สถานะอาหาร
+        </button>
+      </div>
+    </div>
   </div>
 
   <main class="container" style="padding-top: 1rem;">
@@ -123,7 +130,7 @@
 
         <!-- Action Buttons -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.5rem;">
-          <button class="btn btn-secondary btn-sm" onclick="callStaffService('call_staff')">
+          <button class="btn btn-secondary btn-sm" onclick="openServiceCallModal()">
             🔔 เรียกพนักงาน
           </button>
           <button class="btn btn-primary btn-sm" onclick="callStaffService('check_bill')">
@@ -232,6 +239,51 @@
 
         <button id="btn-submit-order" class="btn btn-primary btn-block" style="padding: 14px; font-size: 1.05rem;" onclick="confirmAndSendOrder()">
           🚀 ยืนยันการสั่งอาหาร (ส่งเข้าครัว)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Call Modal (เรียกพนักงาน / สั่งของเพิ่มเติม) -->
+  <div id="service-call-modal" class="modal-backdrop" onclick="closeServiceCallModal()">
+    <div class="modal-sheet" style="max-width: 460px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.4rem;">🔔</span>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: white; margin: 0;">เรียกพนักงานบริการ</h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin: 2px 0 0;">พิมพ์ข้อความหรือเลือกสิ่งที่ต้องการให้พนักงานบริการ</p>
+          </div>
+        </div>
+        <button onclick="closeServiceCallModal()" style="background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer; padding: 4px;">✕</button>
+      </div>
+
+      <!-- Quick Preset Suggestion Chips -->
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px;">⚡ ข้อความด่วน (แตะเพื่อเลือก):</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ขอเติมน้ำแข็ง / น้ำเปล่า')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">🧊 เติมน้ำแข็ง/น้ำ</button>
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ขอช้อน ส้อม จานแบ่ง')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">🥢 ขอช้อนส้อม/จาน</button>
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ขอทิชชู่ / หลอด')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">🧻 ขอทิชชู่/หลอด</button>
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ขอเครื่องปรุง / พริกน้ำปลา')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">🧂 ขอเครื่องปรุง</button>
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ขอกล่องกลับบ้าน')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">🥡 ขอกล่องกลับบ้าน</button>
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ต้องการสั่งอาหาร/เครื่องดื่มเพิ่ม')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">👨‍🍳 สั่งอาหารเพิ่ม</button>
+          <button type="button" class="btn btn-secondary btn-xs" onclick="addServiceCallChip('ขอเช็ดโต๊ะ / ทำความสะอาด')" style="border-radius: var(--radius-full); padding: 5px 10px; font-size: 0.78rem; background: rgba(255,255,255,0.05);">🧹 เช็ดโต๊ะ</button>
+        </div>
+      </div>
+
+      <!-- Custom Note Textarea -->
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px;">📝 ระบุรายละเอียดเพิ่มเติม:</label>
+        <textarea id="service-call-note-input" rows="3" placeholder="เช่น ขอสั่งกาแฟเพิ่ม 1 แก้ว, ขอแก้วน้ำ 2 ใบ, ขอพริกน้ำปลา..."
+                  style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.35); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: white; outline: none; font-size: 0.9rem; resize: none; font-family: var(--font-thai);"></textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeServiceCallModal()" style="padding: 10px 16px; font-size: 0.9rem;">ยกเลิก</button>
+        <button type="button" id="btn-submit-service-call" class="btn btn-primary" onclick="submitServiceCallModal()" style="flex: 1; padding: 10px 16px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>🔔</span> <span>ส่งข้อความเรียกพนักงาน</span>
         </button>
       </div>
     </div>
@@ -467,7 +519,6 @@
       document.getElementById('modal-qty').innerText = modalQty;
       document.getElementById('modal-title').innerText = selectedMenu.name;
       document.getElementById('modal-desc').innerText = selectedMenu.description || '';
-      document.getElementById('modal-price').innerText = App.formatMoney(selectedMenu.special_price || selectedMenu.price);
       document.getElementById('modal-notes').value = '';
 
       const optContainer = document.getElementById('modal-options-container');
@@ -488,10 +539,11 @@
                     <div style="display:flex; align-items:center; gap: 8px;">
                       <input type="${isRadio ? 'radio' : 'checkbox'}" name="opt_group_${g.id}" value="${it.id}"
                              data-group-id="${g.id}" data-name="${it.name}" data-price="${it.extra_price}"
-                             ${isRadio && itIdx === 0 ? 'checked' : ''} style="accent-color: var(--primary);">
+                             ${isRadio && itIdx === 0 ? 'checked' : ''} style="accent-color: var(--primary);"
+                             onchange="updateModalTotalPrice()">
                       <span>${it.name}</span>
                     </div>
-                    ${it.extra_price > 0 ? `<span style="color:#fb923c; font-size:0.85rem;">+${App.formatMoney(it.extra_price)}</span>` : ''}
+                    ${it.extra_price > 0 ? `<span style="color:#fb923c; font-size:0.85rem; font-weight:600;">+${App.formatMoney(it.extra_price)}</span>` : '<span style="color:var(--text-muted); font-size:0.8rem;">(ราคาปกติ)</span>'}
                   </label>
                 `).join('')}
               </div>
@@ -500,7 +552,30 @@
         });
       }
 
+      updateModalTotalPrice();
       document.getElementById('menu-modal').classList.add('active');
+    }
+
+    function updateModalTotalPrice() {
+      if (!selectedMenu) return;
+      const basePrice = parseFloat(selectedMenu.special_price || selectedMenu.price || 0);
+      let optionsExtra = 0;
+      const inputs = document.querySelectorAll('#modal-options-container input:checked');
+      inputs.forEach(inp => {
+        optionsExtra += parseFloat(inp.dataset.price || 0);
+      });
+      const singleUnitPrice = basePrice + optionsExtra;
+      const totalPrice = singleUnitPrice * modalQty;
+
+      const priceEl = document.getElementById('modal-price');
+      if (priceEl) {
+        priceEl.innerHTML = `${App.formatMoney(singleUnitPrice)} ${optionsExtra > 0 ? `<span style="font-size:0.8rem; color:#fb923c; font-weight:normal;">(ตัวเลือก +฿${optionsExtra})</span>` : ''}`;
+      }
+
+      const addBtn = document.getElementById('modal-btn-add');
+      if (addBtn) {
+        addBtn.innerHTML = `เพิ่มลงตะกร้า • ${App.formatMoney(totalPrice)} 🛒`;
+      }
     }
 
     function closeMenuModal(e) {
@@ -512,9 +587,68 @@
     function adjustModalQty(delta) {
       modalQty = Math.max(1, modalQty + delta);
       document.getElementById('modal-qty').innerText = modalQty;
+      updateModalTotalPrice();
+    }
+
+    function formatMenuNameParts(fullName) {
+      if (!fullName) return { th: '', en: '' };
+      
+      // Case 1: Parentheses e.g. "เอสเปรสโซ่ ร้อน (Espresso)" or "อเมริกาโน่ เย็น (Iced Americano)"
+      const matchParen = fullName.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+      if (matchParen && matchParen[1].trim() && matchParen[2].trim()) {
+        return {
+          th: matchParen[1].trim(),
+          en: matchParen[2].trim()
+        };
+      }
+
+      // Case 2: Slash separator e.g. "เอสเปรสโซ่ ร้อน / Hot Espresso"
+      if (fullName.includes('/')) {
+        const parts = fullName.split('/');
+        return {
+          th: parts[0].trim(),
+          en: parts.slice(1).join('/').trim()
+        };
+      }
+
+      // Case 3: Dash separator e.g. "เอสเปรสโซ่ ร้อน - Hot Espresso"
+      if (fullName.includes(' - ')) {
+        const parts = fullName.split(' - ');
+        return {
+          th: parts[0].trim(),
+          en: parts.slice(1).join(' - ').trim()
+        };
+      }
+
+      // Case 4: Thai + English words mixed e.g. "เอสเปรสโซ่ ร้อน Hot Espresso"
+      const matchMixed = fullName.match(/^([\u0E00-\u0E7F\s0-9%+\-_]+?)\s+([a-zA-Z][a-zA-Z0-9\s%+\-_&/.]*)$/);
+      if (matchMixed && matchMixed[1].trim() && matchMixed[2].trim()) {
+        return {
+          th: matchMixed[1].trim(),
+          en: matchMixed[2].trim()
+        };
+      }
+
+      return {
+        th: fullName.trim(),
+        en: ''
+      };
     }
 
     function addToCartFromModal() {
+      // Validate required option groups
+      if (selectedMenu.option_groups && selectedMenu.option_groups.length > 0) {
+        for (const g of selectedMenu.option_groups) {
+          if (g.is_required) {
+            const checkedInGroup = document.querySelectorAll(`#modal-options-container input[name="opt_group_${g.id}"]:checked`);
+            if (checkedInGroup.length === 0) {
+              App.toast(`กรุณาเลือก "${g.name}" ก่อนเพิ่มลงตะกร้า`, 'warning');
+              return;
+            }
+          }
+        }
+      }
+
       const selectedOptions = [];
       const inputs = document.querySelectorAll('#modal-options-container input:checked');
       inputs.forEach(inp => {
@@ -571,11 +705,24 @@
           const optText = (item.options || []).map(o => `${o.name}${o.extra_price > 0 ? ` (+${App.formatMoney(o.extra_price)})` : ''}`).join(', ');
           const optTotal = (item.options || []).reduce((s, o) => s + o.extra_price, 0);
           const itemTotal = (item.price + optTotal) * item.quantity;
+          const nameParts = formatMenuNameParts(item.name);
 
           return `
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px; display:flex; justify-content:space-between; align-items:center;">
-              <div style="flex:1;">
-                <div style="font-weight:600; color:white;">${item.name}</div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px; display:flex; justify-content:space-between; align-items:center; gap: 10px;">
+              <div style="flex:1; min-width: 0;">
+                <!-- 1. ภาษาไทย 1 บรรทัด -->
+                <div style="font-weight:700; color:white; font-size: 0.98rem; line-height: 1.3;">
+                  ${nameParts.th || item.name}
+                </div>
+
+                <!-- 2. จำนวนเงินอยู่ตรงกลาง ระหว่างบรรทัด -->
+                <div style="font-size:0.92rem; color:#fb923c; font-weight:800; margin: 3px 0; line-height: 1.2;">
+                  ${App.formatMoney(itemTotal)}
+                </div>
+
+                <!-- 3. ภาษาอังกฤษ 1 บรรทัด -->
+                ${nameParts.en ? `<div style="font-size:0.82rem; color:#94a3b8; font-family:var(--font-en); font-weight:500; line-height: 1.2;">(${nameParts.en})</div>` : ''}
+
                 ${optText ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">• ${optText}</div>` : ''}
                 ${item.special_notes ? `<div style="font-size:0.75rem; color:#f59e0b; margin-top:2px;">⚠️ ${item.special_notes}</div>` : ''}
                 <div style="font-size:0.9rem; color:#fb923c; font-weight:700; margin-top:4px;">${App.formatMoney(itemTotal)}</div>
@@ -684,13 +831,35 @@
         if (item.status === 'ready') badge = '<span class="badge badge-purple">✨ พร้อมเสิร์ฟ</span>';
         if (item.status === 'served') badge = '<span class="badge badge-success">🍽️ เสิร์ฟแล้ว</span>';
 
+        const nameParts = formatMenuNameParts(item.menu_name);
+        const optText = (item.options || []).map(o => o.name || o.option_name).join(', ');
+
         return `
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 10px 14px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:600; color:white;">${item.menu_name} x ${item.quantity}</div>
-              <div style="font-size:0.8rem; color:#fb923c; font-weight:700;">${App.formatMoney(item.total_price)}</div>
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px 14px; display:flex; justify-content:space-between; align-items:center; gap: 12px;">
+            <div style="flex: 1; min-width: 0;">
+              <!-- 1. ภาษาไทย 1 บรรทัด -->
+              <div style="font-weight:700; color:white; font-size: 1rem; line-height: 1.3; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span>${nameParts.th || item.menu_name}</span>
+                <span style="color:#fb923c; font-weight:800; font-size: 0.95rem;">x ${item.quantity}</span>
+              </div>
+
+              <!-- 2. จำนวนเงินอยู่ตรงกลาง ระหว่างบรรทัด -->
+              <div style="font-size:0.95rem; color:#fb923c; font-weight:800; margin: 3px 0; line-height: 1.2;">
+                ${App.formatMoney(item.total_price)}
+              </div>
+
+              <!-- 3. ภาษาอังกฤษ 1 บรรทัด -->
+              ${nameParts.en ? `<div style="font-size:0.82rem; color:#94a3b8; font-family:var(--font-en); font-weight:500; line-height: 1.2;">(${nameParts.en})</div>` : ''}
+
+              <!-- Options & Notes if any -->
+              ${optText ? `<div style="font-size:0.75rem; color:#38bdf8; margin-top:3px;">📋 ${optText}</div>` : ''}
+              ${item.special_notes ? `<div style="font-size:0.75rem; color:#f59e0b; margin-top:2px;">⚠️ ${item.special_notes}</div>` : ''}
             </div>
-            <div>${badge}</div>
+
+            <!-- Status Badge on the right -->
+            <div style="flex-shrink: 0;">
+              ${badge}
+            </div>
           </div>
         `;
       }).join('');
@@ -699,7 +868,70 @@
       document.getElementById('tracking-view').style.display = 'block';
     }
 
+    function openServiceCallModal() {
+      const modal = document.getElementById('service-call-modal');
+      const input = document.getElementById('service-call-note-input');
+      if (input) input.value = '';
+      if (modal) {
+        modal.classList.add('active');
+        setTimeout(() => input && input.focus(), 200);
+      }
+    }
+
+    function closeServiceCallModal() {
+      const modal = document.getElementById('service-call-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function addServiceCallChip(text) {
+      const input = document.getElementById('service-call-note-input');
+      if (!input) return;
+      if (input.value.trim()) {
+        if (!input.value.includes(text)) {
+          input.value = input.value.trim() + ', ' + text;
+        }
+      } else {
+        input.value = text;
+      }
+      input.focus();
+    }
+
+    async function submitServiceCallModal() {
+      const input = document.getElementById('service-call-note-input');
+      const submitBtn = document.getElementById('btn-submit-service-call');
+      const noteText = input ? input.value.trim() : '';
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = '⏳ กำลังเรียก...';
+
+      try {
+        const res = await fetch(`/api/customer/store/${storeSlug}/table/${qrToken}/service-call`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ call_type: 'call_staff', note: noteText || 'ต้องการความช่วยเหลือ / สั่งรายการเพิ่ม' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          App.playChime('bell');
+          App.toast(data.message || 'เรียกพนักงานเรียบร้อยแล้ว พนักงานกำลังมาบริการครับ', 'success');
+          closeServiceCallModal();
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการเรียกพนักงาน', 'danger');
+        }
+      } catch (err) {
+        App.toast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'danger');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>🔔</span> <span>ส่งข้อความเรียกพนักงาน</span>';
+      }
+    }
+
     async function callStaffService(callType) {
+      if (callType === 'call_staff') {
+        openServiceCallModal();
+        return;
+      }
+
       try {
         const res = await fetch(`/api/customer/store/${storeSlug}/table/${qrToken}/service-call`, {
           method: 'POST',

@@ -285,14 +285,21 @@ async function submitOrder(req, res) {
       }
 
       // Broadcast to Store Dashboard, KDS, Floor Map
+      const totalItemCount = insertedItems.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 1), 0);
+      const isTakeawayOrder = Boolean(isTakeaway || table.is_takeaway || table.table_number === 'กลับบ้าน' || table.table_number === 'สั่งกลับบ้าน' || table.table_number === 'TAKEAWAY');
+      
       broadcastToStore(store.id, 'order_created', {
         orderId: order.id,
         orderNumber: order.order_number,
         tableId: table.id,
         tableNumber: table.table_number,
+        isTakeaway: isTakeawayOrder,
+        customerName: order.customer_name || (isTakeawayOrder ? 'สั่งกลับบ้าน' : `โต๊ะ ${table.table_number}`),
         items: insertedItems,
+        itemCount: totalItemCount,
         subtotal,
         netAmount,
+        createdAt: new Date().toISOString(),
       });
 
       broadcastToOrder(order.id, 'order_updated', {

@@ -1154,6 +1154,8 @@ body {
 
 @media (max-width: 768px) {
   .hide-on-mobile,
+  .hide-mobile,
+  .desktop-only,
   .nav-trial-btn {
     display: none !important;
   }

@@ -1171,3 +1171,135 @@ body.theme-light #edit-receipt-net,
     padding: 10px;
   }
 }
+
+/* ------------------------------------------------------------- */
+/* Realtime Order Alert Popup / Banner Styles */
+/* ------------------------------------------------------------- */
+.order-alert-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 420px;
+  width: calc(100vw - 32px);
+}
+
+@media (max-width: 640px) {
+  .order-alert-container {
+    top: 68px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
+.order-alert-card {
+  pointer-events: auto;
+  background: linear-gradient(135deg, rgba(23, 30, 48, 0.98), rgba(15, 23, 42, 0.98));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid #ea580c;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 88, 12, 0.4);
+  padding: 16px;
+  color: white;
+  animation: orderAlertSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.order-alert-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ea580c, #f59e0b, #ea580c);
+  background-size: 200% 100%;
+  animation: alertShimmer 2s linear infinite;
+}
+
+@keyframes alertShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@keyframes orderAlertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-25px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes orderAlertFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+}
+
+.order-alert-bell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(234, 88, 12, 0.2);
+  border: 1px solid rgba(234, 88, 12, 0.5);
+  font-size: 1.25rem;
+  animation: bellShake 1.2s ease-in-out infinite;
+}
+
+@keyframes bellShake {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-14deg); }
+  45% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  75% { transform: rotate(4deg); }
+}
+
+.order-alert-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+.order-alert-item-row:last-child {
+  border-bottom: none;
+}
+
+/* Light theme overrides for order alert */
+body.theme-light .order-alert-card,
+[data-theme="light"] .order-alert-card {
+  background: linear-gradient(135deg, #ffffff, #fff7ed) !important;
+  color: #0f172a !important;
+  border-color: #ea580c !important;
+  box-shadow: 0 16px 40px rgba(234, 88, 12, 0.25), 0 4px 15px rgba(0,0,0,0.08) !important;
+}
+body.theme-light .order-alert-card h4,
+[data-theme="light"] .order-alert-card h4 {
+  color: #0f172a !important;
+}
+body.theme-light .order-alert-item-row,
+[data-theme="light"] .order-alert-item-row {
+  border-bottom-color: #fed7aa !important;
+  color: #334155 !important;
+}

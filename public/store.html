@@ -28,19 +28,20 @@
             style="text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; overflow: hidden; background: rgba(255, 255, 255, 0.06);">
             <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block;">
           </a>
-          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+          <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px;">
             <a href="/" id="store-header-name"
               style="color: white; font-weight: 700; font-size: 1.05rem; line-height: 1.2; text-decoration: none;">ร้านอาหาร</a>
-            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-              <span id="store-plan-badge" class="badge badge-plan-pro"
+            <!-- Store Status Badges & Controls (Desktop Only - on mobile moved inside sidebar) -->
+            <div class="store-header-status-group hide-on-mobile desktop-only" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span id="store-plan-badge" class="badge badge-plan-pro store-plan-badge-target"
                 style="font-size: 0.7rem; font-weight: 600;">Professional</span>
-              <span id="store-exp-badge" class="badge"
+              <span id="store-exp-badge" class="badge store-exp-badge-target"
                 style="font-size: 0.72rem; font-weight: 600; background: rgba(234, 88, 12, 0.15); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.35); font-family: var(--font-en); letter-spacing: 0.2px;">EXP
                 2569-10-30</span>
               <label class="store-open-toggle-container role-manager-only" for="store-open-checkbox"
                 title="คลิกเพื่อ สลับเปิด/ปิด รับออเดอร์ของร้าน" style="cursor: pointer;">
                 <div class="toggle-wrapper">
-                  <input class="toggle-checkbox" type="checkbox" id="store-open-checkbox"
+                  <input class="toggle-checkbox store-open-checkbox" type="checkbox" id="store-open-checkbox"
                     onchange="toggleStoreOpenStatus(this.checked)" checked>
                   <div class="toggle-container">
                     <div class="toggle-button">
@@ -55,11 +56,11 @@
                     </div>
                   </div>
                 </div>
-                <span id="store-open-status-text" class="store-toggle-label label-open">เปิดร้าน</span>
+                <span id="store-open-status-text" class="store-toggle-label store-open-status-text label-open">เปิดร้าน</span>
               </label>
 
-              <!-- Dark / Light Mode Switch (สวิตช์มืด-สว่าง) -->
-              <label class="theme-toggle-container" title="สลับโหมด มืด / สว่าง (Dark / Light Mode)">
+              <!-- Dark / Light Mode Switch (สวิตช์มืด-สว่าง) (Desktop Only) -->
+              <label class="theme-toggle-container hide-on-mobile desktop-only" title="สลับโหมด มืด / สว่าง (Dark / Light Mode)">
                 <input class="theme-toggle-checkbox" type="checkbox" onchange="App.toggleTheme(this.checked)">
                 <div class="theme-toggle-track">
                   <div class="theme-toggle-thumb">
@@ -84,6 +85,11 @@
             <button type="button" id="view-mode-staff-btn" class="btn btn-xs" onclick="setSuperadminViewMode('staff')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; background: transparent; color: var(--text-muted); border: 1px solid transparent;">👨‍🍳 พนักงาน</button>
           </div>
         </div>
+
+        <!-- Sound Test / Audio Status Button -->
+        <button type="button" class="btn btn-secondary btn-sm hide-on-mobile" onclick="testNotificationSound()" title="ทดสอบเสียงกระดิ่งแจ้งเตือนออเดอร์ใหม่" style="padding: 6px 10px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;">
+          <span>🔔</span> <span>ทดสอบเสียง</span>
+        </button>
 
         <a id="back-to-platform-btn" href="/superadmin.html" class="btn btn-secondary btn-sm" style="display:none; white-space: nowrap; font-size: 0.8rem; padding: 6px 10px; border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd;">
           👑 แผงควบคุม
@@ -132,9 +138,9 @@
           style="background: none; border: none; color: var(--text-muted); font-size: 1.35rem; cursor: pointer; padding: 4px 8px; line-height: 1;">✕</button>
       </div>
 
-      <!-- Mobile User Profile & Logout Card in Sidebar (Mobile Only) -->
+      <!-- Mobile User Profile & Status Card in Sidebar (Mobile Only) -->
       <div class="sidebar-user-card"
-        style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px;">
+        style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 9px;">
         <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;"
           onclick="switchTab('profile', document.getElementById('nav-profile-btn'))"
           title="คลิกเพื่อตั้งค่าโปรไฟล์และรหัสผ่าน">
@@ -154,6 +160,44 @@
           </div>
         </div>
 
+        <!-- Store Open/Close Toggle (Mobile Sidebar - Manager Only) -->
+        <div class="role-manager-only"
+          style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: var(--radius-sm);">
+          <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">สถานะร้านค้า:</span>
+          <label class="store-open-toggle-container" for="sidebar-store-open-checkbox"
+            title="คลิกเพื่อ สลับเปิด/ปิด รับออเดอร์ของร้าน" style="cursor: pointer; margin: 0;">
+            <div class="toggle-wrapper">
+              <input class="toggle-checkbox store-open-checkbox" type="checkbox" id="sidebar-store-open-checkbox"
+                onchange="toggleStoreOpenStatus(this.checked)" checked>
+              <div class="toggle-container">
+                <div class="toggle-button">
+                  <div class="toggle-button-circles-container">
+                    <div class="toggle-button-circle"></div>
+                    <div class="toggle-button-circle"></div>
+                    <div class="toggle-button-circle"></div>
+                    <div class="toggle-button-circle"></div>
+                    <div class="toggle-button-circle"></div>
+                    <div class="toggle-button-circle"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span id="sidebar-store-open-status-text" class="store-toggle-label store-open-status-text label-open">เปิดร้าน</span>
+          </label>
+        </div>
+
+        <!-- Store Plan & Expiry Badges (Mobile Sidebar) -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: var(--radius-sm);">
+          <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">แพ็กเกจร้าน:</span>
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+            <span id="sidebar-store-plan-badge" class="badge badge-plan-pro store-plan-badge-target"
+              style="font-size: 0.7rem; font-weight: 600;">Professional</span>
+            <span id="sidebar-store-exp-badge" class="badge store-exp-badge-target"
+              style="font-size: 0.72rem; font-weight: 600; background: rgba(234, 88, 12, 0.15); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.35); font-family: var(--font-en); letter-spacing: 0.2px;">EXP 2569-10-30</span>
+          </div>
+        </div>
+
         <!-- Superadmin View Mode Toggle for Mobile Sidebar -->
         <div id="sidebar-superadmin-view-toggle-box" style="display: none; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.35); padding: 8px 10px; border-radius: var(--radius-md);">
           <div style="font-size: 0.75rem; color: #c4b5fd; font-weight: 600; margin-bottom: 6px;">👑 สลับมุมมอง (Super Admin):</div>
@@ -164,7 +208,7 @@
         </div>
 
         <div
-          style="display: flex; align-items: center; justify-content: space-between; padding: 6px 2px 2px; border-top: 1px solid var(--border-glass);">
+          style="display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 2px;">
           <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">ธีมแสดงผล:</span>
           <label class="theme-toggle-container" title="สลับโหมด มืด / สว่าง (Dark / Light Mode)">
             <input class="theme-toggle-checkbox" type="checkbox" onchange="App.toggleTheme(this.checked)">
@@ -191,7 +235,10 @@
         <span>📊</span> <span>ภาพรวม</span>
       </button>
       <button id="nav-kitchen-btn" class="sidebar-btn" onclick="switchTab('kitchen', this)">
-        <span>👨‍🍳</span> <span>จอครัว</span>
+        <span style="display: flex; align-items: center; gap: 12px; flex: 1;">
+          <span>👨‍🍳</span> <span>จอครัว</span>
+        </span>
+        <span id="sidebar-kitchen-badge" class="badge" style="display: none; background: #ea580c; color: white; font-size: 0.72rem; padding: 2px 7px; border-radius: 9999px; font-weight: 700;">0</span>
       </button>
       <button id="nav-pos-btn" class="sidebar-btn" onclick="switchTab('pos', this)">
         <span>💳</span> <span>แคชเชียร์</span>
@@ -1364,6 +1411,43 @@
             style="width:100%; padding:10px 14px; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-md); color:white; font-size:0.9rem;"></textarea>
         </div>
 
+        <!-- Menu Options & Variants Section (ตัวเลือกเพิ่มเติม เช่น ร้อน / เย็น / ปั่น / ระดับความหวาน) -->
+        <div style="margin-bottom: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <label style="font-size: 0.92rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 6px;">
+                <span>🎛️</span> <span>ตัวเลือกเพิ่มเติม / รูปแบบเสิร์ฟ</span>
+              </label>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">กำหนดรูปแบบ เช่น ร้อน / เย็น / ปั่น หรือระดับความหวาน ให้ลูกค้าเลือกเมื่อสั่ง</div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-xs" onclick="addMenuOptionGroup()" style="padding: 4px 10px; font-size: 0.78rem; font-weight: 600; border-color: rgba(249, 115, 22, 0.4); color: #fb923c;">
+              + เพิ่มกลุ่มตัวเลือก
+            </button>
+          </div>
+
+          <!-- One-Click Quick Presets -->
+          <div style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">เทมเพลตด่วน:</span>
+            <button type="button" class="preset-pill" onclick="applyMenuOptionPreset('temp')" style="background: rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.4); color: #fdba74;">
+              ☕ ร้อน / เย็น / ปั่น
+            </button>
+            <button type="button" class="preset-pill" onclick="applyMenuOptionPreset('sweetness')" style="background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.4); color: #93c5fd;">
+              🥤 ระดับความหวาน
+            </button>
+            <button type="button" class="preset-pill" onclick="applyMenuOptionPreset('size')" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #d8b4fe;">
+              📏 ขนาด (S / M / L)
+            </button>
+            <button type="button" class="preset-pill" onclick="applyMenuOptionPreset('meat')" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #6ee7b7;">
+              🥩 หมู / ไก่ / ทะเล
+            </button>
+          </div>
+
+          <!-- Container for Dynamic Option Groups -->
+          <div id="menu-form-options-container" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Injected Option Groups -->
+          </div>
+        </div>
+
         <!-- Toggles: Recommend & Available -->
         <div
           style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:8px;">
@@ -1681,6 +1765,9 @@
     </div>
   </div>
 
+  <!-- Realtime Order Alert Notification Container -->
+  <div id="order-alert-container" class="order-alert-container"></div>
+
   <script src="/js/app.js"></script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -1737,52 +1824,71 @@
     }
 
     function updateStoreExpUI(dateVal) {
-      const badge = document.getElementById('store-exp-badge');
-      if (!badge) return;
-      if (!dateVal) {
-        badge.innerText = 'EXP 2569-10-30';
-        return;
-      }
-      badge.innerText = formatExpDate(dateVal);
+      const badges = document.querySelectorAll('#store-exp-badge, #sidebar-store-exp-badge, .store-exp-badge-target');
+      if (!badges || badges.length === 0) return;
+      const formatted = dateVal ? formatExpDate(dateVal) : 'EXP 2569-10-30';
+      const d = dateVal ? new Date(dateVal) : null;
+      const isExpired = d && !isNaN(d.getTime()) && d < new Date();
 
-      const d = new Date(dateVal);
-      if (!isNaN(d.getTime()) && d < new Date()) {
-        badge.style.background = 'rgba(239, 68, 68, 0.2)';
-        badge.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-        badge.style.color = '#f87171';
-        badge.title = 'โปรแกรมหมดอายุการใช้งานแล้ว กรุณาต่ออายุ';
-      } else {
-        badge.style.background = 'rgba(234, 88, 12, 0.15)';
-        badge.style.borderColor = 'rgba(234, 88, 12, 0.35)';
-        badge.style.color = '#fb923c';
-        badge.title = 'วันหมดอายุโปรแกรม';
-      }
+      badges.forEach(badge => {
+        badge.innerText = formatted;
+        if (isExpired) {
+          badge.style.background = 'rgba(239, 68, 68, 0.2)';
+          badge.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+          badge.style.color = '#f87171';
+          badge.title = 'โปรแกรมหมดอายุการใช้งานแล้ว กรุณาต่ออายุ';
+        } else {
+          badge.style.background = 'rgba(234, 88, 12, 0.15)';
+          badge.style.borderColor = 'rgba(234, 88, 12, 0.35)';
+          badge.style.color = '#fb923c';
+          badge.title = 'วันหมดอายุโปรแกรม';
+        }
+      });
     }
 
     function updateStorePlanBadge(planName) {
-      const badge = document.getElementById('store-plan-badge');
-      if (!badge) return;
-      const p = (planName || 'Professional').trim();
-      badge.innerText = p;
-      badge.className = 'badge';
-      const pLower = p.toLowerCase();
-      const isStarter = pLower.includes('starter');
+      const badges = document.querySelectorAll('#store-plan-badge, #sidebar-store-plan-badge, .store-plan-badge-target');
+      const plan = planName || (currentStoreData && currentStoreData.plan_name) || 'Professional';
+      const isStarter = (plan.toLowerCase() === 'starter');
+      const isEnterprise = (plan === 'Enterprise' || plan.toLowerCase().includes('enterprise') || plan.toLowerCase().includes('buffet'));
 
-      if (isStarter) {
-        badge.classList.add('badge-plan-starter');
-        badge.style.background = 'rgba(59, 130, 246, 0.2)';
-        badge.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-        badge.style.color = '#93c5fd';
-      } else if (pLower.includes('enterprise') || pLower.includes('buffet')) {
-        badge.classList.add('badge-plan-enterprise');
-        badge.style.background = 'rgba(168, 85, 247, 0.2)';
-        badge.style.borderColor = 'rgba(168, 85, 247, 0.5)';
-        badge.style.color = '#d8b4fe';
-      } else {
-        badge.classList.add('badge-plan-pro');
-        badge.style.background = 'rgba(234, 88, 12, 0.2)';
-        badge.style.borderColor = 'rgba(234, 88, 12, 0.5)';
-        badge.style.color = '#fdba74';
+      badges.forEach(badge => {
+        if (!badge) return;
+        badge.className = 'badge store-plan-badge-target';
+        if (isStarter) {
+          badge.classList.add('badge-plan-starter');
+          badge.innerText = 'Starter';
+          badge.title = 'แพ็กเกจ Starter (1 บัญชีผู้ดูแลร้าน)';
+          badge.style.background = 'rgba(59, 130, 246, 0.2)';
+          badge.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+          badge.style.color = '#93c5fd';
+        } else if (isEnterprise) {
+          badge.classList.add('badge-plan-enterprise');
+          badge.innerText = 'Enterprise';
+          badge.title = 'แพ็กเกจ Enterprise / Buffet (ไม่จำกัดสาขา & ฟังก์ชันครบ)';
+          badge.style.background = 'rgba(168, 85, 247, 0.2)';
+          badge.style.borderColor = 'rgba(168, 85, 247, 0.5)';
+          badge.style.color = '#d8b4fe';
+        } else {
+          badge.classList.add('badge-plan-pro');
+          badge.innerText = 'Professional';
+          badge.title = 'แพ็กเกจ Professional (ยอดนิยม ไม่จำกัดโต๊ะ/เมนู)';
+          badge.style.background = 'rgba(234, 88, 12, 0.2)';
+          badge.style.borderColor = 'rgba(234, 88, 12, 0.5)';
+          badge.style.color = '#fdba74';
+        }
+      });
+
+      // Hide or show Staff Management button for Starter plan
+      const staffNavBtn = document.getElementById('nav-staff-btn');
+      if (staffNavBtn) {
+        staffNavBtn.style.display = isStarter ? 'none' : (isManager ? 'flex' : 'none');
+      }
+
+      // Show Telegram Service Group field for all plans
+      const serviceField = document.getElementById('field-telegram-service');
+      if (serviceField) {
+        serviceField.style.display = 'block';
       }
 
       // Plan Feature Visibility: Chat ID กลุ่มสลิปลูกค้า available on Professional and Enterprise plans
@@ -3183,6 +3289,17 @@
              <span class="badge badge-danger" style="font-size: 0.7rem; padding: 2px 6px; margin-left: 6px;">ลดราคา</span>`
           : `<span style="font-weight: 700; color: #fb923c; font-size: 1rem;">${App.formatMoney(m.price)}</span>`;
 
+        const hasOptions = m.option_groups && m.option_groups.length > 0;
+        const optionsBadges = hasOptions
+          ? `<div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+              ${m.option_groups.map(g => `
+                <span class="badge" style="font-size: 0.68rem; padding: 1px 7px; background: rgba(249, 115, 22, 0.12); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.35);">
+                  🎛️ ${g.name}: ${g.items.map(it => it.name + (it.extra_price > 0 ? ` +${it.extra_price}฿` : '')).join('/')}
+                </span>
+              `).join('')}
+             </div>`
+          : '';
+
         return `
           <div class="menu-item-card">
             <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">
@@ -3202,6 +3319,7 @@
                   ${priceDisplay}
                 </div>
                 ${m.description ? `<div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 480px;">${m.description}</div>` : ''}
+                ${optionsBadges}
               </div>
             </div>
 
@@ -3218,6 +3336,173 @@
       }).join('');
     }
 
+    // -------------------------------------------------------------
+    // Menu Options & Variants State & Management
+    // -------------------------------------------------------------
+    let currentMenuOptions = [];
+
+    function escapeHtmlAttr(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function renderMenuOptionsEditor() {
+      const container = document.getElementById('menu-form-options-container');
+      if (!container) return;
+
+      if (currentMenuOptions.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 14px; color: var(--text-dim); font-size: 0.82rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px;">
+            ยังไม่มีตัวเลือกเพิ่มเติม (คลิกเทมเพลตด่วนด้านบน เช่น <b>☕ ร้อน / เย็น / ปั่น</b> หรือกด <b>+ เพิ่มกลุ่มตัวเลือก</b> ได้ทันที)
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentMenuOptions.map((g, gIdx) => {
+        return `
+          <div class="option-group-card" data-group-index="${gIdx}" style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px;">
+                <input type="text" class="opt-group-name" value="${escapeHtmlAttr(g.name || '')}" placeholder="ชื่อกลุ่ม เช่น เลือกรูปแบบ หรือ ระดับความหวาน" required
+                  oninput="updateGroupField(${gIdx}, 'name', this.value)"
+                  style="flex: 1; padding: 6px 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-glass); border-radius: 6px; color: white; font-size: 0.85rem; font-weight: 600;">
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #fdba74; cursor: pointer;">
+                  <input type="checkbox" class="opt-group-required" ${g.is_required ? 'checked' : ''}
+                    onchange="updateGroupField(${gIdx}, 'is_required', this.checked)"
+                    style="accent-color: #ea580c;">
+                  <span>จำเป็นต้องเลือก</span>
+                </label>
+                <button type="button" class="btn btn-xs btn-danger" onclick="removeMenuOptionGroup(${gIdx})" style="padding: 3px 8px; font-size: 0.72rem;" title="ลบกลุ่มตัวเลือกนี้">
+                  ✕ ลบกลุ่ม
+                </button>
+              </div>
+            </div>
+
+            <!-- Group items -->
+            <div class="opt-group-items-container" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
+              ${(g.items || []).map((it, itIdx) => `
+                <div class="opt-item-row" style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 0.75rem; color: var(--text-dim); width: 16px; text-align: center;">${itIdx + 1}.</span>
+                  <input type="text" class="opt-item-name" value="${escapeHtmlAttr(it.name || '')}" placeholder="ชื่อตัวเลือก เช่น ร้อน, เย็น, ปั่น" required
+                    oninput="updateItemField(${gIdx}, ${itIdx}, 'name', this.value)"
+                    style="flex: 2; padding: 5px 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: white; font-size: 0.82rem;">
+                  <div style="display: flex; align-items: center; gap: 3px; flex: 1; min-width: 110px;">
+                    <span style="font-size: 0.78rem; color: #fb923c; font-weight: 600;">+฿</span>
+                    <input type="number" class="opt-item-price" value="${it.extra_price !== undefined ? it.extra_price : 0}" min="0" step="0.5" placeholder="0"
+                      oninput="updateItemField(${gIdx}, ${itIdx}, 'extra_price', parseFloat(this.value) || 0)"
+                      style="width: 100%; padding: 5px 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: white; font-size: 0.82rem;">
+                  </div>
+                  <button type="button" onclick="removeMenuOptionItem(${gIdx}, ${itIdx})" style="background: none; border: none; color: #f87171; cursor: pointer; padding: 2px 6px; font-size: 0.9rem;" title="ลบตัวเลือกนี้">
+                    🗑️
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+
+            <button type="button" class="btn btn-xs btn-secondary" onclick="addMenuOptionItem(${gIdx})" style="font-size: 0.75rem; padding: 3px 10px; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(255,255,255,0.15);">
+              <span>+</span> <span>เพิ่มตัวเลือกในกลุ่มนี้</span>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addMenuOptionGroup() {
+      currentMenuOptions.push({
+        name: 'ตัวเลือกเพิ่มเติม',
+        is_required: false,
+        max_select: 1,
+        items: [
+          { name: 'ตัวเลือก 1', extra_price: 0 },
+          { name: 'ตัวเลือก 2', extra_price: 10 }
+        ]
+      });
+      renderMenuOptionsEditor();
+    }
+
+    function removeMenuOptionGroup(gIdx) {
+      currentMenuOptions.splice(gIdx, 1);
+      renderMenuOptionsEditor();
+    }
+
+    function addMenuOptionItem(gIdx) {
+      if (!currentMenuOptions[gIdx]) return;
+      if (!currentMenuOptions[gIdx].items) currentMenuOptions[gIdx].items = [];
+      currentMenuOptions[gIdx].items.push({ name: '', extra_price: 0 });
+      renderMenuOptionsEditor();
+    }
+
+    function removeMenuOptionItem(gIdx, itIdx) {
+      if (!currentMenuOptions[gIdx] || !currentMenuOptions[gIdx].items) return;
+      currentMenuOptions[gIdx].items.splice(itIdx, 1);
+      renderMenuOptionsEditor();
+    }
+
+    function updateGroupField(gIdx, field, val) {
+      if (!currentMenuOptions[gIdx]) return;
+      currentMenuOptions[gIdx][field] = val;
+    }
+
+    function updateItemField(gIdx, itIdx, field, val) {
+      if (!currentMenuOptions[gIdx] || !currentMenuOptions[gIdx].items || !currentMenuOptions[gIdx].items[itIdx]) return;
+      currentMenuOptions[gIdx].items[itIdx][field] = val;
+    }
+
+    function applyMenuOptionPreset(type) {
+      if (type === 'temp') {
+        currentMenuOptions.push({
+          name: 'เลือกรูปแบบ (ร้อน / เย็น / ปั่น)',
+          is_required: true,
+          max_select: 1,
+          items: [
+            { name: 'ร้อน', extra_price: 0 },
+            { name: 'เย็น', extra_price: 10 },
+            { name: 'ปั่น', extra_price: 20 },
+          ]
+        });
+      } else if (type === 'sweetness') {
+        currentMenuOptions.push({
+          name: 'ระดับความหวาน',
+          is_required: false,
+          max_select: 1,
+          items: [
+            { name: 'หวานปกติ (100%)', extra_price: 0 },
+            { name: 'หวานน้อย (50%)', extra_price: 0 },
+            { name: 'หวานน้อยมาก (25%)', extra_price: 0 },
+            { name: 'ไม่หวานเลย (0%)', extra_price: 0 },
+          ]
+        });
+      } else if (type === 'size') {
+        currentMenuOptions.push({
+          name: 'ขนาดแก้ว',
+          is_required: true,
+          max_select: 1,
+          items: [
+            { name: 'ธรรมดา (S)', extra_price: 0 },
+            { name: 'พิเศษ (M)', extra_price: 10 },
+            { name: 'จัมโบ้ (L)', extra_price: 20 },
+          ]
+        });
+      } else if (type === 'meat') {
+        currentMenuOptions.push({
+          name: 'เลือกเนื้อสัตว์',
+          is_required: true,
+          max_select: 1,
+          items: [
+            { name: 'หมูชิ้น / หมูสับ', extra_price: 0 },
+            { name: 'ไก่', extra_price: 0 },
+            { name: 'เนื้อวัว', extra_price: 15 },
+            { name: 'ทะเล (กุ้ง/หมึก)', extra_price: 20 },
+          ]
+        });
+      }
+      renderMenuOptionsEditor();
+      App.toast('เพิ่มเทมเพลตตัวเลือกเรียบร้อย สามารถแก้ไขราคาและชื่อได้ตามต้องการ ✨', 'info');
+    }
+
     function openEditMenuModal(menuId) {
       const menu = menusData.find(m => m.id == menuId);
       if (!menu) return;
@@ -3232,6 +3517,12 @@
       document.getElementById('menu-form-description').value = menu.description || '';
       document.getElementById('menu-form-recommend').checked = !!menu.is_recommend;
       document.getElementById('menu-form-available').checked = menu.is_available !== false;
+
+      // Populate Option Groups
+      currentMenuOptions = (menu.option_groups && Array.isArray(menu.option_groups))
+        ? JSON.parse(JSON.stringify(menu.option_groups))
+        : [];
+      renderMenuOptionsEditor();
 
       // Populate Categories select
       const catSelect = document.getElementById('menu-form-category');
@@ -3258,6 +3549,10 @@
       document.getElementById('menu-form-description').value = '';
       document.getElementById('menu-form-recommend').checked = false;
       document.getElementById('menu-form-available').checked = true;
+
+      // Reset Option Groups
+      currentMenuOptions = [];
+      renderMenuOptionsEditor();
 
       // Populate Categories select
       const catSelect = document.getElementById('menu-form-category');
@@ -3368,6 +3663,17 @@
         return;
       }
 
+      // Filter and clean option groups
+      const cleanOptionGroups = currentMenuOptions.map(g => ({
+        name: (g.name || '').trim(),
+        is_required: !!g.is_required,
+        max_select: parseInt(g.max_select || 1, 10),
+        items: (g.items || []).filter(it => it && (it.name || '').trim() !== '').map(it => ({
+          name: it.name.trim(),
+          extra_price: parseFloat(it.extra_price || 0)
+        }))
+      })).filter(g => g.name !== '' && g.items.length > 0);
+
       const payload = {
         name,
         category_id: parseInt(categoryId, 10),
@@ -3377,6 +3683,7 @@
         description,
         is_recommend: isRecommend,
         is_available: isAvailable,
+        option_groups: cleanOptionGroups,
       };
 
       try {
@@ -3865,12 +4172,14 @@
     // Settings & Telegram Logic
     // -------------------------------------------------------------
     function updateStorePlanBadge(planName) {
-      const badge = document.getElementById('store-plan-badge');
+      const badges = document.querySelectorAll('#store-plan-badge, #sidebar-store-plan-badge, .store-plan-badge-target');
       const plan = planName || (currentStoreData && currentStoreData.plan_name) || 'Professional';
       const isStarter = (plan.toLowerCase() === 'starter');
+      const isEnterprise = (plan === 'Enterprise' || plan.toLowerCase().includes('enterprise') || plan.toLowerCase().includes('buffet'));
 
-      if (badge) {
-        badge.className = 'badge';
+      badges.forEach(badge => {
+        if (!badge) return;
+        badge.className = 'badge store-plan-badge-target';
         if (isStarter) {
           badge.classList.add('badge-plan-starter');
           badge.innerText = 'Starter';
@@ -3878,7 +4187,7 @@
           badge.style.background = 'rgba(59, 130, 246, 0.2)';
           badge.style.borderColor = 'rgba(59, 130, 246, 0.5)';
           badge.style.color = '#93c5fd';
-        } else if (plan === 'Enterprise' || plan.toLowerCase().includes('enterprise') || plan.toLowerCase().includes('buffet')) {
+        } else if (isEnterprise) {
           badge.classList.add('badge-plan-enterprise');
           badge.innerText = 'Enterprise';
           badge.title = 'แพ็กเกจ Enterprise / Buffet (ไม่จำกัดสาขา & ฟังก์ชันครบ)';
@@ -3893,7 +4202,7 @@
           badge.style.borderColor = 'rgba(234, 88, 12, 0.5)';
           badge.style.color = '#fdba74';
         }
-      }
+      });
 
       // Hide or show Staff Management button for Starter plan
       const staffNavBtn = document.getElementById('nav-staff-btn');
@@ -3926,21 +4235,24 @@
 
     function updateStoreOpenUI(isOpen) {
       currentStoreIsOpen = (isOpen !== false && isOpen !== 'false');
-      const checkbox = document.getElementById('store-open-checkbox');
-      const textEl = document.getElementById('store-open-status-text');
+      const checkboxes = document.querySelectorAll('#store-open-checkbox, #sidebar-store-open-checkbox, .store-open-checkbox');
+      const textEls = document.querySelectorAll('#store-open-status-text, #sidebar-store-open-status-text, .store-open-status-text');
 
-      if (checkbox) {
-        checkbox.checked = currentStoreIsOpen;
-      }
-      if (textEl) {
-        if (currentStoreIsOpen) {
-          textEl.className = 'store-toggle-label label-open';
-          textEl.innerText = 'เปิดร้าน';
-        } else {
-          textEl.className = 'store-toggle-label label-closed';
-          textEl.innerText = 'ปิดร้าน';
+      checkboxes.forEach(cb => {
+        if (cb) cb.checked = currentStoreIsOpen;
+      });
+
+      textEls.forEach(textEl => {
+        if (textEl) {
+          if (currentStoreIsOpen) {
+            textEl.className = 'store-toggle-label store-open-status-text label-open';
+            textEl.innerText = 'เปิดร้าน';
+          } else {
+            textEl.className = 'store-toggle-label store-open-status-text label-closed';
+            textEl.innerText = 'ปิดร้าน';
+          }
         }
-      }
+      });
 
       const tablesBanner = document.getElementById('store-closed-tables-banner');
       if (tablesBanner) {
@@ -4934,23 +5246,290 @@
       }
     }
 
+    // -------------------------------------------------------------
+    // Realtime Order Alerts, Sound & Fallback Sync Engine
+    // -------------------------------------------------------------
+    let lastHandledOrderId = 0;
+    let lastHandledServiceCallId = 0;
+
+    function testNotificationSound() {
+      App.unlockAudio();
+      App.playChime('order');
+      showOrderRealtimeAlert({
+        orderId: 99999,
+        orderNumber: 'ORD-DEMO-TEST',
+        tableNumber: '1',
+        isTakeaway: false,
+        customerName: 'ทดสอบระบบแจ้งเตือน',
+        items: [
+          { menu_name: 'ชาไทยเย็น', quantity: 1, total_price: 50, options: [{ name: 'หวาน 50%' }] },
+          { menu_name: 'เอสเพรสโซ่เย็น', quantity: 1, total_price: 60, options: [{ name: 'หวานน้อย' }] }
+        ],
+        itemCount: 2,
+        netAmount: 110,
+        createdAt: new Date().toISOString()
+      }, true);
+      App.toast('🔔 ทดสอบเสียงกระดิ่งแจ้งเตือนและแบนเนอร์ออเดอร์ใหม่สำเร็จ!', 'success');
+    }
+
+    function updateKitchenBadge(count) {
+      const badge = document.getElementById('sidebar-kitchen-badge');
+      if (!badge) return;
+      const num = parseInt(count || 0, 10);
+      if (num > 0) {
+        badge.innerText = num > 99 ? '99+' : num;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function showOrderRealtimeAlert(orderData, isDemo = false) {
+      if (!orderData) return;
+      if (!isDemo && orderData.orderId && orderData.orderId <= lastHandledOrderId) {
+        return; // already handled
+      }
+      if (!isDemo && orderData.orderId && !isDemo) {
+        lastHandledOrderId = Math.max(lastHandledOrderId, orderData.orderId);
+      }
+
+      // 1. Play rich resonant chime sound
+      App.playChime('order');
+
+      // 2. Format details
+      const isTakeaway = Boolean(orderData.isTakeaway || orderData.tableNumber === 'กลับบ้าน' || orderData.tableNumber === 'สั่งกลับบ้าน' || orderData.tableNumber === 'TAKEAWAY');
+      const tableLabel = isTakeaway ? '🛍️ สั่งกลับบ้าน (Takeaway)' : `📍 โต๊ะ ${orderData.tableNumber || '-'}`;
+      const itemCount = orderData.itemCount || (orderData.items ? orderData.items.reduce((s, i) => s + (parseInt(i.quantity, 10) || 1), 0) : 1);
+      const netAmountFormatted = App.formatMoney(orderData.netAmount || 0);
+
+      // 3. Optional Voice Announcement
+      try {
+        const voiceText = isTakeaway ? 'มีออเดอร์ใหม่ สั่งกลับบ้านค่ะ' : `มีออเดอร์ใหม่ โต๊ะ ${orderData.tableNumber} ค่ะ`;
+        App.speakVoice(voiceText);
+      } catch (e) {}
+
+      // 4. Desktop OS Notification
+      App.showSystemNotification(`🔔 ออเดอร์ใหม่! ${tableLabel}`, {
+        body: `${itemCount} รายการ รวม ${netAmountFormatted}\nคลิกเพื่อเปิดดูในหน้าจัดการร้าน`,
+      }, () => {
+        switchTab('kitchen', document.getElementById('nav-kitchen-btn'));
+      });
+
+      // 5. Mount Rich Floating Alert Card in DOM
+      const container = document.getElementById('order-alert-container');
+      if (container) {
+        const cardId = 'order-alert-' + Date.now();
+        const card = document.createElement('div');
+        card.id = cardId;
+        card.className = 'order-alert-card';
+
+        // Prepare preview items HTML (up to 3 items)
+        let itemsHtml = '';
+        if (orderData.items && Array.isArray(orderData.items)) {
+          const previewItems = orderData.items.slice(0, 3);
+          itemsHtml = previewItems.map(it => {
+            const optStr = (it.options || []).map(o => o.name || o.option_name).join(', ');
+            return `
+              <div class="order-alert-item-row">
+                <div>
+                  <strong style="color:white;">${it.menu_name}</strong>
+                  <span style="color:#fb923c; font-weight:700;"> x${it.quantity}</span>
+                  ${optStr ? `<div style="font-size:0.75rem; color:#94a3b8;">📋 ${optStr}</div>` : ''}
+                  ${it.special_notes ? `<div style="font-size:0.75rem; color:#f59e0b;">⚠️ ${it.special_notes}</div>` : ''}
+                </div>
+                <div style="font-weight:600; color:#fdba74; white-space:nowrap; margin-left:8px;">
+                  ${App.formatMoney(it.total_price || (parseFloat(it.unit_price || 0) * (it.quantity || 1)))}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          if (orderData.items.length > 3) {
+            itemsHtml += `
+              <div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding-top:4px;">
+                และอีก ${orderData.items.length - 3} รายการ...
+              </div>
+            `;
+          }
+        }
+
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="order-alert-bell-icon">🔔</div>
+              <div>
+                <h4 style="margin:0; font-size:1.05rem; font-weight:700; color:#fb923c; display:flex; align-items:center; gap:6px;">
+                  <span>มีออเดอร์ใหม่เข้ามา!</span>
+                  <span class="badge badge-success" style="font-size:0.65rem; padding:1px 6px;">🟢 เพิ่งสั่ง</span>
+                </h4>
+                <div style="font-size:0.85rem; font-weight:700; color:white; margin-top:2px;">${tableLabel}</div>
+              </div>
+            </div>
+            <button onclick="dismissOrderAlert('${cardId}')" style="background:none; border:none; color:var(--text-muted); font-size:1.25rem; cursor:pointer; padding:2px 6px; line-height:1;" title="ปิด">✕</button>
+          </div>
+
+          <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:8px 10px; margin-bottom:10px;">
+            ${itemsHtml || `<div style="font-size:0.85rem; color:white;">รายการอาหาร ${itemCount} รายการ</div>`}
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); margin-top:6px; padding-top:6px;">
+              <span style="font-size:0.82rem; color:var(--text-muted);">ยอดรวมทั้งหมด:</span>
+              <span style="font-size:1.15rem; font-weight:800; color:#fb923c;">${netAmountFormatted}</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary btn-sm" style="flex:1; padding:7px 10px; font-size:0.82rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:5px;" onclick="dismissOrderAlert('${cardId}'); switchTab('kitchen', document.getElementById('nav-kitchen-btn'));">
+              <span>👨‍🍳</span> <span>ดูในจอครัว (KDS)</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" style="padding:7px 12px; font-size:0.82rem; font-weight:600;" onclick="dismissOrderAlert('${cardId}'); switchTab('pos', document.getElementById('nav-pos-btn')); if (${orderData.tableId || 'null'}) selectPosTable(${orderData.tableId});">
+              <span>💳</span> <span>คิดเงิน</span>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+
+        // Auto dismiss after 18 seconds
+        setTimeout(() => {
+          dismissOrderAlert(cardId);
+        }, 18000);
+      }
+
+      // 6. Instantly reload active view tabs
+      refreshActiveViews();
+    }
+
+    function showServiceCallAlert(callData) {
+      if (!callData) return;
+      App.playChime('service');
+
+      const isBill = callData.callType === 'check_bill';
+      const heading = isBill ? '🟣 ลูกค้าขอเช็คบิล!' : '🔔 ลูกค้าเรียกพนักงาน!';
+      const tableLabel = `โต๊ะ ${callData.tableNumber || '-'}`;
+
+      App.showSystemNotification(heading, { body: `${tableLabel}: ${callData.note || 'ต้องการความช่วยเหลือ'}` });
+
+      const container = document.getElementById('order-alert-container');
+      if (container) {
+        const cardId = 'call-alert-' + Date.now();
+        const card = document.createElement('div');
+        card.id = cardId;
+        card.className = 'order-alert-card';
+        card.style.borderColor = isBill ? '#a855f7' : '#f59e0b';
+        card.style.boxShadow = isBill ? '0 16px 40px rgba(0,0,0,0.6), 0 0 25px rgba(168,85,247,0.4)' : '0 16px 40px rgba(0,0,0,0.6), 0 0 25px rgba(245,158,11,0.4)';
+
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:1.6rem;">${isBill ? '🟣' : '🔔'}</span>
+              <div>
+                <h4 style="margin:0; font-size:1.05rem; font-weight:700; color:${isBill ? '#c084fc' : '#fbbf24'};">${heading}</h4>
+                <div style="font-size:0.9rem; font-weight:700; color:white; margin-top:2px;">${tableLabel} ${callData.note ? `• ${callData.note}` : ''}</div>
+              </div>
+            </div>
+            <button onclick="dismissOrderAlert('${cardId}')" style="background:none; border:none; color:var(--text-muted); font-size:1.25rem; cursor:pointer; padding:2px 6px;">✕</button>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button class="btn ${isBill ? 'btn-primary' : 'btn-secondary'} btn-sm" style="flex:1;" onclick="dismissOrderAlert('${cardId}'); switchTab('tables', document.getElementById('nav-tables-btn'));">
+              ดูผังโต๊ะ
+            </button>
+            ${isBill ? `<button class="btn btn-secondary btn-sm" onclick="dismissOrderAlert('${cardId}'); switchTab('pos', document.getElementById('nav-pos-btn'));">ไปที่แคชเชียร์</button>` : ''}
+          </div>
+        `;
+
+        container.appendChild(card);
+        setTimeout(() => dismissOrderAlert(cardId), 15000);
+      }
+
+      refreshActiveViews();
+    }
+
+    function dismissOrderAlert(cardId) {
+      const card = document.getElementById(cardId);
+      if (card) {
+        card.style.animation = 'orderAlertFadeOut 0.25s ease forwards';
+        setTimeout(() => card.remove(), 250);
+      }
+    }
+
+    function refreshActiveViews() {
+      if (activeTabName === 'dashboard' && isManager) loadDashboard();
+      if (activeTabName === 'tables') loadTables();
+      if (activeTabName === 'kitchen') loadKitchen();
+      if (activeTabName === 'pos') loadPos();
+      if (activeTabName === 'reports' && isManager) loadReports();
+    }
+
+    // Smart Fallback Polling (Checks every 4.5 seconds to guarantee 100% reliable alerts)
+    async function syncLatestOrdersFallback() {
+      try {
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('food_token');
+        if (!token) return;
+
+        const res = await fetch(getApiUrl('/api/admin/orders/latest-sync'), {
+          headers: getAuthHeaders()
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Update kitchen pending dishes count badge in sidebar
+          updateKitchenBadge(data.pendingKitchenCount);
+
+          // Check if a new order exists and hasn't been notified yet
+          if (data.latestOrder && data.latestOrder.id) {
+            if (lastHandledOrderId === 0) {
+              // Initial sync on page load - record ID without ringing chime
+              lastHandledOrderId = data.latestOrder.id;
+            } else if (data.latestOrder.id > lastHandledOrderId) {
+              // New order arrived while WebSocket was silent!
+              console.log('[Sync Fallback] New order detected via background sync:', data.latestOrder.order_number);
+              showOrderRealtimeAlert({
+                orderId: data.latestOrder.id,
+                orderNumber: data.latestOrder.order_number,
+                tableId: data.latestOrder.table_id,
+                tableNumber: data.latestOrder.table_number,
+                isTakeaway: data.latestOrder.is_takeaway,
+                customerName: data.latestOrder.customer_name,
+                items: data.latestOrder.items || [],
+                netAmount: data.latestOrder.net_amount,
+              });
+            }
+          }
+
+          // Check for new service calls
+          if (data.latestServiceCall && data.latestServiceCall.id) {
+            if (lastHandledServiceCallId === 0) {
+              lastHandledServiceCallId = data.latestServiceCall.id;
+            } else if (data.latestServiceCall.id > lastHandledServiceCallId) {
+              lastHandledServiceCallId = data.latestServiceCall.id;
+              showServiceCallAlert({
+                tableNumber: data.latestServiceCall.table_number,
+                callType: data.latestServiceCall.call_type,
+              });
+            }
+          }
+        }
+      } catch (err) {
+        // Silent catch for background polling
+      }
+    }
+
+    // Start background sync polling every 4.5 seconds
+    setInterval(syncLatestOrdersFallback, 4500);
+    setTimeout(syncLatestOrdersFallback, 1500);
+
     // Initialize Realtime WebSocket
     App.initWebSocket((wsData) => {
       if (wsData.type === 'store_status_updated' && wsData.data) {
         updateStoreOpenUI(wsData.data.is_open);
       }
-      if (wsData.type === 'order_created' || wsData.type === 'service_call') {
-        App.playChime('order');
-        App.toast(`📢 ออเดอร์ใหม่จากโต๊ะ ${wsData.data?.tableNumber || ''}!`, 'warning');
+      if (wsData.type === 'order_created' && wsData.data) {
+        showOrderRealtimeAlert(wsData.data);
       }
-      if (activeTabName === 'dashboard' && isManager) loadDashboard();
-      if (activeTabName === 'tables') loadTables();
-      if (activeTabName === 'kitchen') loadKitchen();
-      if (activeTabName === 'pos') loadPos();
-      if (activeTabName === 'menus' && isManager) loadMenus();
-      if (activeTabName === 'reports' && isManager) loadReports();
-      if (activeTabName === 'staff' && isManager) loadStaff();
-      if ((activeTabName === 'settings' || activeTabName === 'telegram') && isManager) loadSettings();
+      if (wsData.type === 'service_call' && wsData.data) {
+        showServiceCallAlert(wsData.data);
+      }
+      if (wsData.type === 'order_item_status_updated' || wsData.type === 'payment_completed' || wsData.type === 'table_status_updated') {
+        refreshActiveViews();
+      }
     });
   </script>
 </body>

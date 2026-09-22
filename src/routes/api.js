@@ -77,9 +77,10 @@ router.post('/admin/zones', authenticateToken, requireRole(['admin', 'manager'])
 router.put('/admin/zones/:id', authenticateToken, requireRole(['admin', 'manager']), adminController.updateZone);
 router.delete('/admin/zones/:id', authenticateToken, requireRole(['admin', 'manager']), adminController.deleteZone);
 
-// Kitchen (KDS)
+// Kitchen (KDS) & Order Realtime Sync
 router.get('/admin/kitchen/orders', authenticateToken, adminController.getKitchenOrders);
 router.put('/admin/kitchen/items/:itemId/status', authenticateToken, adminController.updateKitchenItemStatus);
+router.get('/admin/orders/latest-sync', authenticateToken, adminController.getLatestOrdersSync);
 
 // POS & Cashier
 router.get('/admin/pos/table/:tableId', authenticateToken, adminController.getTableBill);

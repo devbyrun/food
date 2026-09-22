@@ -2,53 +2,202 @@
 const App = {
   ws: null,
   wsCallbacks: new Map(),
+  audioCtx: null,
+  audioUnlocked: false,
 
   // -------------------------------------------------------------
   // 1. Audio Sound Effects Synthesizer (Web Audio API)
   // -------------------------------------------------------------
-  playChime(type = 'bell') {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+  getAudioContext() {
+    if (!this.audioCtx) {
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtxClass) {
+        this.audioCtx = new AudioCtxClass();
+      }
+    }
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().catch(() => {});
+    }
+    return this.audioCtx;
+  },
 
-      if (type === 'bell') {
-        // High pitch ding for service call
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.6);
-      } else if (type === 'order') {
-        // Dual chime for new kitchen order
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
-        gain.gain.setValueAtTime(0.4, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.8);
-      } else if (type === 'success') {
-        // Cheerful triad
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.5);
+  unlockAudio() {
+    if (this.audioUnlocked) return;
+    try {
+      const ctx = this.getAudioContext();
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        // Play a silent 1ms buffer to fully unlock iOS Safari / Chrome autoplay
+        const buffer = ctx.createBuffer(1, 1, 22050);
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(ctx.destination);
+        source.start(0);
+        this.audioUnlocked = true;
+        console.log('[Audio] Web Audio API unlocked successfully');
       }
     } catch (e) {
-      // Audio context might require user interaction first
+      console.warn('[Audio] unlock error:', e);
+    }
+  },
+
+  playChime(type = 'order') {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+
+      if (type === 'order') {
+        // --- Rich 2-Step Restaurant Order Bell (Ding-Dong 🔔) ---
+        // Note 1: High crisp Bell Ding (D6 = 1174.66Hz + harmonics)
+        const osc1 = ctx.createOscillator();
+        const osc1Harmonic = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(1046.50, now); // C6
+        osc1Harmonic.type = 'triangle';
+        osc1Harmonic.frequency.setValueAtTime(2093.00, now); // C7 harmonic
+
+        gain1.gain.setValueAtTime(0, now);
+        gain1.gain.linearRampToValueAtTime(0.5, now + 0.02);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        osc1.connect(gain1);
+        osc1Harmonic.connect(gain1);
+        gain1.connect(ctx.destination);
+
+        osc1.start(now);
+        osc1Harmonic.start(now);
+        osc1.stop(now + 0.45);
+        osc1Harmonic.stop(now + 0.45);
+
+        // Note 2: Higher resonant Dong (G6 = 1567.98Hz + harmonic)
+        const osc2 = ctx.createOscillator();
+        const osc2Harmonic = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1318.51, now + 0.22); // E6
+        osc2Harmonic.type = 'triangle';
+        osc2Harmonic.frequency.setValueAtTime(2637.02, now + 0.22); // E7 harmonic
+
+        gain2.gain.setValueAtTime(0, now + 0.22);
+        gain2.gain.linearRampToValueAtTime(0.55, now + 0.24);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+        osc2.connect(gain2);
+        osc2Harmonic.connect(gain2);
+        gain2.connect(ctx.destination);
+
+        osc2.start(now + 0.22);
+        osc2Harmonic.start(now + 0.22);
+        osc2.stop(now + 1.2);
+        osc2Harmonic.stop(now + 1.2);
+
+      } else if (type === 'bell' || type === 'service') {
+        // High pitch desk service bell ping
+        const osc = ctx.createOscillator();
+        const oscH = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1760, now); // A6
+        oscH.type = 'triangle';
+        oscH.frequency.setValueAtTime(3520, now); // A7
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.4, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+        osc.connect(gain);
+        oscH.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        oscH.start(now);
+        osc.stop(now + 0.8);
+        oscH.stop(now + 0.8);
+
+      } else if (type === 'success') {
+        // Cheerful triad (C5 -> E5 -> G5 -> C6)
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const startTime = now + (idx * 0.08);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.4);
+        });
+      }
+    } catch (e) {
+      console.warn('[Audio playChime Error]:', e);
+    }
+  },
+
+  // Voice speech announcement (Web Speech API)
+  speakVoice(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'th-TH';
+      utterance.rate = 1.05;
+      utterance.pitch = 1.1;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      // Speech synthesis silent fallback
     }
   },
 
   // -------------------------------------------------------------
-  // 2. Toast Notifications
+  // 2. Desktop System Notifications (Web Notification API)
+  // -------------------------------------------------------------
+  requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        console.log('[Notification Permission]:', permission);
+      });
+    }
+  },
+
+  showSystemNotification(title, options = {}, onClickCallback = null) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      const notif = new Notification(title, {
+        icon: '/assets/img/logo.png',
+        badge: '/assets/img/logo.png',
+        silent: true, // we use custom playChime Web Audio
+        ...options
+      });
+
+      notif.onclick = () => {
+        window.focus();
+        if (onClickCallback) onClickCallback();
+        notif.close();
+      };
+    } catch (e) {
+      console.warn('[System Notification Error]:', e);
+    }
+  },
+
+  // -------------------------------------------------------------
+  // 3. Toast Notifications
   // -------------------------------------------------------------
   toast(message, type = 'info') {
     let container = document.getElementById('toast-container');
@@ -78,17 +227,21 @@ const App = {
       toast.style.transform = 'translateY(-10px)';
       toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 300);
-    }, 4000);
+    }, 4500);
   },
 
   // -------------------------------------------------------------
-  // 3. WebSocket Realtime Client
+  // 4. WebSocket Realtime Client
   // -------------------------------------------------------------
   initWebSocket(onMessageCallback) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
 
     try {
+      if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
+        return;
+      }
+
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
@@ -127,7 +280,7 @@ const App = {
   },
 
   // -------------------------------------------------------------
-  // 4. Utility Formatters
+  // 5. Utility Formatters
   // -------------------------------------------------------------
   formatMoney(amount) {
     return '฿' + parseFloat(amount || 0).toLocaleString('th-TH', {
@@ -306,10 +459,26 @@ const App = {
 // Auto init theme on load
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => App.initTheme());
+    document.addEventListener('DOMContentLoaded', () => {
+      App.initTheme();
+      App.requestNotificationPermission();
+    });
   } else {
     App.initTheme();
+    App.requestNotificationPermission();
   }
+
+  // One-time interaction listener to unblock browser AudioContext autoplay policy
+  const unlockAudioHandler = () => {
+    App.unlockAudio();
+    window.removeEventListener('click', unlockAudioHandler);
+    window.removeEventListener('touchstart', unlockAudioHandler);
+    window.removeEventListener('keydown', unlockAudioHandler);
+  };
+  window.addEventListener('click', unlockAudioHandler, { once: true });
+  window.addEventListener('touchstart', unlockAudioHandler, { once: true });
+  window.addEventListener('keydown', unlockAudioHandler, { once: true });
 }
 
 window.App = App;
+
