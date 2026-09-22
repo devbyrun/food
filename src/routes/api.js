@@ -31,6 +31,8 @@ router.put('/auth/profile', authenticateToken, authController.updateProfile);
 // LINE Login & Authentication Endpoints
 router.get('/auth/line/config', authController.getLineConfig);
 router.get('/auth/line/auth-url', authController.getLineAuthUrl);
+router.get('/auth/line/qr-session', authController.createLineQrSession);
+router.get('/auth/line/qr-status', authController.checkLineQrStatus);
 router.get('/auth/line/callback', authController.lineOAuthCallback);
 router.post('/auth/line/login', authController.lineLogin);
 router.post('/auth/line/trial-signup', authController.lineTrialSignup);

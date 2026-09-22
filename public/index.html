@@ -648,59 +648,103 @@
       </div>
 
       <!-- ====================================================== -->
-      <!-- TAB 1: LOGIN SECTION                                   -->
+      <!-- TAB 1: LOGIN SECTION (FORM & LINE QR VIEWS)             -->
       <!-- ====================================================== -->
       <div id="modal-tab-content-login" class="modal-tab-pane">
-        <!-- Header -->
-        <div style="text-align: center; margin-bottom: 1.25rem;">
-          <div style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 14px; margin-bottom: 0.5rem; box-shadow: var(--shadow-glow); overflow: hidden; padding: 4px;">
-            <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        
+        <!-- Subview 1: Standard Username/Password & LINE Entry -->
+        <div id="modal-login-form-view">
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 1.25rem;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 14px; margin-bottom: 0.5rem; box-shadow: var(--shadow-glow); overflow: hidden; padding: 4px;">
+              <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">เข้าสู่ระบบจัดการร้าน</h2>
+            <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 2px;">Store Management & Platform Admin</p>
           </div>
-          <h2 style="font-size: 1.35rem; font-weight: 700; color: white;">เข้าสู่ระบบจัดการร้าน</h2>
-          <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 2px;">Store Management & Platform Admin</p>
+
+          <!-- Login Form -->
+          <form id="modal-login-form" onsubmit="doModalLogin(event)">
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">ชื่อผู้ใช้ (Username)</label>
+              <input type="text" id="modal-username" class="modal-form-control" required placeholder="เช่น manager, staff, admin" autocomplete="username">
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">รหัสผ่าน (Password)</label>
+              <input type="password" id="modal-password" class="modal-form-control" required placeholder="••••••••" autocomplete="current-password">
+            </div>
+
+            <button type="submit" id="modal-btn-login-submit" class="btn btn-primary btn-block" style="padding: 12px; font-size: 0.95rem; font-weight: 700;">
+              เข้าสู่ระบบ 🚀
+            </button>
+          </form>
+
+          <!-- Divider & LINE Login -->
+          <div style="margin-top: 1.15rem; text-align: center;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+              <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+              <span style="font-size: 0.78rem; color: var(--text-dim);">หรือ</span>
+              <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+            </div>
+
+            <button type="button" id="modal-btn-line-login" onclick="showLineLoginQr()" class="btn-line btn-block"
+              style="padding: 12px 14px; font-size: 0.92rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span class="line-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="#06C755">
+                  <path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2zm-4.7 11.23h-1.5a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.5c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm2.84 0h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm4.84-2.83l-1.92-2.58h-.02v2.58c0 .36-.29.65-.65.65h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.17l1.92 2.58h.02V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65h-.54zm4.12 2.83h-2.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h2.92c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65z"/>
+                </svg>
+              </span>
+              <span>เข้าสู่ระบบด้วย LINE (สแกน QR Code)</span>
+            </button>
+
+            <div style="margin-top: 14px; text-align: center;">
+              <button type="button" onclick="switchAuthTab('register')" style="background: none; border: none; color: #4ade80; font-size: 0.82rem; cursor: pointer; font-weight: 500;">
+                ✨ ยังไม่มีร้านค้า? คลิกเพื่อดูสิทธิ์ลงทะเบียนฟรี 30 วัน →
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Login Form -->
-        <form id="modal-login-form" onsubmit="doModalLogin(event)">
+        <!-- Subview 2: LINE Login QR Code Real-time View -->
+        <div id="modal-login-qr-view" style="display: none; text-align: center; animation: fadeInTab 0.25s ease-out;">
           <div style="margin-bottom: 1rem;">
-            <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">ชื่อผู้ใช้ (Username)</label>
-            <input type="text" id="modal-username" class="modal-form-control" required placeholder="เช่น manager, staff, admin" autocomplete="username">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(6, 199, 85, 0.15); border: 1px solid rgba(6, 199, 85, 0.35); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; color: #4ade80; font-weight: 700; margin-bottom: 6px;">
+              <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #06C755; box-shadow: 0 0 8px #06C755;"></span>
+              สแกนด้วยแอป LINE บนมือถือ
+            </div>
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: white; margin: 0 0 4px;">เข้าสู่ระบบด้วย LINE QR Code</h3>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0; line-height: 1.4;">
+              เปิดแอป LINE ➜ แตะไอคอนสแกน QR Code ➜ กดยินยอมเพื่อเข้าสู่ระบบ
+            </p>
           </div>
 
-          <div style="margin-bottom: 1.25rem;">
-            <label style="display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">รหัสผ่าน (Password)</label>
-            <input type="password" id="modal-password" class="modal-form-control" required placeholder="••••••••" autocomplete="current-password">
+          <!-- QR Code Frame -->
+          <div style="background: #ffffff; border-radius: 22px; padding: 14px; display: inline-block; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(6, 199, 85, 0.25); border: 3px solid #06C755; margin-bottom: 0.85rem; position: relative; min-width: 210px; min-height: 210px;">
+            <div id="modal-line-qr-loader" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.95); border-radius: 19px;">
+              <div class="spinner-liff" style="width: 32px; height: 32px; border: 3px solid rgba(6,199,85,0.2); border-top-color: #06C755; border-radius: 50%; animation: spinLiff 0.8s linear infinite;"></div>
+              <span style="color: #0f172a; font-size: 0.8rem; font-weight: 700; margin-top: 8px;">กำลังสร้าง QR Code...</span>
+            </div>
+            <img id="modal-line-qr-img" src="" alt="LINE Login QR" style="width: 195px; height: 195px; display: block; border-radius: 8px;">
           </div>
 
-          <button type="submit" id="modal-btn-login-submit" class="btn btn-primary btn-block" style="padding: 12px; font-size: 0.95rem; font-weight: 700;">
-            เข้าสู่ระบบ 🚀
-          </button>
-        </form>
-
-        <!-- Divider & LINE Login -->
-        <div style="margin-top: 1.15rem; text-align: center;">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-            <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
-            <span style="font-size: 0.78rem; color: var(--text-dim);">หรือ</span>
-            <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+          <!-- Status Box -->
+          <div id="modal-line-qr-status-box" style="background: rgba(6, 199, 85, 0.1); border: 1px solid rgba(6, 199, 85, 0.3); border-radius: 12px; padding: 8px 12px; margin-bottom: 1rem; font-size: 0.82rem; color: #86efac; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span id="modal-line-qr-pulse-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #06C755; animation: pulseDot 1.5s infinite;"></span>
+            <span id="modal-line-qr-status-text">กำลังรอการสแกนจากโทรศัพท์ของคุณ...</span>
           </div>
 
-          <button type="button" id="modal-btn-line-login" onclick="loginWithLineFromModal()" class="btn-line btn-block"
-            style="padding: 12px 14px; font-size: 0.92rem; width: 100%;">
-            <span class="line-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="#06C755">
-                <path d="M12 2C6.48 2 2 5.92 2 10.75c0 4.31 3.65 7.91 8.57 8.63.33.07.79.22.9.52.1.28.07.72.03 1-.06.4-.33 1.37-.36 1.53-.1.44-.45 1.73 1.52.94 1.97-.79 5.34-3.21 7.29-5.5 2.67-3.13 2.05-7.12 2.05-7.12C22 5.92 17.52 2 12 2zm-4.7 11.23h-1.5a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.5c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm2.84 0h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65zm4.84-2.83l-1.92-2.58h-.02v2.58c0 .36-.29.65-.65.65h-.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h1.17l1.92 2.58h.02V8.13c0-.36.29-.65.65-.65h.92c.36 0 .65.29.65.65v4.45c0 .36-.29.65-.65.65h-.54zm4.12 2.83h-2.92a.65.65 0 01-.65-.65V8.13c0-.36.29-.65.65-.65h2.92c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65h-1.62v.65h1.62c.36 0 .65.29.65.65v.65c0 .36-.29.65-.65.65z"/>
-              </svg>
-            </span>
-            <span>เข้าสู่ระบบด้วย LINE (Log in with LINE)</span>
-          </button>
-
-          <div style="margin-top: 14px; text-align: center;">
-            <button type="button" onclick="switchAuthTab('register')" style="background: none; border: none; color: #4ade80; font-size: 0.82rem; cursor: pointer; font-weight: 500;">
-              ✨ ยังไม่มีร้านค้า? คลิกเพื่อดูสิทธิ์ลงทะเบียนฟรี 30 วัน →
+          <!-- Secondary Actions -->
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <button type="button" id="modal-btn-direct-line-browser" onclick="openDirectLineAuth()" class="btn btn-secondary btn-block" style="padding: 10px; font-size: 0.85rem; font-weight: 600;">
+              🌐 หรือคลิกเข้าสู่ระบบบนเบราว์เซอร์นี้โดยตรง
+            </button>
+            <button type="button" onclick="hideLineLoginQr()" style="background: none; border: none; color: var(--text-muted); font-size: 0.82rem; cursor: pointer; padding: 6px; margin-top: 2px;">
+              ← กลับไปเข้าสู่ระบบด้วยชื่อผู้ใช้ (Username)
             </button>
           </div>
         </div>
+
       </div>
 
       <!-- ====================================================== -->
@@ -852,6 +896,9 @@
     let currentCycle = 'monthly';
     let loadedPlans = [];
     let currentModalLineUser = null;
+    let currentLineQrSessionId = null;
+    let currentLineQrPollInterval = null;
+    let currentLineDirectAuthUrl = null;
 
     // ========================================================
     // AUTH MODAL POPUP CONTROLS & TAB SWITCHING
@@ -888,6 +935,8 @@
       if (!modal) return;
       modal.classList.remove('active');
       document.body.style.overflow = '';
+      stopLineQrPolling();
+      hideLineLoginQr();
     }
 
     function handleAuthModalBackdropClick(e) {
@@ -903,6 +952,9 @@
     });
 
     function switchAuthTab(tab) {
+      stopLineQrPolling();
+      hideLineLoginQr();
+
       const loginTabBtn = document.getElementById('modal-tab-btn-login');
       const regTabBtn = document.getElementById('modal-tab-btn-register');
       const loginContent = document.getElementById('modal-tab-content-login');
@@ -947,6 +999,123 @@
       element.classList.add('selected');
       const planInput = document.getElementById('modal-reg-selected-plan');
       if (planInput) planInput.value = planName;
+    }
+
+    // ========================================================
+    // LINE QR CODE LOGIN CONTROLLER (REAL-TIME POLLING)
+    // ========================================================
+    async function showLineLoginQr() {
+      const formView = document.getElementById('modal-login-form-view');
+      const qrView = document.getElementById('modal-login-qr-view');
+      const qrLoader = document.getElementById('modal-line-qr-loader');
+      const qrImg = document.getElementById('modal-line-qr-img');
+      const statusText = document.getElementById('modal-line-qr-status-text');
+      const statusBox = document.getElementById('modal-line-qr-status-box');
+
+      if (formView) formView.style.display = 'none';
+      if (qrView) qrView.style.display = 'block';
+      if (qrLoader) qrLoader.style.display = 'flex';
+      if (statusText) statusText.innerText = 'กำลังสร้าง LINE QR Code...';
+      if (statusBox) {
+        statusBox.style.background = 'rgba(6, 199, 85, 0.1)';
+        statusBox.style.borderColor = 'rgba(6, 199, 85, 0.3)';
+      }
+
+      stopLineQrPolling();
+
+      try {
+        const res = await fetch('/api/auth/line/qr-session?mode=login');
+        const data = await res.json();
+
+        if (data.success && data.qrDataUrl) {
+          if (qrImg) qrImg.src = data.qrDataUrl;
+          if (qrLoader) qrLoader.style.display = 'none';
+          currentLineQrSessionId = data.sessionId;
+          currentLineDirectAuthUrl = data.authUrl;
+          if (statusText) statusText.innerText = 'กำลังรอการสแกนจากโทรศัพท์ของคุณ...';
+
+          startLineQrPolling(data.sessionId);
+        } else {
+          if (statusText) statusText.innerText = 'ไม่สามารถสร้าง QR Code ได้: ' + (data.message || '');
+          if (qrLoader) qrLoader.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('LINE QR error:', err);
+        if (statusText) statusText.innerText = 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ';
+        if (qrLoader) qrLoader.style.display = 'none';
+      }
+    }
+
+    function hideLineLoginQr() {
+      stopLineQrPolling();
+      const formView = document.getElementById('modal-login-form-view');
+      const qrView = document.getElementById('modal-login-qr-view');
+      if (formView) formView.style.display = 'block';
+      if (qrView) qrView.style.display = 'none';
+    }
+
+    function startLineQrPolling(sessionId) {
+      stopLineQrPolling();
+      if (!sessionId) return;
+
+      currentLineQrPollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/auth/line/qr-status?session_id=${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+
+          if (data.status === 'completed' && data.token) {
+            stopLineQrPolling();
+            const statusText = document.getElementById('modal-line-qr-status-text');
+            const statusBox = document.getElementById('modal-line-qr-status-box');
+            if (statusText) statusText.innerHTML = '🎉 <strong>เข้าสู่ระบบสำเร็จ! กำลังนำทาง...</strong>';
+            if (statusBox) {
+              statusBox.style.background = 'rgba(6, 199, 85, 0.3)';
+              statusBox.style.borderColor = '#06C755';
+            }
+
+            localStorage.setItem('auth_user', JSON.stringify(data.user));
+            localStorage.setItem('food_user', JSON.stringify(data.user));
+            localStorage.setItem('auth_token', data.token);
+            localStorage.setItem('food_token', data.token);
+
+            App.toast('🎉 เข้าสู่ระบบด้วย LINE สำเร็จ!', 'success');
+            setTimeout(() => {
+              window.location.href = data.redirectUrl || '/store.html';
+            }, 600);
+          } else if (data.status === 'new_user' && data.lineProfile) {
+            stopLineQrPolling();
+            currentModalLineUser = data.lineProfile;
+            switchAuthTab('register');
+            const nameEl = document.getElementById('modal-reg-user-name');
+            const avatarEl = document.getElementById('modal-reg-user-avatar');
+            if (nameEl) nameEl.innerText = currentModalLineUser.displayName;
+            if (avatarEl && currentModalLineUser.pictureUrl) avatarEl.src = currentModalLineUser.pictureUrl;
+            switchRegStep(2);
+            App.toast(`ยินดีต้อนรับ ${currentModalLineUser.displayName}! กรุณากรอกชื่อร้านเพื่อเริ่มใช้งานฟรี 30 วัน`, 'success');
+          } else if (data.status === 'expired') {
+            stopLineQrPolling();
+            const statusText = document.getElementById('modal-line-qr-status-text');
+            if (statusText) statusText.innerHTML = '⚠️ QR Code หมดอายุ <a href="javascript:void(0)" onclick="showLineLoginQr()" style="color:#06C755; text-decoration:underline; font-weight:bold; margin-left:4px;">กดเพื่อสร้างใหม่</a>';
+          }
+        } catch (e) {
+          console.warn('QR poll warning:', e);
+        }
+      }, 1500);
+    }
+
+    function stopLineQrPolling() {
+      if (currentLineQrPollInterval) {
+        clearInterval(currentLineQrPollInterval);
+        currentLineQrPollInterval = null;
+      }
+    }
+
+    function openDirectLineAuth() {
+      if (currentLineDirectAuthUrl) {
+        window.location.href = currentLineDirectAuthUrl;
+      } else {
+        loginWithLineFromModal();
+      }
     }
 
     // ========================================================

@@ -1,8 +1,21 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const QRCode = require('qrcode');
 const { query, getClient } = require('../db');
 const { JWT_SECRET } = require('../middlewares/auth');
 const lineAuthService = require('../services/lineAuthService');
+
+// In-Memory Store for Real-time LINE QR Code Login Sessions (5 mins TTL)
+const qrSessions = new Map();
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, session] of qrSessions.entries()) {
+    if (session.expiresAt && session.expiresAt < now) {
+      qrSessions.delete(id);
+    }
+  }
+}, 30000);
 
 function buildUserPayload(user) {
   return {
@@ -120,12 +133,111 @@ function getLineAuthUrl(req, res) {
   }
 }
 
+// -------------------------------------------------------------
+// LINE QR Code Session Creator (Generates QR Code & Session ID)
+// -------------------------------------------------------------
+async function createLineQrSession(req, res) {
+  try {
+    const { mode = 'login' } = req.query;
+    const sessionId = 'qr_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+    const authState = `qr_${sessionId}`;
+
+    const authUrl = lineAuthService.getAuthorizationUrl(req, authState);
+
+    // Generate High-Res Data URL QR Code
+    const qrDataUrl = await QRCode.toDataURL(authUrl, {
+      width: 320,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff',
+      },
+      errorCorrectionLevel: 'M',
+    });
+
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
+    qrSessions.set(sessionId, {
+      status: 'pending',
+      mode,
+      authUrl,
+      createdAt: Date.now(),
+      expiresAt,
+    });
+
+    return res.json({
+      success: true,
+      sessionId,
+      authUrl,
+      qrDataUrl,
+      expiresAt,
+    });
+  } catch (err) {
+    console.error('[Create LINE QR Session Error]:', err);
+    return res.status(500).json({ success: false, message: 'ไม่สามารถสร้าง QR Code เข้าสู่ระบบได้: ' + err.message });
+  }
+}
+
+// -------------------------------------------------------------
+// Check LINE QR Code Login Status (Polled by Desktop Browser)
+// -------------------------------------------------------------
+function checkLineQrStatus(req, res) {
+  try {
+    const { session_id } = req.query;
+    if (!session_id) {
+      return res.status(400).json({ success: false, message: 'Missing session_id' });
+    }
+
+    const cleanId = session_id.startsWith('qr_') ? session_id.replace(/^qr_/, '') : session_id;
+    const session = qrSessions.get(cleanId);
+
+    if (!session) {
+      return res.json({ success: false, status: 'expired', message: 'QR Code หมดอายุแล้ว กรุณากดรีเฟรชเพื่อสร้างใหม่' });
+    }
+
+    if (session.status === 'completed') {
+      // Set auth cookie
+      if (session.token) setAuthCookie(res, session.token);
+      return res.json({
+        success: true,
+        status: 'completed',
+        message: 'เข้าสู่ระบบสำเร็จ',
+        token: session.token,
+        user: session.user,
+        redirectUrl: session.redirectUrl || '/store.html',
+      });
+    }
+
+    if (session.status === 'new_user') {
+      return res.json({
+        success: true,
+        status: 'new_user',
+        message: 'ยืนยันตัวตน LINE สำเร็จ กรุณาระบุชื่อร้านเพื่อเปิดทดลองใช้งาน',
+        lineProfile: session.lineProfile,
+      });
+    }
+
+    return res.json({ success: true, status: 'pending' });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
 async function lineOAuthCallback(req, res) {
   try {
     const { code, state, error, error_description } = req.query;
 
+    const isQrScan = Boolean(state && state.startsWith('qr_'));
+    const qrSessionId = isQrScan ? state.replace(/^qr_/, '') : null;
+
     if (error) {
       console.warn('[LINE Callback Error]:', error, error_description);
+      if (isQrScan) {
+        return res.send(`
+          <!DOCTYPE html>
+          <html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ยกเลิกการเชื่อมต่อ</title><style>body{background:#0b0f17;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:1rem;text-align:center;}.box{background:#111827;border:1px solid #ef4444;border-radius:20px;padding:2rem;max-width:360px;}</style></head>
+          <body><div class="box"><div style="font-size:3rem;margin-bottom:10px;">❌</div><h2>การเชื่อมต่อถูกยกเลิก</h2><p style="color:#94a3b8;font-size:0.9rem;">${error_description || error}</p><p style="font-size:0.8rem;color:#64748b;margin-top:20px;">คุณสามารถปิดหน้านี้และลองใหม่อีกครั้งบนหน้าจอคอมพิวเตอร์</p></div></body></html>
+        `);
+      }
       return res.redirect(`/?line_error=${encodeURIComponent(error_description || error)}`);
     }
 
@@ -182,9 +294,89 @@ async function lineOAuthCallback(req, res) {
       let redirectUrl = '/store.html';
       if (user.role === 'admin') redirectUrl = '/superadmin.html';
 
+      if (isQrScan && qrSessionId) {
+        // Update QR session for desktop browser auto-login
+        qrSessions.set(qrSessionId, {
+          status: 'completed',
+          token,
+          user: payload,
+          redirectUrl,
+          completedAt: Date.now(),
+        });
+
+        // Mobile Phone Success Feedback Screen
+        return res.send(`
+          <!DOCTYPE html>
+          <html lang="th">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>เข้าสู่ระบบสำเร็จ</title>
+            <style>
+              body { background: #090d16; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1.25rem; text-align: center; }
+              .card { background: linear-gradient(180deg, #111827 0%, #0f172a 100%); border: 1px solid rgba(6, 199, 85, 0.4); border-radius: 24px; padding: 2.2rem 1.6rem; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(6, 199, 85, 0.2); }
+              .avatar { width: 68px; height: 68px; border-radius: 50%; border: 3px solid #06C755; object-fit: cover; margin-bottom: 1rem; box-shadow: 0 0 20px rgba(6, 199, 85, 0.4); }
+              .btn { display: inline-block; background: #06C755; color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; margin-top: 1.25rem; font-size: 0.95rem; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <img class="avatar" src="${lineProfile.pictureUrl || '/assets/img/logo.png'}" alt="Avatar">
+              <div style="font-size: 0.8rem; color: #4ade80; font-weight: 700; margin-bottom: 4px;">✓ ยืนยันตัวตน LINE สำเร็จ</div>
+              <h2 style="font-size: 1.35rem; color: #ffffff; margin: 0 0 8px;">ยินดีต้อนรับ ${lineProfile.displayName || ''}!</h2>
+              <p style="color: #94a3b8; font-size: 0.88rem; line-height: 1.5; margin: 0 0 1rem;">
+                หน้าจอบนคอมพิวเตอร์ของคุณกำลังเข้าสู่ระบบจัดการร้านโดยอัตโนมัติ 🚀
+              </p>
+              <div style="font-size: 0.78rem; color: #64748b;">คุณสามารถปิดหน้าต่างนี้บนมือถือได้เลย</div>
+            </div>
+          </body>
+          </html>
+        `);
+      }
+
       return res.redirect(`${redirectUrl}?line_login=success&token=${encodeURIComponent(token)}`);
     } else {
-      // New LINE User -> Redirect to home page with step=setup to confirm store creation
+      // New LINE User
+      if (isQrScan && qrSessionId) {
+        qrSessions.set(qrSessionId, {
+          status: 'new_user',
+          lineProfile: {
+            line_user_id: lineProfile.userId,
+            displayName: lineProfile.displayName || 'ผู้ใช้ LINE',
+            pictureUrl: lineProfile.pictureUrl || null,
+            email: email || null,
+          },
+          completedAt: Date.now(),
+        });
+
+        return res.send(`
+          <!DOCTYPE html>
+          <html lang="th">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>ยืนยันตัวตนสำเร็จ</title>
+            <style>
+              body { background: #090d16; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1.25rem; text-align: center; }
+              .card { background: #111827; border: 1px solid rgba(6, 199, 85, 0.4); border-radius: 24px; padding: 2.2rem 1.6rem; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+              .avatar { width: 68px; height: 68px; border-radius: 50%; border: 3px solid #06C755; object-fit: cover; margin-bottom: 1rem; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <img class="avatar" src="${lineProfile.pictureUrl || '/assets/img/logo.png'}" alt="Avatar">
+              <div style="font-size: 0.8rem; color: #4ade80; font-weight: 700; margin-bottom: 4px;">✓ ยืนยันตัวตน LINE สำเร็จ</div>
+              <h2 style="font-size: 1.3rem; color: #ffffff; margin: 0 0 8px;">ยินดีต้อนรับ ${lineProfile.displayName || ''}!</h2>
+              <p style="color: #94a3b8; font-size: 0.88rem; line-height: 1.5; margin: 0;">
+                หน้าจอบนคอมพิวเตอร์ของคุณกำลังเปิดฟอร์มลงทะเบียนเปิดร้านค้าฟรี 30 วัน 🎉
+              </p>
+            </div>
+          </body>
+          </html>
+        `);
+      }
+
+      // Standard OAuth Redirect
       const params = new URLSearchParams({
         line_step: 'setup',
         line_id: lineProfile.userId,
@@ -588,6 +780,8 @@ module.exports = {
   logout,
   getLineConfig,
   getLineAuthUrl,
+  createLineQrSession,
+  checkLineQrStatus,
   lineOAuthCallback,
   lineLogin,
   lineTrialSignup,
