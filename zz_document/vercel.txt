@@ -1,12 +1,12 @@
 ================================================================================
-🚀 คู่มือการ Deploy โปรเจกต์ขึ้น Vercel และเชื่อมต่อฐานข้อมูล Neon อย่างละเอียด (Step-by-Step)
+🚀 คู่มือการ Deploy โปรเจกต์ขึ้น Vercel, เชื่อมต่อฐานข้อมูล Neon และตั้งค่า LINE Login / LIFF อย่างละเอียด (Step-by-Step)
 ================================================================================
 
-โปรเจกต์นี้รองรับ Vercel Serverless Function 100% พร้อมเชื่อมต่อฐานข้อมูล Cloud Database (Neon PostgreSQL) 
-และระบบจัดเก็บรูปภาพแบบ Hybrid Cloud Storage
+โปรเจกต์นี้รองรับ Vercel Serverless Function 100% พร้อมเชื่อมต่อฐานข้อมูล Cloud Database (Neon PostgreSQL),
+ระบบจัดเก็บรูปภาพแบบ Hybrid Cloud Storage และระบบยืนยันตัวตน LINE Login / LINE LIFF สำหรับเปิดร้านค้าทดลองใช้ฟรี 30 วัน
 
 --------------------------------------------------------------------------------
-📌 ข้อมูลการเชื่อมต่อที่อ่านจากไฟล์ .env ของคุณ (สำหรับนำไปตั้งค่าบน Vercel):
+📌 ข้อมูลการเชื่อมต่อที่อ่านจากไฟล์ .env ของคุณ (สำหรับนำไปตั้งค่าบน Vercel Dashboard):
 --------------------------------------------------------------------------------
 
 | ชื่อตัวแปร (Key)         | ค่าที่ต้องใส่ (Value)                                                                                                              | การใช้งาน (Environments)            |
@@ -17,6 +17,10 @@
 | `AWS_ENDPOINT_URL_S3`    | `https://br-misty-frost-ayf4d7xo.storage.c-5.us-east-2.aws.neon.tech`                                                             | [x] Production [x] Preview [x] Dev |
 | `AWS_REGION`             | `us-east-2`                                                                                                                       | [x] Production [x] Preview [x] Dev |
 | `AWS_S3_BUCKET`          | `assets`                                                                                                                          | [x] Production [x] Preview [x] Dev |
+| `LINE_CHANNEL_ID`        | `2011694865`                                                                                                                      | [x] Production [x] Preview [x] Dev |
+| `LINE_CHANNEL_SECRET`    | `d0ea0fb7a9ca1b56d847d7ab5d281e7b`                                                                                                | [x] Production [x] Preview [x] Dev |
+| `LINE_CALLBACK_URL`      | `https://food.rundev.site/api/auth/line/callback`                                                                                 | [x] Production [x] Preview [x] Dev |
+| `LINE_LIFF_ID`          | `ใส่ LIFF ID ที่ได้จาก LINE Developers (เช่น 2011694865-xxxxxx)`                                                                  | [x] Production [x] Preview [x] Dev |
 
 ================================================================================
 🎯 ขั้นตอนที่ 1: การตั้งค่า Environment Variables บนหน้าเว็บ Vercel Dashboard
@@ -30,7 +34,7 @@
 1.3 ไปที่หน้าตั้งค่าตัวแปร:
     - คลิกแท็บ [Settings] ด้านบนของหน้าโปรเจกต์
     - ที่เมนูด้านซ้าย เลือก [Environment Variables]
-    (หรือพิมพ์ URL ลัด: https://vercel.com/food-47c2/food/settings/environment-variables )
+    (หรือพิมพ์ URL ลัด: https://vercel.com/dashboard -> เลือกโปรเจกต์ -> Settings -> Environment Variables)
 
 1.4 เพิ่มตัวแปรทีละตัวตามตารางด้านบน:
 
@@ -70,70 +74,118 @@
     - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
     - กดปุ่ม [Save]
 
-================================================================================
-🎯 ขั้นตอนที่ 2: ตรวจสอบ Deployment Protection (แก้ปัญหาเชื่อมต่อเซิร์ฟเวอร์ไม่ได้)
-================================================================================
+    [ตัวที่ 7: LINE_CHANNEL_ID]
+    - Key: LINE_CHANNEL_ID
+    - Value: 2011694865
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
 
-หากเปิดหน้าเว็บเช่น logintest.html แล้วขึ้นข้อความสีแดง "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" 
-เกิดจากระบบ Vercel Authentication บล็อกการทำงานของ API ให้ทำการตรวจสอบดังนี้:
+    [ตัวที่ 8: LINE_CHANNEL_SECRET]
+    - Key: LINE_CHANNEL_SECRET
+    - Value: d0ea0fb7a9ca1b56d847d7ab5d281e7b
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
 
-2.1 ไปที่เมนู [Settings] -> เมนูด้านซ้ายเลือก [Deployment Protection]
-    (URL: https://vercel.com/food-47c2/food/settings/deployment-protection )
+    [ตัวที่ 9: LINE_CALLBACK_URL]
+    - Key: LINE_CALLBACK_URL
+    - Value: https://food.rundev.site/api/auth/line/callback
+      (หมายเหตุ: หากใช้โดเมน Vercel เช่น https://food-xxx.vercel.app ให้ใส่ https://<โดเมนของคุณ>/api/auth/line/callback)
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
+    - กดปุ่ม [Save]
 
-2.2 ดูที่หัวข้อ **Vercel Authentication**:
-    - หากเปิดเป็น "Standard Protection" ให้เปลี่ยนเป็น **"Disabled"** (หรือยกเว้นสำหรับ Public)
+    [ตัวที่ 10: LINE_LIFF_ID]
+    - Key: LINE_LIFF_ID
+    - Value: ใส่ค่า LIFF ID ที่ได้จากแท็บ LIFF ใน LINE Developers (เช่น 2011694865-AbCdEfGh)
+    - Environment: ติ๊กเลือก [x] Production  [x] Preview  [x] Development
     - กดปุ่ม [Save]
 
 ================================================================================
-🎯 ขั้นตอนที่ 3: สั่ง Redeploy (เพื่อให้การตั้งค่าตัวแปรทั้งหมดมีผลทำงาน)
+🎯 ขั้นตอนที่ 2: การตั้งค่าฝั่ง LINE Developers Console (สำหรับ LINE Login & LIFF)
 ================================================================================
 
-*** สำคัญมาก: หลังเพิ่มตัวแปรใน Environment Variables ทุกครั้ง ต้องสั่ง Redeploy เสมอ ***
+2.1 ไปที่เว็บ LINE Developers Console:
+    https://developers.line.biz/console/
 
-3.1 คลิกที่แท็บ **[Deployments]** ด้านบนของหน้าจอโปรเจกต์
-3.2 ดูที่รายการ Deployment บนสุด (ล่าสุด) แล้วคลิกที่ปุ่ม 3 จุด **[...]** ทางขวามือ
-3.3 เลือก **[Redeploy]**
-3.4 กล่องข้อความจะเด้งขึ้นมา:
+2.2 เลือก Provider แล้วคลิกเข้าไปที่ Channel ของ **LINE Login** (Channel ID: 2011694865)
+
+2.3 ตั้งค่า **Callback URL** (แท็บ LINE Login):
+    - เลื่อนลงมาที่หัวข้อ **Callback URL** กดปุ่ม [Edit]
+    - ใส่ URL ต่อไปนี้ (ใส่ได้หลายบรรทัด):
+      `https://food.rundev.site/api/auth/line/callback`
+      `https://<โดเมนของคุณ>.vercel.app/api/auth/line/callback`
+      `http://localhost:3000/api/auth/line/callback`
+    - กดปุ่ม [Update]
+
+2.4 สร้างและตั้งค่า **LIFF App** (แท็บ LIFF):
+    - คลิกไปที่แท็บ **[LIFF]** เมนูด้านบน แล้วกดปุ่ม **[Add]**
+    - กรอกข้อมูลดังนี้:
+      * **LIFF app name**: `ลงทะเบียนเปิดร้าน QR Food POS`
+      * **Size**: เลือก `Full` (เปิดแบบเต็มหน้าจอ) หรือ `Tall`
+      * **Endpoint URL**: `https://food.rundev.site/lineliff` 
+        (หรือใส่ `https://<โดเมนของคุณ>.vercel.app/lineliff`)
+      * **Scopes**: ติ๊กเลือก [x] `profile`  [x] `openid`  [x] `email`
+      * **Bot prompt**: เลือก `Normal` (หรือ Aggressive เพื่อชวนติดตาม LINE OA)
+    - กดปุ่ม [Add]
+    - เมื่อสร้างเสร็จ ระบบจะแสดง **LIFF ID** (เช่น `2011694865-xxxxxx`) และ **LIFF URL** (เช่น `https://liff.line.me/2011694865-xxxxxx`)
+    - นำ **LIFF ID** ไปใส่ใน Environment Variables บน Vercel (`LINE_LIFF_ID`) และไฟล์ `.env`
+
+================================================================================
+🎯 ขั้นตอนที่ 3: ตรวจสอบ Deployment Protection (แก้ปัญหาเชื่อมต่อเซิร์ฟเวอร์ไม่ได้)
+================================================================================
+
+หากเปิดหน้าเว็บแล้วขึ้นข้อความ "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" 
+เกิดจากระบบ Vercel Authentication บล็อกการทำงานของ API ให้ทำการตรวจสอบดังนี้:
+
+3.1 ไปที่เมนู [Settings] -> เมนูด้านซ้ายเลือก [Deployment Protection]
+3.2 ดูที่หัวข้อ **Vercel Authentication**:
+    - หากเปิดเป็น "Standard Protection" ให้เปลี่ยนเป็น **"Disabled"** (เพื่อให้บุคคลทั่วไปเข้าใช้งานได้)
+    - กดปุ่ม [Save]
+
+================================================================================
+🎯 ขั้นตอนที่ 4: สั่ง Redeploy บน Vercel (สำคัญมาก เพื่อให้ค่าใหม่มีผล)
+================================================================================
+
+*** สำคัญมาก: หลังเพิ่ม/แก้ไขตัวแปรใน Environment Variables ทุกครั้ง ต้องสั่ง Redeploy เสมอ ***
+
+4.1 คลิกที่แท็บ **[Deployments]** ด้านบนของหน้าจอโปรเจกต์บน Vercel
+4.2 ดูที่รายการ Deployment บนสุด (ล่าสุด) แล้วคลิกที่ปุ่ม 3 จุด **[...]** ทางขวามือ
+4.3 เลือก **[Redeploy]**
+4.4 กล่องข้อความจะเด้งขึ้นมา:
     - **ไม่ต้องติ๊ก** "Use existing Build Cache"
     - กดปุ่ม **[Redeploy]** สีฟ้า
-3.5 รอระบบทำการ Build ประมาณ 30 - 45 วินาที จนกระทั่งสถานะขึ้นเป็นวงกลมสีเขียว (Ready)
+4.5 รอระบบทำการ Build ประมาณ 30 - 45 วินาที จนกระทั่งสถานะขึ้นเป็นวงกลมสีเขียว (Ready)
 
 ================================================================================
-🎯 ขั้นตอนที่ 4: ทดสอบการใช้งานจริงหลัง Redeploy
+🎯 ขั้นตอนที่ 5: ทดสอบการใช้งานจริงหลัง Redeploy
 ================================================================================
 
-เมื่อ Deploy สำเร็จ ให้ทดสอบตามลำดับดังนี้:
-
-4.1 ทดสอบสถานะฐานข้อมูล (API Health & Storage Status):
+5.1 ทดสอบสถานะระบบและฐานข้อมูล:
     เปิดเบราว์เซอร์ไปที่:
-    `https://<โดเมนของคุณ>.vercel.app/api/upload/status`
-    
-    ผลลัพธ์ที่ถูกต้องจะเป็น JSON:
-    ```json
-    {
-      "success": true,
-      "isS3": false,
-      "isDatabaseConnected": true,
-      "primaryStorage": "Neon PostgreSQL Cloud Media Storage",
-      "mediaCount": 3
-    }
-    ```
-    *สังเกตว่า `isDatabaseConnected: true` แสดงว่าระบบเชื่อมต่อฐานข้อมูล Neon สำเร็จ 100%*
+    `https://food.rundev.site/api/upload/status`
+    (หรือ `https://<โดเมนของคุณ>.vercel.app/api/upload/status`)
 
-4.2 ทดสอบหน้าเข้าสู่ระบบ:
-    เปิดเบราว์เซอร์ไปที่:
-    `https://<โดเมนของคุณ>.vercel.app/logintest.html`
-    - คลิกเลือกปุ่ม 1-Click Login เช่น "ผู้ดูแลระบบส่วนกลาง (Super Admin)" หรือ "เจ้าของร้าน มินิคาเฟ่"
-    - ระบบจะล็อกอินและนำเข้าสู่หน้าจัดการร้านค้าทันที
+5.2 ทดสอบการเข้าสู่ระบบและลงทะเบียนผ่านหน้าหลัก:
+    - เข้าหน้าเว็บ: `https://food.rundev.site/`
+    - กดปุ่ม "🔐 เข้าสู่ระบบ" หรือ "✨ เริ่มต้นทดลองใช้ฟรี 30 วัน"
+    - ทดสอบกดปุ่ม **"เข้าสู่ระบบด้วย LINE (Log in with LINE)"** ระบบจะพาไปยืนยันตัวตนผ่าน LINE
 
-4.3 ทดสอบหน้าสั่งอาหารผ่านโต๊ะ (QR Ordering):
+5.3 ทดสอบหน้าลงทะเบียน LINE LIFF (สำหรับแปะใน LINE Official Account):
+    - เปิดลิงก์: `https://food.rundev.site/lineliff` หรือ `https://liff.line.me/<LIFF_ID>`
+    - เมื่อเปิดในแอป LINE ระบบจะดึงชื่อและรูปโปรไฟล์ LINE มาให้อัตโนมัติ
+    - สามารถกรอกชื่อร้านอาหาร เบอร์โทร และกด "🚀 สร้างร้านและเริ่มใช้งานฟรี 30 วัน" ได้ทันที
+
+5.4 ทดสอบหน้าสั่งอาหารผ่านโต๊ะ (QR Ordering):
     เปิดเบราว์เซอร์ไปที่:
-    `https://<โดเมนของคุณ>.vercel.app/order/mini-cafe/table-1`
+    `https://food.rundev.site/order/somtum-zaab/zaab-t01-abc1`
     - ลูกค้าสามารถดูเมนูอาหาร และกดสั่งอาหารได้ทันที
 
 ================================================================================
 💡 เคล็ดลับเพิ่มเติม (Tips & FAQ):
 ================================================================================
+
+Q: นำลิงก์ไหนไปใส่ใน LINE Official Account (LINE OA) เพื่อให้ลูกค้ากดลงทะเบียนฟรี 30 วัน?
+A: สามารถนำ **LIFF URL** เช่น `https://liff.line.me/<LIFF_ID>` หรือ `https://food.rundev.site/lineliff`
+   ไปใส่ใน **Rich Menu (เมนูด้านล่างแชท)** หรือ **ข้อความทักทายเพื่อนใหม่ (Greeting Message)** ได้ทันที
 
 Q: ถ้าแก้ไขโค้ดในโปรเจกต์แล้ว อยากอัพเดตขึ้น Vercel ต้องทำอย่างไร?
 A: - หากเชื่อม GitHub ไว้: ทำการ `git add .` -> `git commit -m "update"` -> `git push` Vercel จะอัพเดตให้อัตโนมัติทันที
