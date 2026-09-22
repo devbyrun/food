@@ -18,6 +18,14 @@
       "destination": "/login.html"
     },
     {
+      "source": "/register",
+      "destination": "/register.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/register.html"
+    },
+    {
       "source": "/logintest",
       "destination": "/logintestbyrun.html"
     },

@@ -28,6 +28,14 @@ router.post('/auth/logout', authController.logout);
 router.get('/auth/me', authenticateToken, authController.getMe);
 router.put('/auth/profile', authenticateToken, authController.updateProfile);
 
+// LINE Login & Authentication Endpoints
+router.get('/auth/line/config', authController.getLineConfig);
+router.get('/auth/line/auth-url', authController.getLineAuthUrl);
+router.get('/auth/line/callback', authController.lineOAuthCallback);
+router.post('/auth/line/login', authController.lineLogin);
+router.post('/auth/line/trial-signup', authController.lineTrialSignup);
+
+
 // -------------------------------------------------------------
 // 2. Customer QR Ordering Routes (Public by QR Token)
 // -------------------------------------------------------------

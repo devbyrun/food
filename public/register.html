@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ลงทะเบียนเปิดร้านค้า - QR Food POS (ทดลองใช้ฟรี 30 วัน)</title>
+  <meta name="description"
+    content="ลงทะเบียนเปิดร้านอาหารใหม่ ทดลองใช้งานฟรี 30 วันเต็ม ระบบสั่งอาหาร QR Code, จอครัว KDS และแคชเชียร์ POS เชื่อมต่อ Telegram Bot">
+  <link id="page-favicon" rel="icon" type="image/png" href="/assets/img/logo.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .register-container {
+      width: 100%;
+      max-width: 580px;
+      margin: 2rem auto;
+      padding: 0 1rem 3rem;
+    }
+
+    .plan-card-option {
+      border: 1px solid var(--border-glass);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .plan-card-option:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(234, 88, 12, 0.4);
+    }
+
+    .plan-card-option.selected {
+      background: rgba(234, 88, 12, 0.12);
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(234, 88, 12, 0.25);
+    }
+
+    .plan-radio-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .plan-card-option.selected .plan-radio-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    .plan-radio-circle::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      display: none;
+    }
+
+    .plan-card-option.selected .plan-radio-circle::after {
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .input-label span.req {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.25);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+    }
+
+    .benefit-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
+
+  <div class="register-container">
+
+    <!-- Brand Header -->
+    <div style="text-align: center; margin-bottom: 1.75rem;">
+      <a href="/"
+        style="display: inline-flex; align-items: center; justify-content: center; width: 62px; height: 62px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 18px; margin-bottom: 1rem; box-shadow: var(--shadow-glow); text-decoration: none; overflow: hidden; padding: 6px;">
+        <img src="/assets/img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+      </a>
+      
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(234, 88, 12, 0.15); border: 1px solid rgba(234, 88, 12, 0.35); padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; color: #fed7aa; font-weight: 600; margin-bottom: 10px;">
+        🎁 ทดลองใช้งานฟรี 30 วันเต็ม • ไม่มีข้อผูกมัด
+      </div>
+
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: white; line-height: 1.3;">ลงทะเบียนเปิดร้านค้าใหม่</h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px; max-width: 440px; margin-left: auto; margin-right: auto;">
+        เริ่มใช้งานระบบสั่งอาหาร QR Code, จอครัว KDS และระบบคิดเงิน POS ได้ทันที
+      </p>
+    </div>
+
+    <!-- Main Registration Card -->
+    <div class="glass-card" style="padding: 2rem 1.75rem; position: relative;">
+
+      <div id="signup-form-section">
+        <form id="register-form" onsubmit="handleRegistration(event)">
+
+          <!-- Plan Selection -->
+          <div style="margin-bottom: 1.5rem;">
+            <label class="input-label">เลือกแพ็กเกจที่ต้องการทดลองใช้ <span class="req">*</span></label>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              
+              <!-- Professional (Featured) -->
+              <div class="plan-card-option selected" onclick="selectPlan('Professional', this)">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="plan-radio-circle"></div>
+                  <div>
+                    <div style="font-weight: 700; color: white; font-size: 0.95rem;">
+                      Professional <span class="badge" style="background: rgba(249, 115, 22, 0.25); color: #fb923c; font-size: 0.7rem; margin-left: 4px;">แนะนำ 🔥</span>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">โต๊ะไม่จำกัด + จอครัว KDS + แจ้งเตือน Telegram</div>
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #fb923c; font-size: 1rem;">฿490<span style="font-size: 0.75rem; color: var(--text-dim);">/ด.</span></div>
+                  <div style="font-size: 0.7rem; color: #4ade80;">ฟรี 30 วันแรก</div>
+                </div>
+              </div>
+
+              <!-- Starter -->
+              <div class="plan-card-option" onclick="selectPlan('Starter', this)">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="plan-radio-circle"></div>
+                  <div>
+                    <div style="font-weight: 700; color: white; font-size: 0.95rem;">Starter Plan</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">ร้านขนาดเล็ก (สูงสุด 10 โต๊ะ, พิมพ์ QR)</div>
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #38bdf8; font-size: 1rem;">฿290<span style="font-size: 0.75rem; color: var(--text-dim);">/ด.</span></div>
+                  <div style="font-size: 0.7rem; color: #4ade80;">ฟรี 30 วันแรก</div>
+                </div>
+              </div>
+
+              <!-- Enterprise -->
+              <div class="plan-card-option" onclick="selectPlan('Enterprise', this)">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="plan-radio-circle"></div>
+                  <div>
+                    <div style="font-weight: 700; color: white; font-size: 0.95rem;">Enterprise / Buffet</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">ระบบบุฟเฟต์, นับเวลาทาน, หลายโซนครบวงจร</div>
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #f472b6; font-size: 1rem;">฿990<span style="font-size: 0.75rem; color: var(--text-dim);">/ด.</span></div>
+                  <div style="font-size: 0.7rem; color: #4ade80;">ฟรี 30 วันแรก</div>
+                </div>
+              </div>
+
+            </div>
+            <input type="hidden" id="selected-plan-name" value="Professional">
+          </div>
+
+          <!-- Store Info -->
+          <div class="input-group">
+            <label class="input-label">ชื่อร้านอาหารของคุณ <span class="req">*</span></label>
+            <input type="text" id="reg-store-name" class="form-control" required placeholder="เช่น ครัวคุณแม่ อาหารป่า & ซีฟู้ด"
+              oninput="updateStorePreview(this.value)">
+            <div id="store-slug-preview" style="font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; display: none;">
+              🔗 ลิงก์ร้านค้าลูกค้า: <span id="preview-slug-text" style="color: #38bdf8; font-family: monospace;"></span>
+            </div>
+          </div>
+
+          <!-- Manager & Phone (2 cols on desktop) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="input-group">
+            <div>
+              <label class="input-label">ชื่อเจ้าของ / ผู้ติดต่อ <span class="req">*</span></label>
+              <input type="text" id="reg-manager-name" class="form-control" required placeholder="เช่น สมชาย ใจดี">
+            </div>
+            <div>
+              <label class="input-label">เบอร์โทรศัพท์ <span class="req">*</span></label>
+              <input type="tel" id="reg-phone" class="form-control" required placeholder="08xxxxxxxx">
+            </div>
+          </div>
+
+          <!-- Username & Password -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="input-group">
+            <div>
+              <label class="input-label">ชื่อผู้ใช้ (Username) <span class="req">*</span></label>
+              <input type="text" id="reg-username" class="form-control" required placeholder="เช่น somchai_admin"
+                autocomplete="username">
+            </div>
+            <div>
+              <label class="input-label">รหัสผ่าน (Password) <span class="req">*</span></label>
+              <div class="password-wrap">
+                <input type="password" id="reg-password" class="form-control" required placeholder="อย่างน้อย 6 ตัวอักษร"
+                  minlength="6" autocomplete="new-password">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('reg-password')">👁️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Value highlights -->
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem;">
+            <div class="benefit-chip">
+              <span>✨</span>
+              <span>ระบบจะสร้าง <b>โต๊ะจำลอง</b> และ <b>เมนูตัวอย่าง</b> ให้ทันทีพร้อมใช้งาน</span>
+            </div>
+            <div class="benefit-chip" style="color: #93c5fd; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);">
+              <span>⚡</span>
+              <span>สามารถพิมพ์ QR Code ตั้งบนโต๊ะและเริ่มรับออเดอร์ได้ภายใน 5 นาที</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btn-submit-reg" class="btn btn-primary btn-block"
+            style="padding: 15px; font-size: 1.08rem; font-weight: 700; box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4);">
+            🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน
+          </button>
+        </form>
+
+        <!-- Divider & Help Links -->
+        <div style="text-align: center; margin-top: 1.5rem; border-top: 1px solid var(--border-glass); padding-top: 1.25rem;">
+          <p style="font-size: 0.88rem; color: var(--text-dim); margin-bottom: 8px;">
+            มีบัญชีร้านค้าอยู่แล้ว? <a href="/login.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">เข้าสู่ระบบที่นี่ →</a>
+          </p>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            ต้องการสอบถามข้อมูลเพิ่มเติม? <a href="https://lin.ee/sHKiMFg" target="_blank" rel="noopener noreferrer" style="color: #06C755; text-decoration: none; font-weight: 600;">💬 ติดต่อทีมงานทาง LINE</a>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- SUCCESS CONFIRMATION STATE -->
+      <div id="signup-success-section" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
+        <div style="font-size: 3.5rem; margin-bottom: 1rem; animation: bounce 1s infinite alternate;">🎉</div>
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: white; margin-bottom: 8px;">เปิดร้านค้าทดลองใช้งานสำเร็จ!</h2>
+        <p style="color: #6ee7b7; font-size: 0.95rem; margin-bottom: 1.5rem;">
+          ยินดีต้อนรับเข้าสู่ระบบ QR Food POS ร้านค้าของคุณพร้อมใช้งานแล้ว
+        </p>
+
+        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 16px; margin-bottom: 1.5rem; text-align: left;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
+            <span style="color: var(--text-muted);">ชื่อร้านค้า:</span>
+            <span id="succ-store-name" style="color: white; font-weight: 700;">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
+            <span style="color: var(--text-muted);">ชื่อผู้ใช้ (Username):</span>
+            <span id="succ-username" style="color: #fb923c; font-weight: 700; font-family: monospace;">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.88rem;">
+            <span style="color: var(--text-muted);">สิทธิ์การใช้งานฟรี:</span>
+            <span style="color: #4ade80; font-weight: 700;">30 วันเต็ม (ครบทุกฟังก์ชัน)</span>
+          </div>
+        </div>
+
+        <a id="succ-redirect-btn" href="/store.html" class="btn btn-primary btn-block"
+          style="padding: 14px; font-size: 1.05rem; font-weight: 700; text-decoration: none; display: block;">
+          🚀 เข้าสู่ระบบจัดการหลังบ้านร้านค้าทันที (<span id="countdown-num">3</span>)
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Back to Home -->
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <a href="/" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">← กลับสู่หน้าหลัก QR Food POS</a>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Handle URL preselected plan
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const planParam = urlParams.get('plan');
+      if (planParam) {
+        const cards = document.querySelectorAll('.plan-card-option');
+        cards.forEach(card => {
+          if (card.innerText.toLowerCase().includes(planParam.toLowerCase())) {
+            selectPlan(planParam, card);
+          }
+        });
+      }
+    });
+
+    function selectPlan(planName, element) {
+      document.querySelectorAll('.plan-card-option').forEach(c => c.classList.remove('selected'));
+      element.classList.add('selected');
+      document.getElementById('selected-plan-name').value = planName;
+    }
+
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    function updateStorePreview(name) {
+      const previewDiv = document.getElementById('store-slug-preview');
+      const previewText = document.getElementById('preview-slug-text');
+      if (!name || !name.trim()) {
+        previewDiv.style.display = 'none';
+        return;
+      }
+      const rawSlug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'shop';
+      previewText.innerText = `${window.location.origin}/order/${rawSlug}-demo/table-01`;
+      previewDiv.style.display = 'block';
+    }
+
+    async function handleRegistration(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-reg');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '⏳ กำลังเตรียมร้านค้าและสร้างโต๊ะจำลอง...';
+
+      const storeName = document.getElementById('reg-store-name').value.trim();
+      const managerName = document.getElementById('reg-manager-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+      const planName = document.getElementById('selected-plan-name').value;
+
+      try {
+        const payload = {
+          plan_name: planName,
+          store_name: storeName,
+          manager_name: managerName,
+          phone_number: phone,
+          manager_username: username,
+          manager_password: password,
+        };
+
+        const res = await fetch('/api/platform/trial-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          App.playChime('success');
+          App.toast('เปิดร้านค้าทดลองใช้งานฟรี 30 วันสำเร็จ! 🎉', 'success');
+
+          localStorage.setItem('food_token', data.token);
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('food_user', JSON.stringify(data.user));
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          localStorage.setItem('food_store', JSON.stringify(data.store));
+
+          // Show Success Screen
+          document.getElementById('signup-form-section').style.display = 'none';
+          document.getElementById('signup-success-section').style.display = 'block';
+          document.getElementById('succ-store-name').innerText = storeName;
+          document.getElementById('succ-username').innerText = username;
+
+          const redirectUrl = data.redirectUrl || '/store.html';
+          document.getElementById('succ-redirect-btn').href = redirectUrl;
+
+          let count = 3;
+          const countdownEl = document.getElementById('countdown-num');
+          const timer = setInterval(() => {
+            count--;
+            if (countdownEl) countdownEl.innerText = count;
+            if (count <= 0) {
+              clearInterval(timer);
+              window.location.href = redirectUrl;
+            }
+          }, 1000);
+        } else {
+          App.toast(data.message || 'เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
+        }
+      } catch (err) {
+        console.error('Registration error:', err);
+        App.toast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง', 'danger');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '🚀 สร้างร้านและเริ่มทดลองใช้ฟรี 30 วัน';
+      }
+    }
+  </script>
+</body>
+
+</html>
