@@ -180,6 +180,74 @@
         transform: translateY(0);
       }
     }
+
+    /* ======================================================== */
+    /* FAQ MULTI-BOX GRID CARDS (3 COLUMNS ON DESKTOP)          */
+    /* ======================================================== */
+    .faq-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 1.25rem !important;
+    }
+
+    @media (max-width: 1024px) {
+      .faq-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .faq-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .faq-card {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 20px !important;
+      padding: 1.6rem 1.4rem !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      position: relative !important;
+      overflow: hidden !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .faq-card:hover {
+      transform: translateY(-4px) !important;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+      border-color: rgba(249, 115, 22, 0.5) !important;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(249, 115, 22, 0.2) !important;
+    }
+
+    .faq-icon-wrap {
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 14px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 1.35rem !important;
+      margin-bottom: 1rem !important;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.25) 0%, rgba(234, 88, 12, 0.1) 100%) !important;
+      border: 1px solid rgba(249, 115, 22, 0.35) !important;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.18) !important;
+    }
+
+    .faq-card:nth-child(even) .faq-icon-wrap {
+      background: linear-gradient(135deg, rgba(6, 199, 85, 0.25) 0%, rgba(5, 150, 64, 0.1) 100%) !important;
+      border: 1px solid rgba(6, 199, 85, 0.35) !important;
+      box-shadow: 0 4px 12px rgba(6, 199, 85, 0.18) !important;
+    }
+
+    .faq-card:nth-child(even):hover {
+      border-color: rgba(6, 199, 85, 0.5) !important;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 199, 85, 0.2) !important;
+    }
   </style>
 </head>
 
@@ -551,39 +619,90 @@
     </div>
   </section>
 
-  <!-- FAQ Section -->
-  <section id="faq" style="padding: 4.5rem 0;">
-    <div class="container" style="max-width: 840px;">
+  <!-- FAQ Section (Multi-Box Grid Layout) -->
+  <section id="faq" style="padding: 5rem 0;">
+    <div class="container" style="max-width: 1200px;">
       <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 class="faq-section-title" style="font-size: 2.2rem; font-weight: 700; color: white; margin-bottom: 0.5rem;">
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.35); padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; color: #fb923c; font-weight: 700; margin-bottom: 0.75rem;">
+          <span>💡</span> ไขข้อข้องใจทุกคำถาม
+        </div>
+        <h2 class="faq-section-title" style="font-size: 2.2rem; font-weight: 800; color: white; margin-bottom: 0.5rem;">
           คำถามที่พบบ่อย (FAQ)
         </h2>
-        <p class="faq-section-subtitle" style="color: var(--text-muted);">
-          มีข้อสงสัยเกี่ยวกับการใช้งานและการเริ่มต้นทดลองใช้?
+        <p class="faq-section-subtitle" style="color: var(--text-muted); font-size: 1rem;">
+          รวมทุกคำตอบเกี่ยวกับการใช้งานและการเริ่มต้นทดลองใช้ระบบฟรี 30 วัน
         </p>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: ทดลองใช้ฟรี 30 วัน ต้องผูกบัตรเครดิตไหม?</h4>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            <b>ไม่ต้องผูกบัตรเครดิตใดๆ ทั้งสิ้นครับ!</b> คุณสามารถแอด LINE Official Account และเชื่อมต่อ LINE เพื่อเปิดร้านทดลองใช้งานฟังก์ชันทุกอย่างได้ทันที 30 วัน เมื่อครบกำหนดหากไม่ต้องการใช้งานต่อ ระบบจะไม่มีการตัดเงินใดๆ
+      <!-- FAQ 6-Box Grid (3 Columns on Desktop) -->
+      <div class="faq-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+        
+        <!-- Box 1 -->
+        <div class="faq-card">
+          <div class="faq-icon-wrap">🎁</div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin: 0 0 0.6rem;">
+            ทดลองใช้ฟรี 30 วัน ต้องผูกบัตรเครดิตไหม?
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">
+            <b style="color: #4ade80;">ไม่ต้องผูกบัตรเครดิตใดๆ ทั้งสิ้นครับ!</b> คุณสามารถแอด LINE เพื่อเปิดร้านทดลองใช้งานฟังก์ชันทุกอย่างได้ทันที 30 วัน เมื่อครบกำหนดหากไม่ต้องการใช้งานต่อ ระบบจะไม่มีการตัดเงินใดๆ ทั้งสิ้น
           </p>
         </div>
 
-        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: อุปกรณ์ที่ต้องใช้มีอะไรบ้าง? ต้องซื้อเครื่อง POS แพงๆ ไหม?</h4>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            ไม่ต้องซื้อเครื่อง POS ราคาแพงเลยครับ! คุณสามารถใช้ <b>มือถือ, แท็บเล็ต, iPad หรือคอมพิวเตอร์</b> ที่มีอยู่แล้วเปิดผ่านเว็บเบราว์เซอร์ได้ทันที ส่วนลูกค้าเพียงใช้สมาร์ทโฟนสแกน QR Code เพื่อสั่งอาหาร
+        <!-- Box 2 -->
+        <div class="faq-card">
+          <div class="faq-icon-wrap">📱</div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin: 0 0 0.6rem;">
+            ต้องซื้อเครื่อง POS หรืออุปกรณ์ใหม่ไหม?
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">
+            <b style="color: #fb923c;">ไม่ต้องซื้อเครื่อง POS แพงๆ เลยครับ!</b> สามารถใช้ มือถือ, แท็บเล็ต, iPad หรือคอมพิวเตอร์ ที่มีอยู่แล้วเปิดผ่านเว็บเบราว์เซอร์ได้ทันที ส่วนลูกค้าใช้สมาร์ทโฟนสแกนสั่งได้เลย
           </p>
         </div>
 
-        <div class="glass-card" style="padding: 1.5rem 1.75rem;">
-          <h4 style="color: white; font-size: 1.1rem; margin-bottom: 0.5rem;">Q: เชื่อมต่อการแจ้งเตือนกับ LINE หรือ Telegram ได้อย่างไร?</h4>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            ในระบบหลังบ้านมีเมนูตั้งค่า Bot Token ทั้ง Telegram และ LINE Notify ให้คุณนำไปใส่ได้ง่ายๆ ภายใน 1 นาที พร้อมคู่มือและทีมงานคอยช่วยเหลือ
+        <!-- Box 3 -->
+        <div class="faq-card">
+          <div class="faq-icon-wrap">💬</div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin: 0 0 0.6rem;">
+            เชื่อมต่อการแจ้งเตือนกับ LINE หรือ Telegram ได้อย่างไร?
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">
+            ในระบบจัดการหลังบ้านมีเมนูตั้งค่า Bot Token ทั้ง <b style="color: #38bdf8;">Telegram</b> และ <b style="color: #4ade80;">LINE</b> ให้คุณใส่ได้ง่ายๆ ภายใน 1 นาที แจ้งเตือนออเดอร์ใหม่เข้ามือถือทันที
           </p>
         </div>
+
+        <!-- Box 4 -->
+        <div class="faq-card">
+          <div class="faq-icon-wrap">🖨️</div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin: 0 0 0.6rem;">
+            พิมพ์ QR Code และพิมพ์ใบเสร็จ/ใบสั่งครัวได้ไหม?
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">
+            ระบบสามารถ<b style="color: #fb923c;">สร้างและพิมพ์ใบ QR Code ตั้งโต๊ะ</b>ได้ทันที พร้อมรองรับเครื่องพิมพ์ใบเสร็จความร้อน (Thermal Printer) สำหรับส่งใบออเดอร์เข้าครัวและพิมพ์ใบเสร็จคิดเงิน
+          </p>
+        </div>
+
+        <!-- Box 5 -->
+        <div class="faq-card">
+          <div class="faq-icon-wrap">👨‍🍳</div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin: 0 0 0.6rem;">
+            มีจอครัว KDS และรับออเดอร์กลับบ้าน (Takeaway) ไหม?
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">
+            มีครบครัน! หน้าจอครัว KDS แสดงสถานะ Real-time แยกตามโต๊ะ และมีระบบจัดการออเดอร์<b style="color: #4ade80;">สั่งกลับบ้าน</b>แยกชัดเจน ช่วยให้เชฟและพนักงานทำงานได้ไม่สับสน
+          </p>
+        </div>
+
+        <!-- Box 6 -->
+        <div class="faq-card">
+          <div class="faq-icon-wrap">🔒</div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin: 0 0 0.6rem;">
+            ข้อมูลร้านค้าและยอดขาย ปลอดภัยแค่ไหน?
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">
+            ข้อมูลจัดเก็บบน <b style="color: #38bdf8;">Cloud Database (Neon PostgreSQL)</b> ที่มีระบบสำรองข้อมูลอัตโนมัติ ปลอดภัยสูง รูปภาพและสลิปไม่สูญหาย เปิดดูรายงานสรุปยอดขายได้ทุกที่ 24 ชม.
+          </p>
+        </div>
+
       </div>
     </div>
   </section>
